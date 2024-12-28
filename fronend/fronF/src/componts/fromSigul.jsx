@@ -3,7 +3,6 @@ import './fromSigul.css';
 
 
 
-
 function FromSigul() {
   const [formData, setFormData] = useState({
     name: "",
