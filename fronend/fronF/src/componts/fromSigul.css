@@ -2,148 +2,149 @@
 * {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+  box-sizing: border-box; /* Ajusta el tamaño de los elementos para que el padding y el borde se incluyan en las dimensiones */
 }
 
 body {
-  font-family: 'Arial', sans-serif;
-  background-color: #f2f2f2;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
+  font-family: 'Arial', sans-serif; /* Fuente principal de la página */
+  background-color: #f2f2f2; /* Color de fondo */
+  min-height: 100vh; /* Asegura que el cuerpo ocupe toda la altura de la ventana */
+  display: flex; /* Usamos Flexbox para centrar el contenido */
+  justify-content: center; /* Centra el contenido horizontalmente */
+  align-items: center; /* Centra el contenido verticalmente */
+  padding: 20px; /* Espaciado alrededor del contenido */
 }
 
 .form-container {
-  width: 100%;
-  max-width: 450px;
-  margin: 50px auto;
-  padding: 30px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Ocupa el 100% del ancho del contenedor */
+  max-width: 450px; /* Máximo de 450px de ancho */
+  margin: 50px auto; /* Espaciado superior e inferior y centrado horizontal */
+  padding: 30px; /* Espaciado interno */
+  background-color: #fff; /* Fondo blanco */
+  border-radius: 8px; /* Bordes redondeados */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave para dar profundidad */
 }
 
 h1 {
-  text-align: center;
-  color: #333;
-  font-size: 28px;
-  margin-bottom: 30px;
+  text-align: center; /* Centra el título */
+  color: #333; /* Color oscuro para el texto */
+  font-size: 28px; /* Tamaño de fuente */
+  margin-bottom: 30px; /* Espaciado inferior */
 }
 
 /* Estilo del formulario */
 .form {
-  display: flex;
-  flex-direction: column;
+  display: flex; /* Flexbox para organizar los elementos en columna */
+  flex-direction: column; /* Dirección de los elementos: columna */
   width: 100%;
 }
 
 .input-container {
   margin-bottom: 30px; /* Más espacio entre inputs */
-  width: 100%;
-  position: relative;
+  width: 100%; /* Ocupa el 100% del ancho */
+  position: relative; /* Necesario para posicionar el ícono del ojo de contraseña */
 }
 
 input {
-  width: 100%;
-  padding: 14px 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 18px;
-  transition: border-color 0.3s ease;
+  width: 100%; /* El input ocupa todo el ancho disponible */
+  padding: 14px 16px; /* Espaciado interno */
+  border: 1px solid #ccc; /* Borde gris */
+  border-radius: 4px; /* Bordes redondeados */
+  font-size: 18px; /* Tamaño de fuente */
+  transition: border-color 0.3s ease; /* Transición suave para el cambio de color de borde */
 }
 
 input:focus {
-  border-color: #4CAF50;
-  outline: none;
+  border-color: #4CAF50; /* Borde verde cuando el input está enfocado */
+  outline: none; /* Elimina el borde por defecto del navegador */
 }
 
 .input-error {
-  border-color: red;
-  background-color: #f8d7da;
+  border-color: red; /* Borde rojo si hay un error */
+  background-color: #f8d7da; /* Fondo de error (rojo suave) */
 }
 
 /* Mensajes de error */
 .error {
-  color: red;
-  font-size: 14px; /* Más grande */
-  margin-top: 5px;
-  font-weight: bold;
-  position: absolute;
-  bottom: -22px; /* Ajuste para alinear el error */
+  color: red; /* Color del mensaje de error */
+  font-size: 14px; /* Tamaño de fuente más pequeño */
+  margin-top: 5px; /* Espaciado superior */
+  font-weight: bold; /* Negrita para destacar el mensaje */
+  position: absolute; /* Posición absoluta para alinearlo con el input */
+  bottom: -22px; /* Ajuste para alinear el error por debajo del input */
   left: 0;
 }
 
 /* Botón de mostrar contraseña */
 .password-container {
-  position: relative;
+  position: relative; /* Necesario para posicionar el botón dentro del contenedor del input */
 }
 
 .password-container input {
-  padding-right: 45px; /* Espacio extra para el botón */
+  padding-right: 45px; /* Espacio extra en el input para el botón de mostrar contraseña */
 }
 
 .toggle-password-btn {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 20px;
-  color: #870707;
+  position: absolute; /* Posiciona el botón dentro del input */
+  right: 10px; /* Coloca el botón a la derecha */
+  top: 50%; /* Centra verticalmente */
+  transform: translateY(-50%); /* Ajusta para centrar perfectamente */
+  background: none; /* Elimina el fondo del botón */
+  border: none; /* Sin borde */
+  cursor: pointer; /* Cambio de cursor para indicar que es clickeable */
+  font-size: 20px; /* Tamaño del ícono */
+  color: #870707; /* Color del ícono */
 }
 
 /* Botón de envío */
 .submit-btn {
-  padding: 16px;
-  background-color: rgb(187, 26, 72);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 18px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  padding: 16px; /* Espaciado interno */
+  background-color: rgb(187, 26, 72); /* Color de fondo */
+  color: white; /* Color del texto */
+  border: none; /* Sin borde */
+  border-radius: 4px; /* Bordes redondeados */
+  font-size: 18px; /* Tamaño de la fuente */
+  cursor: pointer; /* Cambia el cursor a puntero */
+  transition: background-color 0.3s ease; /* Transición suave para el cambio de color de fondo */
 }
 
 .submit-btn:hover {
-  background-color: rgb(160, 22, 65);
+  background-color: rgb(160, 22, 65); /* Cambia el color del fondo al pasar el cursor */
 }
 
 /* Media Queries */
 @media (max-width: 768px) {
   h1 {
-    font-size: 24px;
+    font-size: 24px; /* Reduce el tamaño del título en pantallas más pequeñas */
   }
 
   input {
-    font-size: 16px;
-    padding: 12px;
+    font-size: 16px; /* Reduce el tamaño de fuente de los inputs */
+    padding: 12px; /* Ajusta el padding */
   }
 
   .submit-btn {
-    font-size: 16px;
-    padding: 14px;
+    font-size: 16px; /* Reduce el tamaño de la fuente del botón */
+    padding: 14px; /* Ajusta el padding del botón */
   }
 }
 
 @media (max-width: 480px) {
   h1 {
-    font-size: 22px;
+    font-size: 22px; /* Aún más pequeño el título en pantallas muy pequeñas */
   }
 
   input {
-    font-size: 14px;
-    padding: 10px;
+    font-size: 14px; /* Reduce aún más el tamaño de los inputs */
+    padding: 10px; /* Ajuste de padding para pantallas muy pequeñas */
   }
 
   .submit-btn {
-    font-size: 14px;
-    padding: 12px;
+    font-size: 14px; /* Ajuste del tamaño del botón */
+    padding: 12px; /* Ajuste de padding del botón */
   }
 }
+
 
 
 

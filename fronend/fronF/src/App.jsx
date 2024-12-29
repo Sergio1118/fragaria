@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import FromSigul from "./componts/fromSigul.jsx"; // Componente de registro
 import FromLogin from "./componts/fromLogin.jsx"; // Componente de inicio de sesión
+import PasswordRecuper from"./componts/passwordRecovery.jsx";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         {/* Define las rutas y sus componentes */}
         <Route path="/sigul" element={<FromSigul />} /> {/* Ruta para el registro */}
         <Route path="/login" element={<FromLogin />} /> {/* Ruta para el inicio de sesión */}
+        <Route path="/passwordRecovery" element={<PasswordRecuper />} />{/*reuta para la recuparacion de contraseña*/}
       </Routes>
     </Router>
   );

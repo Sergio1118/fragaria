@@ -1,5 +1,5 @@
 import { useState } from 'react'; // Asegúrate de importar useState de React
-
+import { Link } from "react-router-dom";
 const FromLogin = () => {
   const [email, setEmail] = useState(''); // Inicializamos el estado para el correo
   const [password, setPassword] = useState(''); // Inicializamos el estado para la contraseña
@@ -39,10 +39,20 @@ const FromLogin = () => {
             onChange={(e) => setPassword(e.target.value)} // Actualizamos el estado de la contraseña
             required
           />
+        </div><br />
+
+        <div className="text-center mt-3">
+          {/* El enlace a la página de recuperación de contraseña */}
+          <Link to="/passwordRecovery">Recuperar contraseña</Link>
         </div>
+
+        {/* Salto de línea para separar visualmente el contenido */}
+        <br />
+
         <button type="submit" className="btn btn-primary w-100">
           Iniciar Sesión
         </button>
+      
       </form>
     </div>
   );
