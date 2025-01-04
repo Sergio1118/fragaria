@@ -1,51 +1,86 @@
-import { useState } from 'react'; // Asegúrate de importar useState de React
+import { useState } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./fromLogin.css"; // Archivo CSS revisado
 
-const FromLogin = () => {
-  const [email, setEmail] = useState(''); // Inicializamos el estado para el correo
-  const [password, setPassword] = useState(''); // Inicializamos el estado para la contraseña
+function LoginForm() {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = (e) => {
-    e.preventDefault(); // Prevenimos el comportamiento por defecto del formulario
-    console.log('Iniciando sesión con:', { email, password });
-    // Aquí puedes agregar la lógica para autenticar al usuario con el backend
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const handleValidations = () => {
+    const formErrors = {};
+    const { email, password } = formData;
+
+    if (!email) formErrors.email = "El correo electrónico es obligatorio.";
+    else if (!isValidEmail(email)) formErrors.email = "Correo electrónico no válido.";
+
+    if (!password) formErrors.password = "La contraseña es obligatoria.";
+
+    setErrors(formErrors);
+
+    if (Object.keys(formErrors).length === 0) {
+      alert("Inicio de sesión exitoso.");
+      console.log("Datos del formulario:", formData);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   return (
-    <div className="container mt-5">
-      <h2 className="text-center">Iniciar Sesión</h2>
-      <form onSubmit={handleLogin} className="mt-4">
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">
-            Correo Electrónico
-          </label>
+    <div className="login-container d-flex align-items-center justify-content-center">
+      <div className="form p-4">
+        <h1 className="text-center mb-4">Iniciar Sesión</h1>
+        <div className="form-group mb-3">
           <input
             type="email"
-            className="form-control"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)} // Actualizamos el estado del correo
-            required
+            name="email"
+            placeholder="Correo Electrónico"
+            value={formData.email}
+            onChange={handleInputChange}
+            className={`form-control ${errors.email ? "is-invalid" : ""}`}
           />
+          {errors.email && <div className="invalid-feedback">{errors.email}</div>}
         </div>
-        <div className="mb-3">
-          <label htmlFor="password" className="form-label">
-            Contraseña
-          </label>
+        <div className="form-group mb-3 position-relative">
           <input
-            type="password"
-            className="form-control"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)} // Actualizamos el estado de la contraseña
-            required
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="Contraseña"
+            value={formData.password}
+            onChange={handleInputChange}
+            className={`form-control ${errors.password ? "is-invalid" : ""}`}
           />
+          <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+            rel="stylesheet"
+          />
+
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="btn btn-link position-absolute top-50 end-0 translate-middle-y"
+          >
+            <i className={`fa ${showPassword ? "fa-eye-slash" : "fa-eye"}`} />
+          </button>
+          {errors.password && <div className="invalid-feedback">{errors.password}</div>}
         </div>
-        <button type="submit" className="btn btn-primary w-100">
+        <button className="btn btn-primary w-100" onClick={handleValidations}>
           Iniciar Sesión
         </button>
-      </form>
+      </div>
     </div>
   );
-};
+}
 
-export default FromLogin;
+export default LoginForm;
