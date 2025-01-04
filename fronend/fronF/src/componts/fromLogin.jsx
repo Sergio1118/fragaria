@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./fromLogin.css"; // Archivo CSS revisado
+import { Link } from "react-router-dom";
+import "./fromLogin.css" // Archivo CSS revisado
 
 function LoginForm() {
   const [formData, setFormData] = useState({
@@ -65,7 +66,6 @@ function LoginForm() {
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
             rel="stylesheet"
           />
-
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
@@ -76,6 +76,14 @@ function LoginForm() {
           {errors.password && <div className="invalid-feedback">{errors.password}</div>}
         </div>
         <button className="btn btn-primary w-100" onClick={handleValidations}>
+          Iniciar Sesión
+        </button>
+        <div className="text-center mt-3">
+          {/* El enlace a la página de recuperación de contraseña */}
+          <Link to="/passwordRecovery">Recuperar contraseña</Link>
+        </div>
+        <br />
+        <button type="submit" className="btn btn-primary w-100">
           Iniciar Sesión
         </button>
       </div>
