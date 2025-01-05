@@ -82,10 +82,6 @@ function LoginForm() {
           {/* El enlace a la página de recuperación de contraseña */}
           <Link to="/passwordRecovery">Recuperar contraseña</Link>
         </div>
-        <br />
-        <button type="submit" className="btn btn-primary w-100">
-          Iniciar Sesión
-        </button>
       </div>
     </div>
   );

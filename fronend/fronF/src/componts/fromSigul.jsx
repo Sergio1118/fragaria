@@ -20,9 +20,11 @@ function FromSigul() {
     confirmation: "",
   });
 
-  // Estados para mostrar u ocultar las contraseñas en los campos
-  const [showPassword, setShowPassword] = useState(false); 
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  // Estado para manejar la visibilidad de las contraseñas
+  const [showPasswords, setShowPasswords] = useState({
+    password: false,
+    confirmation: false,
+  });
 
   // Función para manejar los cambios en los campos de entrada del formulario
   const handleInputChange = (key, value) => {
@@ -41,7 +43,6 @@ function FromSigul() {
   // Función para validar los campos del formulario antes de enviar
   const handleValidations = () => {
     let formErrors = {}; // Objeto para almacenar los errores de validación
-
     const { name, surname, email, password, confirmation } = formData;
 
     // Verifica que los campos no estén vacíos
@@ -72,103 +73,100 @@ function FromSigul() {
     }
   };
 
+  // Función para manejar la visibilidad de las contraseñas
+  const togglePasswordVisibility = (field) => {
+    setShowPasswords((prevState) => ({
+      ...prevState,
+      [field]: !prevState[field],
+    }));
+  };
+
   return (
-    <>
-      <div className="background-container">
-        <div className="form-container">
-          {/* Enlace al archivo de íconos Font Awesome para mostrar los íconos de ojo */}
-          <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-          />
-          <h1>Registro</h1>
-          <div className="form">
-            {/* Campo para el nombre */}
-            <div className="input-container">
-              <input
-                type="text"
-                placeholder="Nombre"
-                onChange={(e) => handleInputChange("name", e.target.value)}
-                className={errors.name ? "input-error" : ""} // Aplica la clase de error si hay error
-              />
-              {errors.name && <p className="error">{errors.name}</p>} {/* Muestra el mensaje de error si existe */}
-            </div>
-
-            {/* Campo para el apellido */}
-            <div className="input-container">
-              <input
-                type="text"
-                placeholder="Apellido"
-                onChange={(e) => handleInputChange("surname", e.target.value)}
-                className={errors.surname ? "input-error" : ""}
-              />
-              {errors.surname && <p className="error">{errors.surname}</p>}
-            </div>
-
-            {/* Campo para el correo electrónico */}
-            <div className="input-container">
-              <input
-                type="email"
-                placeholder="Email"
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                className={errors.email ? "input-error" : ""}
-              />
-              {errors.email && <p className="error">{errors.email}</p>}
-            </div>
-
-            {/* Campo para la contraseña */}
-            <div className="input-container password-container">
-              <input
-                type={showPassword ? "text" : "password"} // Muestra u oculta la contraseña según el estado
-                placeholder="Contraseña"
-                onChange={(e) => handleInputChange("password", e.target.value)}
-                className={errors.password ? "input-error" : ""}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)} // Alterna entre mostrar/ocultar la contraseña
-                className="toggle-password-btn"
-              >
-                <i className={`fa ${showPassword ? "fa-eye-slash" : "fa-eye"}`} /> {/* Ícono para mostrar/ocultar */}
-              </button>
-              {errors.password && <p className="error">{errors.password}</p>}
-            </div>
-
-            {/* Campo para la confirmación de la contraseña */}
-            <div className="input-container password-container">
-              <input
-                type={showConfirmation ? "text" : "password"}
-                placeholder="Confirmación contraseña"
-                onChange={(e) => handleInputChange("confirmation", e.target.value)}
-                className={errors.confirmation ? "input-error" : ""}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmation(!showConfirmation)} // Alterna entre mostrar/ocultar la confirmación
-                className="toggle-password-btn"
-              >
-                <i className={`fa ${showConfirmation ? "fa-eye-slash" : "fa-eye"}`} />
-              </button>
-              {errors.confirmation && <p className="error">{errors.confirmation}</p>}
-            </div>
-
-            {/* Botón para enviar el formulario */}
-            <button className="submit-btn" onClick={handleValidations}>
-              Registrarse
-            </button>
+    <div className="background-container">
+      <div className="form-container">
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        />
+        <h1>Registro</h1>
+        <div className="form">
+          {/* Campo para el nombre */}
+          <div className="input-container">
+            <input
+              type="text"
+              placeholder="Nombre"
+              onChange={(e) => handleInputChange("name", e.target.value)}
+              className={errors.name ? "input-error" : ""}
+            />
+            {errors.name && <p className="error">{errors.name}</p>}
           </div>
+
+          {/* Campo para el apellido */}
+          <div className="input-container">
+            <input
+              type="text"
+              placeholder="Apellido"
+              onChange={(e) => handleInputChange("surname", e.target.value)}
+              className={errors.surname ? "input-error" : ""}
+            />
+            {errors.surname && <p className="error">{errors.surname}</p>}
+          </div>
+
+          {/* Campo para el correo electrónico */}
+          <div className="input-container">
+            <input
+              type="email"
+              placeholder="Email"
+              onChange={(e) => handleInputChange("email", e.target.value)}
+              className={errors.email ? "input-error" : ""}
+            />
+            {errors.email && <p className="error">{errors.email}</p>}
+          </div>
+
+          {/* Campo para la contraseña */}
+          <div className="input-container password-container">
+            <input
+              type={showPasswords.password ? "text" : "password"}
+              placeholder="Contraseña"
+              onChange={(e) => handleInputChange("password", e.target.value)}
+              className={errors.password ? "input-error" : ""}
+            />
+            <button
+              type="button"
+              onClick={() => togglePasswordVisibility("password")}
+              className="toggle-password-btn"
+            >
+              <i className={`fa ${showPasswords.password ? "fa-eye-slash" : "fa-eye"}`} />
+            </button>
+            {errors.password && <p className="error">{errors.password}</p>}
+          </div>
+
+          {/* Campo para la confirmación de la contraseña */}
+          <div className="input-container password-container">
+            <input
+              type={showPasswords.confirmation ? "text" : "password"}
+              placeholder="Confirmación contraseña"
+              onChange={(e) => handleInputChange("confirmation", e.target.value)}
+              className={errors.confirmation ? "input-error" : ""}
+            />
+            <button
+              type="button"
+              onClick={() => togglePasswordVisibility("confirmation")}
+              className="toggle-password-btn"
+            >
+              <i className={`fa ${showPasswords.confirmation ? "fa-eye-slash" : "fa-eye"}`} />
+            </button>
+            {errors.confirmation && <p className="error">{errors.confirmation}</p>}
+          </div>
+
+          {/* Botón para enviar el formulario */}
+          <button className="submit-btn" onClick={handleValidations}>
+            Registrarse
+          </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
 export default FromSigul;
-
-
-
-
-
-
-
-
