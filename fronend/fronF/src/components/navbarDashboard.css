@@ -1,0 +1,73 @@
+/* Estilo general para el navbar */
+.navbar {
+  background-color: #343a40; /* Fondo negro para el navbar */
+  padding: 3px; /* Eliminar padding del navbar */
+}
+
+/* Menú colapsable */
+.navbar-collapse {
+  position: absolute; /* El menú se posiciona debajo del navbar */
+  top: 50px; /* Espacio debajo del navbar */
+  left: 0; /* Pegado al borde izquierdo */
+  width: 220px; /* Ancho fijo para el menú */
+  background-color: #343a40; /* Fondo negro para las opciones */
+  z-index: 1000; /* Asegura que el menú esté sobre otros elementos */
+  transition: all 0.3s ease; /* Transición suave */
+}
+
+/* En pantallas pequeñas, el menú se despliega cuando se hace clic */
+@media (max-width: 768px) {
+  .navbar-collapse {
+    display: none; /* El menú está oculto por defecto */
+  }
+
+  .navbar-collapse.show {
+    display: block; /* El menú se muestra cuando tiene la clase 'show' */
+  }
+
+  .navbar-toggler {
+    margin-left: 10px; /* Espacio a la izquierda del botón de hamburguesa */
+    color: #4d3d3d; /* Color blanco para el icono */
+    border-color: #ffffff1a; /* Borde blanco translúcido */
+  }
+
+  .navbar-toggler-icon {
+    background-color: #000000; /* Icono de hamburguesa blanco */
+  }
+  
+  /* Icono del botón de hamburguesa */
+  .navbar-toggler-icon {
+    background-color: #2c2929; /* Fondo blanco para el icono */
+  }
+}
+
+/* Enlaces del menú */
+.nav-item {
+  margin: 0.5rem 0;
+}
+
+.nav-link {
+  color: #f8f9fa; /* Color blanco para los enlaces */
+  font-size: 1.2rem;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #ddd; /* Cambio de color al pasar el mouse */
+}
+
+/* Marca Fragaria */
+.navbar-brand {
+  color: #fff;
+  font-size: 1.5rem;
+  margin-left: 10px; /* Añadimos espacio a la izquierda */
+}
+
+.navbar-toggler {
+  transition: transform 0.3s ease; /* Suave animación */
+}
+
+.navbar-toggler.menu-open {
+  transform: rotate(90deg); /* Rotar 90 grados al abrir el menú */
+}

@@ -1,0 +1,94 @@
+.form {
+  position: relative; /* Se mantiene relativo */
+  width: 300px; /* Reduce el ancho */
+  padding: 15px; /* Reduce el espacio interno */
+  margin-bottom: 30px; /* Ajusta el margen inferior */
+  background: linear-gradient(to right, #f4b183, #f8d8a8);
+  top: 20px;
+  
+}
+
+/* Estilo para el logo */
+.logo-fragaria {
+  width: 70px; /* Ajusta el tamaño según necesites */
+  height: 55px; /* Mantiene la proporción */
+  margin-top: 20px;
+}
+
+/* Estilo para el texto Fragaria */
+.fragaria-text {
+  font-family: 'Arial'; /* Ejemplo de fuente elegante */
+  font-size: 25rem; /* Tamaño de la fuente */
+  color: #dc3545; /* Un tono rojo bonito */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Sombra para un efecto estético */
+  margin-top: 15px; /* Separa el texto del formulario */
+  margin-bottom: 4px;
+}
+
+/* Ajuste para el espacio entre los inputs */
+.form-group {
+  margin-bottom: 20px; /* Aumenta el espacio entre los campos */
+}
+
+/* Tamaño del input */
+.form-control {
+  width: 100%;  /* Hace que el input ocupe el 100% de su contenedor */
+  padding: 10px;
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    position: relative;
+    top: auto;
+    transform: none;
+    width: 90%; /* Ajusta el tamaño */
+    margin: 20px auto; /* Centra en pantallas pequeñas */
+  }
+}
+
+.fa-strawberry {
+  color: #dc3545; /* Rojo */
+}
+
+.text-danger {
+  color: #dc3545; /* Rojo del tema Bootstrap */
+}
+
+
+/* Estilo del botón de ojo para la visibilidad de la contraseña */
+.eye-icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.invalid-feedback {
+  font-size: 0.875rem;
+}
+
+
+/* Estilo para el botón de iniciar sesión */
+.btn-login {
+  background-color: #d17c53; /* Color ladrillo */
+  border: none;
+  color: white;
+  font-size: 1.1rem;
+  padding: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-login:hover {
+  background-color: #b95d46; /* Tonalidad más oscura al pasar el cursor */
+}
+
+/* Estilo para los enlaces (recuperar contraseña, registro, términos) */
+.link-recovery, .link-register, .link-terms {
+  color: #9c4f38; /* Color de texto para los enlaces */
+  font-weight: bold;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.link-recovery:hover, .link-register:hover, .link-terms:hover {
+  color: #7d3c2a; /* Color más oscuro al pasar el cursor */
+}

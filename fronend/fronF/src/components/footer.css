@@ -1,0 +1,38 @@
+footer {
+    min-width: 100vw; /* Asegura que el footer ocupe el 100% del ancho */
+    padding-top: 2px; /* Ajusta el padding superior */
+    padding-bottom: 5px; /* Ajusta el padding inferior */
+    background: linear-gradient(to right, #f4b183, #f8d8a8);
+  }
+  
+  footer .social-icons a {
+    color: #4b2215;
+    text-decoration: none; /* Elimina subrayado */
+  }
+  
+  footer .social-icons a:hover {
+    text-decoration: underline; /* Subraya los enlaces cuando el mouse pasa sobre ellos */
+  }
+  
+  footer .social-icons {
+    margin-top: 15px;
+    margin-bottom: 15px;
+  }
+  
+  footer p {
+    margin: 5px 0;
+  }
+  
+  footer a {
+    color: inherit; /* Hereda el color del padre */
+  }
+  
+  footer a:hover {
+    color: #6b3929; /* Color de texto para los enlaces */
+  }
+
+  .footer-brand {
+    color: #4b2215;
+    font-weight: bold; /* Hace el texto más destacado */
+  }
+  
