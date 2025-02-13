@@ -1,8 +1,8 @@
 import { useState } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-// Componente principal para la recuperación de contraseña
+
 function PasswordRecuper() {
-  // Estado para manejar los datos del formulario
   const [formData, setFormData] = useState({
     email: "",
     token: "",
@@ -10,7 +10,6 @@ function PasswordRecuper() {
     confirmation: "",
   });
 
-  // Estado para manejar los errores de validación
   const [errors, setErrors] = useState({
     email: "",
     token: "",
@@ -18,21 +17,16 @@ function PasswordRecuper() {
     confirmation: "",
   });
 
-  // Estado para alternar entre los formularios
   const [currentForm, setCurrentForm] = useState("emailForm");
-
-  // Estado para mostrar u ocultar las contraseñas
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  // Maneja los cambios en los campos de entrada
   const handleInputChange = (key, value) => {
     setFormData((prevData) => ({
       ...prevData,
       [key]: value,
     }));
 
-    // Limpia los errores correspondientes al campo si ya hay datos válidos
     if (errors[key]) {
       setErrors((prevErrors) => ({
         ...prevErrors,
@@ -41,13 +35,8 @@ function PasswordRecuper() {
     }
   };
 
-  // Valida si el correo electrónico tiene un formato válido
-  const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  // Maneja la validación y transición desde el formulario de correo electrónico
   const handleEmailFormSubmit = () => {
     let formErrors = {};
     const { email } = formData;
@@ -62,11 +51,10 @@ function PasswordRecuper() {
       setErrors(formErrors);
     } else {
       setErrors({});
-      setCurrentForm("tokenForm"); // Avanza al formulario de verificación del token
+      setCurrentForm("tokenForm");
     }
   };
 
-  // Maneja la validación y transición desde el formulario de token
   const handleTokenFormSubmit = () => {
     let formErrors = {};
     const { token } = formData;
@@ -79,11 +67,10 @@ function PasswordRecuper() {
       setErrors(formErrors);
     } else {
       setErrors({});
-      setCurrentForm("passwordForm"); // Avanza al formulario de nueva contraseña
+      setCurrentForm("passwordForm");
     }
   };
 
-  // Maneja la validación y envío del formulario de nueva contraseña
   const handlePasswordFormSubmit = () => {
     let formErrors = {};
     const { password, confirmation } = formData;
@@ -103,118 +90,99 @@ function PasswordRecuper() {
     } else {
       setErrors({});
       alert("Contraseña restablecida con éxito.");
-      // Aquí podrías redirigir al usuario o realizar alguna acción adicional
     }
   };
 
-  // Renderiza el componente basado en el formulario actual
   return (
-    <div className="background-container">
-      <div className="form-container">
-        {/* Importa íconos de Font Awesome */}
+    <div
+      className="container d-flex justify-content-center align-items-center"
+      
+    >
+      <div className="card p-4 shadow-lg rounded-4" style={{ width: "400px", background: 'linear-gradient(to right, #f4b183, #f8d8a8)', borderTop: "5px solid #8B0000" }}>
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
         />
-        {/* Formulario para ingresar el correo electrónico */}
+
         {currentForm === "emailForm" && (
           <>
-            <h1>Recuperación de contraseña</h1>
-            <div className="form">
-              <div className="input-container">
-                <input
-                  type="email"
-                  placeholder="Email"
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                  className={errors.email ? "input-error" : ""}
-                />
-                {errors.email && <p className="error">{errors.email}</p>}
-              </div>
-              <button className="submit-btn" onClick={handleEmailFormSubmit}>
-                Continuar
-              </button>
+            <h2 className="text-center mb-4 fw-bold" style={{ color: "#8B0000" }}>Recuperación de contraseña</h2>
+            <div className="mb-3">
+              <input
+                type="email"
+                className={`form-control border-2 rounded-pill ${errors.email ? "is-invalid" : "border-dark"}`}
+                placeholder="Correo electrónico"
+                onChange={(e) => handleInputChange("email", e.target.value)}
+              />
+              {errors.email && <div className="invalid-feedback">{errors.email}</div>}
             </div>
+            <button className="btn w-100 rounded-pill fw-bold" style={{ backgroundColor: "#8B0000", color: "#fff" }} onClick={handleEmailFormSubmit}>
+              Continuar
+            </button>
           </>
         )}
 
-        {/* Formulario para verificar el token */}
         {currentForm === "tokenForm" && (
           <>
-            <h1>Verificación del token</h1>
-            <p>Te hemos enviado un código a tu correo electrónico.</p>
-            <div className="form">
-              <div className="input-container">
-                <input
-                  type="text"
-                  placeholder="Token"
-                  onChange={(e) => handleInputChange("token", e.target.value)}
-                  className={errors.token ? "input-error" : ""}
-                />
-                {errors.token && <p className="error">{errors.token}</p>}
-              </div>
-              <button className="submit-btn" onClick={handleTokenFormSubmit}>
-                Verificar
-              </button>
+            <h2 className="text-center mb-4 fw-bold" style={{ color: "#8B0000" }}>Verificación del token</h2>
+            <p className="text-center">Te hemos enviado un código a tu correo electrónico.</p>
+            <div className="mb-3">
+              <input
+                type="text"
+                className={`form-control border-2 rounded-pill ${errors.token ? "is-invalid" : "border-dark"}`}
+                placeholder="Código de verificación"
+                onChange={(e) => handleInputChange("token", e.target.value)}
+              />
+              {errors.token && <div className="invalid-feedback">{errors.token}</div>}
             </div>
+            <button className="btn w-100 rounded-pill fw-bold" style={{ backgroundColor: "#8B0000", color: "#fff" }} onClick={handleTokenFormSubmit}>
+              Verificar
+            </button>
           </>
         )}
 
-        {/* Formulario para establecer una nueva contraseña */}
         {currentForm === "passwordForm" && (
           <>
-            <h1>Nueva contraseña</h1>
-            <div className="form">
-              {/* Campo para la contraseña */}
-              <div className="input-container password-container">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Contraseña"
-                  onChange={(e) => handleInputChange("password", e.target.value)}
-                  className={errors.password ? "input-error" : ""}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="toggle-password-btn"
-                >
-                  <i
-                    className={`fa ${
-                      showPassword ? "fa-eye-slash" : "fa-eye"
-                    }`}
-                  />
-                </button>
-                {errors.password && <p className="error">{errors.password}</p>}
-              </div>
-
-              {/* Campo para confirmar la contraseña */}
-              <div className="input-container password-container">
-                <input
-                  type={showConfirmation ? "text" : "password"}
-                  placeholder="Confirmación contraseña"
-                  onChange={(e) =>
-                    handleInputChange("confirmation", e.target.value)
-                  }
-                  className={errors.confirmation ? "input-error" : ""}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmation(!showConfirmation)}
-                  className="toggle-password-btn"
-                >
-                  <i
-                    className={`fa ${
-                      showConfirmation ? "fa-eye-slash" : "fa-eye"
-                    }`}
-                  />
-                </button>
-                {errors.confirmation && (
-                  <p className="error">{errors.confirmation}</p>
-                )}
-              </div>
-              <button className="submit-btn" onClick={handlePasswordFormSubmit}>
-                Guardar
+            <h2 className="text-center mb-4 fw-bold" style={{ color: "#8B0000" }}>Nueva contraseña</h2>
+            <div className="mb-3 position-relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                className={`form-control border-2 rounded-pill ${errors.password ? "is-invalid" : "border-dark"}`}
+                placeholder="Nueva contraseña"
+                onChange={(e) => handleInputChange("password", e.target.value)}
+              />
+              <button
+                type="button"
+                className="btn position-absolute end-0 translate-middle-y me-3 rounded-circle"
+                style={{ top: "30%", border: "none", color: "#8B0000" }}
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                <i className={`fa ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
               </button>
+              {errors.password && <div className="invalid-feedback">{errors.password}</div>}
             </div>
+
+            <div className="mb-3 position-relative">
+              <input
+                type={showConfirmation ? "text" : "password"}
+                className={`form-control border-2 rounded-pill ${errors.confirmation ? "is-invalid" : "border-dark"}`}
+                placeholder="Confirmar contraseña"
+                onChange={(e) => handleInputChange("confirmation", e.target.value)}
+              />
+              <button
+                type="button"
+                className="btn position-absolute end-0 translate-middle-y me-3 rounded-circle"
+                style={{ top: "30%", border: "none", color: "#8B0000" }}
+                onClick={() => setShowConfirmation(!showConfirmation)}
+              >
+                <i className={`fa ${showConfirmation ? "fa-eye-slash" : "fa-eye"}`}></i>
+              </button>
+              {errors.confirmation && <div className="invalid-feedback">{errors.confirmation}</div>}
+            </div>
+
+            <button className="btn w-100 rounded-pill fw-bold" style={{ backgroundColor: "#8B0000", color: "#fff" }} onClick={handlePasswordFormSubmit}>
+              Guardar
+            </button>
           </>
         )}
       </div>
@@ -223,3 +191,5 @@ function PasswordRecuper() {
 }
 
 export default PasswordRecuper;
+
+

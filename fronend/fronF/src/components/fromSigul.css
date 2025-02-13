@@ -5,22 +5,26 @@
   box-sizing: border-box; /* Ajusta el tamaño de los elementos para que el padding y el borde se incluyan en las dimensiones */
 }
 
+
 body {
   font-family: 'Arial', sans-serif; /* Fuente principal de la página */
-  background-color: #f2f2f2; /* Color de fondo */
+  background-color: #c2c2c2; /* Color de fondo */
   min-height: 100vh; /* Asegura que el cuerpo ocupe toda la altura de la ventana */
   display: flex; /* Usamos Flexbox para centrar el contenido */
   justify-content: center; /* Centra el contenido horizontalmente */
   align-items: center; /* Centra el contenido verticalmente */
   padding: 20px; /* Espaciado alrededor del contenido */
 }
+.background-container{
+  margin-top: 70px;
+}
 
 .form-container {
   width: 100%; /* Ocupa el 100% del ancho del contenedor */
   max-width: 450px; /* Máximo de 450px de ancho */
-  margin: 50px auto; /* Espaciado superior e inferior y centrado horizontal */
-  padding: 30px; /* Espaciado interno */
-  background-color: #fff; /* Fondo blanco */
+  margin: 5px auto; /* Espaciado superior e inferior y centrado horizontal */
+  padding: 20px; /* Espaciado interno */
+  background-color: #ffffff; /* Fondo blanco */
   border-radius: 8px; /* Bordes redondeados */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave para dar profundidad */
 }
@@ -40,7 +44,7 @@ h1 {
 }
 
 .input-container {
-  margin-bottom: 30px; /* Más espacio entre inputs */
+  margin-bottom: 13px; /* Más espacio entre inputs */
   width: 100%; /* Ocupa el 100% del ancho */
   position: relative; /* Necesario para posicionar el ícono del ojo de contraseña */
 }
@@ -50,8 +54,9 @@ input {
   padding: 14px 16px; /* Espaciado interno */
   border: 1px solid #ccc; /* Borde gris */
   border-radius: 4px; /* Bordes redondeados */
-  font-size: 18px; /* Tamaño de fuente */
+  font-size: 15px; /* Tamaño de fuente */
   transition: border-color 0.3s ease; /* Transición suave para el cambio de color de borde */
+
 }
 
 input:focus {
@@ -66,14 +71,13 @@ input:focus {
 
 /* Mensajes de error */
 .error {
-  color: red; /* Color del mensaje de error */
-  font-size: 14px; /* Tamaño de fuente más pequeño */
-  margin-top: 5px; /* Espaciado superior */
-  font-weight: bold; /* Negrita para destacar el mensaje */
-  position: absolute; /* Posición absoluta para alinearlo con el input */
-  bottom: -22px; /* Ajuste para alinear el error por debajo del input */
-  left: 0;
+  color: red;
+  font-size: 14px;
+  margin-top: 1px; /* Aumenta la separación */
+  font-weight: bold;
+  position: relative; /* Quita la posición absoluta */
 }
+
 
 /* Botón de mostrar contraseña */
 .password-container {
@@ -81,7 +85,7 @@ input:focus {
 }
 
 .password-container input {
-  padding-right: 45px; /* Espacio extra en el input para el botón de mostrar contraseña */
+  padding-right: 30px; /* Espacio extra en el input para el botón de mostrar contraseña */
 }
 
 .toggle-password-btn {
@@ -94,6 +98,11 @@ input:focus {
   cursor: pointer; /* Cambio de cursor para indicar que es clickeable */
   font-size: 20px; /* Tamaño del ícono */
   color: #870707; /* Color del ícono */
+  transition: top 0.3s ease; /* Transición suave */
+}
+/* Cuando hay un error, mover el botón hacia arriba */
+.input-error + .toggle-password-btn {
+  top: 50%;
 }
 
 /* Botón de envío */
