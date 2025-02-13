@@ -18,18 +18,22 @@ function Dashboard() {
   return (
     <div className="d-flex flex-column min-vh-100 w-100">
       {/* Contenedor que ocupa el 100% de la altura disponible */}
-      <div className="main-content">
-        {/* Ilustración */}
-        <div className="illustration-container me-5">
+      <div className="main-content d-flex flex-row justify-content-center align-items-center">
+        {/* Contenedor de la ilustración y la frase */}
+        <div className="illustration-container text-start">
           <img
             src="imagenes/ilustracion.png"
             alt="Ilustración de bienvenida"
-            className="img-fluid"
+            className="img-fluid d-none d-lg-block"  // Se oculta en pantallas medianas y chicas
           />
+          <p className="fragaria-phrase d-none d-lg-block">
+            <span className="fragaria-part1">Fragaria: Siembra tus ideas,</span>
+            <span className="fragaria-part2">cultiva tus metas, cosecha el éxito.</span>
+          </p>
         </div>
 
         {/* Formulario de inicio de sesión o Dashboard */}
-        <div className="text-center">
+        <div className="login-container">
           {!isLoggedIn ? (
             <LoginForm onLogin={handleLoginSuccess} />
           ) : (

@@ -16,7 +16,7 @@ function App() {
           path="/registro"
           element={
             <>
-              <NavbarDashboard />
+              
               <FromSigul />
             </>
           }
