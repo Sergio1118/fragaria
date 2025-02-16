@@ -2,7 +2,6 @@
 
 body, html {
   margin: 0; /* Elimina los márgenes por defecto */
-  
 }
 
 .form-container {
@@ -13,16 +12,15 @@ body, html {
 }
 
 .form1 {
-  width: 100%;
-  min-width: 120%; /* Limita el ancho en pantallas grandes */
-  min-height: 450px; /* Asegura un mínimo de altura */
-  margin-top: 25%;
+  max-width: 600px;
+  min-width: 500px; /* Limita el ancho en pantallas grandes */
+  min-height: 300px; /* Asegura un mínimo de altura */
   margin-bottom: 0%;
   border-radius: 8px;
   background: linear-gradient(to right, #f4b183, #f8d8a8);
+  justify-content: flex-end; /* Mueve el formulario a la derecha */
 
 }
-
 
 /* Logo y texto de Fragaria */
 .logo-fragaria {
@@ -33,15 +31,18 @@ body, html {
 
 .fragaria-text {
   font-family: 'Montserrat', sans-serif;
-  font-size: 2rem; /* Reducido para mejor ajuste */
   color: #dc3545;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  margin-top: 15px;
   text-align: center;
+  flex-grow: 1.5;
+  font-size: 35px; 
+  font-weight: bold; 
 }
 
 .form-group {
   margin-bottom: 15px; /* Menor espacio entre los campos */
+  border-radius: 10px;
+  color: rgb(255, 64, 31);
 }
 
 .form-control {
@@ -55,6 +56,7 @@ body, html {
   cursor: pointer;
   right: 5%;
   color:  #7d3c2a;
+  align-items: center;
 }
 
 .invalid-feedback {
@@ -68,6 +70,8 @@ body, html {
   font-size: 1rem; /* Menor tamaño del texto del botón */
   padding: 8px; /* Menos espacio */
   transition: background-color 0.3s ease;
+  flex-grow: 1.5;
+  font-weight: bold; 
 }
 
 .btn-login:hover {

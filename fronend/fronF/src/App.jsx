@@ -1,10 +1,9 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import NavbarDashboard from "./components/navbarDashboard.jsx"; 
-import Dashboard from "./components/dashboard"; 
-import FromSigul from "./components/fromSigul"; 
-import FromLogin from "./components/fromLogin"; 
-import PasswordRecuper from "./components/passwordRecovery.jsx"; 
+import Dashboard from "./components/Dashboardprincipal/dashboard"; 
+import FromSigul from "./components/Sign_in/fromSigul"; 
+import FromLogin from "./components/Login/fromLogin.jsx"; 
+import PasswordRecuper from "./components/Password/passwordRecovery.jsx"; 
 
 function App() {
   
@@ -25,7 +24,6 @@ function App() {
           path="/login"
           element={
             <>
-              <NavbarDashboard />
               <FromLogin />
             </>
           }
@@ -34,7 +32,6 @@ function App() {
           path="/recuperar"
           element={
             <>
-              <NavbarDashboard />
               <PasswordRecuper />
             </>
           }
