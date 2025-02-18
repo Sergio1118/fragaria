@@ -90,22 +90,23 @@ def dashboard_admin(request):
     return render(request, 'usuarios/admin_dashboard_limited.html', context)
 
 #Se verifica si el login cuenta con credenciales creadas mediante superUser, si es el caso, se valida y tiene acceso a los empleados 
+#Modificar login y dejar solo uno 
 
-def login_admin(request):
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            if user.is_staff:  # Verificamos si es un administrador
-                login(request, user)
-                messages.success(request, "Bienvenido administrador.")
-                return redirect('gestion_usuarios')  # Redirige al panel de administración
-            else:
-                messages.error(request, "No tienes permisos de administrador.")
-                return redirect('login')  # Redirige a login si no es admin
-    else:
-        form = LoginForm()
-    return render(request, 'usuarios/login.html', {'form': form})
+# def login_admin(request):
+#     if request.method == 'POST':
+#         form = LoginForm(request.POST)
+#         if form.is_valid():
+#             user = form.get_user()
+#             if user.is_staff:  # Verificamos si es un administrador
+#                 login(request, user)
+#                 messages.success(request, "Bienvenido administrador.")
+#                 return redirect('gestion_usuarios')  # Redirige al panel de administración
+#             else:
+#                 messages.error(request, "No tienes permisos de administrador.")
+#                 return redirect('login')  # Redirige a login si no es admin
+#     else:
+#         form = LoginForm()
+#     return render(request, 'usuarios/login.html', {'form': form})
 
 #Vista que permite la gestion de usuarios via administrador
 
@@ -130,10 +131,12 @@ def agregar_usuario(request):
     
     if request.method == 'POST':
         form = RegistroForm(request.POST)
-        if form.is_valid():
+     
+        if form.is_valid(): 
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password1'])
             user.admin_creator = request.user
+            user.is_staff = False
             user.save()
             messages.success(request, "Usuario creado exitosamente.")
             return redirect('gestion_usuarios')

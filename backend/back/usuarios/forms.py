@@ -23,6 +23,7 @@ class RegistroForm(UserCreationForm):
             user.save()
         return user
 
+
 #Registro de formulario donde incluyen los datos inicio de sesion
 
 

@@ -36,7 +36,7 @@ function Dashboard() {
           <>
             <div className="left-side">
               <div className="illustration-container">
-                <img
+                < img 
                   src="imagenes/ilustracion.png"
                   alt="Ilustración de bienvenida"
                   className="img-fluid d-none d-lg-block"

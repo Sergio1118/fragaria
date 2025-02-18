@@ -113,6 +113,12 @@ html, body {
   margin-bottom: 5%;
 }
 
+
+.img-fluid {
+  min-width:  90%;
+
+}
+
 /* Contenedor principal de dos mitades */
 
 

@@ -55,7 +55,7 @@ function FromSigul() {
 
   const styles = {
     body: {
-      background: "linear-gradient(to bottom, #f8d8a8, #f4b183)",
+      background: "linear-gradient(to bottom,rgb(252, 234, 208),rgb(255, 222, 199))",
       minHeight: "100vh",
       justifyContent: "center",
       alignItems: "center"
