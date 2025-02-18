@@ -4,10 +4,8 @@ import Dashboard from "./components/Dashboardprincipal/dashboard";
 import FromSigul from "./components/Sign_in/fromSigul"; 
 import FromLogin from "./components/Login/fromLogin.jsx"; 
 import PasswordRecuper from "./components/Password/passwordRecovery.jsx"; 
-<<<<<<< HEAD
-=======
 import Actividades from"./components/actividade/actvidades.jsx";
->>>>>>> 63089c3 (ya esta en backend)
+
 
 function App() {
   
