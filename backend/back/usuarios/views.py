@@ -24,6 +24,19 @@ from .models import Actividad, EstadoActividad
 from .forms import ActividadForm, EstadoActividadForm
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.models import User
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
+from django.views.decorators.csrf import csrf_exempt
+import json
+from django.views.decorators.csrf import csrf_exempt 
+from django.contrib.auth import get_user_model
+
+
+
 
 
 
@@ -223,44 +236,176 @@ def registro(request):
 
 #Funcion que permite la restauracion de contraseña generando un token y enviandolo via gmail, siempre y cuando el correo registrado este asociado a una cuenta
 #de google, de lo contrario,este correo no llegara.
+@csrf_exempt  # SOLO en desarrollo
+def password_reset_api(request):
+    if request.method == "POST":
+        User = get_user_model()  # Obtiene el modelo de usuario actual
+        try:
+            data = json.loads(request.body)
+            email = data.get("email")
 
-def password_reset(request):
-    if request.method == 'POST':
-        form = PasswordResetForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data.get('email')
-            
+            if not email:
+                return JsonResponse({"error": "El correo es obligatorio."}, status=400)
+
             try:
                 user = User.objects.get(email=email)
                 
-                # Generar un token de restablecimiento
+                # Generar token y UID
                 token = default_token_generator.make_token(user)
-                
-                # Codificar el ID de usuario
-                uid = urlsafe_base64_encode(user.pk.encode())
-                
-                # Crear el enlace de restablecimiento
-                reset_url = f'http://127.0.0.1:8000/reset_password/{uid}/{token}/'  # Enlace de restablecimiento
-                
-                # Configurar el mensaje del correo
-                subject = 'Solicitud de restablecimiento de contraseña'
-                message = f'Hola {user.username},\n\nHemos recibido una solicitud para restablecer tu contraseña. Si no fuiste tú, ignora este mensaje. Si deseas restablecerla, haz clic en el siguiente enlace:\n\n{reset_url}\n\nSaludos.'
-                from_email = 'tu_correo@gmail.com'  # Cambia este correo por el que desees usar
-                recipient_list = [email]
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+                # Crear enlace de restablecimiento
+                reset_url = f'http://127.0.0.1:3000/reset-password/{uid}/{token}/'
 
                 # Enviar el correo
-                send_mail(subject, message, from_email, recipient_list)
+                subject = "Restablecimiento de contraseña"
+                message = f"Hola {user.username},\n\nPara restablecer tu contraseña, haz clic en este enlace:\n\n{reset_url}\n\nSi no solicitaste este cambio, ignora este mensaje."
+                send_mail(subject, message, 'tu_correo@gmail.com', [email])
 
-                messages.success(request, "Te hemos enviado un correo para restablecer tu contraseña.")
-                return redirect('password_reset_done')
+                return JsonResponse({"message": "Se ha enviado un enlace de recuperación a tu correo."}, status=200)
             except User.DoesNotExist:
-                messages.error(request, "No encontramos ninguna cuenta con ese correo electrónico.")
-                return redirect('password_reset')
+                return JsonResponse({"error": "No encontramos una cuenta con ese correo."}, status=404)
 
-    else:
-        form = PasswordResetForm()
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Datos inválidos."}, status=400)
 
-    return render(request, 'usuarios/password_reset.html', {'form': form})
+    return JsonResponse({"error": "Método no permitido."}, status=405)
+# def agregar_usuario(request):
+#     if not request.user.is_superuser and not request.user.is_staff:
+#         return HttpResponseForbidden("No tienes permiso para acceder a esta página.")
+    
+#     if request.method == 'POST':
+#         form = RegistroForm(request.POST)
+     
+#         if form.is_valid(): 
+#             user = form.save(commit=False)
+#             user.set_password(form.cleaned_data['password1'])
+#             user.admin_creator = request.user
+#             user.is_staff = False
+#             user.save()
+#             messages.success(request, "Usuario creado exitosamente.")
+#             return redirect('gestion_usuarios')
+#     else:
+#         form = RegistroForm()
+
+#     return render(request, 'usuarios/agregar_usuario.html', {'form': form})
+
+
+# #Vista que permite editar usuarios via administrador
+
+
+# @login_required
+# def editar_usuario(request, user_id):
+#     if not request.user.is_staff:
+#         return HttpResponseForbidden()  # Si no es admin, denegar acceso
+
+#     usuario = get_object_or_404(Usuario, id=user_id)
+
+#     if request.method == 'POST':
+#         form = UsuarioForm(request.POST, instance=usuario)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, "Usuario actualizado exitosamente.")
+#             return redirect('gestion_usuarios')  # Redirigir al panel de administración
+#     else:
+#         form = UsuarioForm(instance=usuario)
+
+#     return render(request, 'usuarios/editar_usuario.html', {'form': form, 'usuario': usuario})
+
+
+# #Vista que permite eliminar usuarios via administrador
+
+
+# @login_required
+# def eliminar_usuario(request, user_id):
+#     if not request.user.is_staff:
+#         return HttpResponseForbidden()  # Si no es admin, denegar acceso
+
+#     usuario = get_object_or_404(Usuario, id=user_id)
+
+#     if request.method == 'POST':
+#         try:
+#             # Eliminar las relaciones de ManyToMany y otras claves foráneas si es necesario
+#             usuario.actividades.clear()  # Elimina las relaciones de ManyToMany
+#             usuario.plantacion = None  # Si tienes una relación ForeignKey
+
+#             # Eliminar relaciones relacionadas en otras tablas
+#             # Asegúrate de eliminar explícitamente las relaciones en la tabla `usuarios_fechasiembra`
+#             FechasSiembra.objects.filter(usuario=usuario).delete()
+
+#             # Ahora, proceder a eliminar el usuario
+#             usuario.delete()
+
+#             # Mostrar mensaje de éxito
+#             messages.success(request, f"El usuario {usuario.first_name} {usuario.last_name} ha sido eliminado exitosamente.")
+#         except Exception as e:
+#             # En caso de error al eliminar
+#             messages.error(request, f"Ocurrió un error al eliminar el usuario: {e}")
+
+#         return redirect('gestion_usuarios')  # Cambia 'gestion_usuarios' al nombre de la vista correcta
+
+#     return render(request, 'usuarios/eliminar_usuario.html', {'usuario': usuario})
+
+# #Vista que permite el registro para nuevos empleados u usuarios de la app
+
+
+
+# def registro(request):
+#     if request.method == 'POST':
+#         form = RegistroForm(request.POST)
+#         if form.is_valid():
+#             user = form.save(commit=False)
+#             user.set_password(form.cleaned_data['password1'])
+#             user.is_staff = True  # Todos los usuarios son staff (administradores)
+#             user.save()
+#             login(request, user)
+#             messages.success(request, "Registro exitoso.")
+#             return redirect('login')
+#     else:
+#         form = RegistroForm()
+#     return render(request, 'usuarios/registro.html', {'form': form})
+
+
+# #Funcion que permite la restauracion de contraseña generando un token y enviandolo via gmail, siempre y cuando el correo registrado este asociado a una cuenta
+# #de google, de lo contrario,este correo no llegara.
+
+# def password_reset(request):
+#     if request.method == 'POST':
+#         form = PasswordResetForm(request.POST)
+#         if form.is_valid():
+#             email = form.cleaned_data.get('email')
+            
+#             try:
+#                 user = User.objects.get(email=email)
+                
+#                 # Generar un token de restablecimiento
+#                 token = default_token_generator.make_token(user)
+                
+#                 # Codificar el ID de usuario
+#                 uid = urlsafe_base64_encode(user.pk.encode())
+                
+#                 # Crear el enlace de restablecimiento
+#                 reset_url = f'http://127.0.0.1:8000/reset_password/{uid}/{token}/'  # Enlace de restablecimiento
+                
+#                 # Configurar el mensaje del correo
+#                 subject = 'Solicitud de restablecimiento de contraseña'
+#                 message = f'Hola {user.username},\n\nHemos recibido una solicitud para restablecer tu contraseña. Si no fuiste tú, ignora este mensaje. Si deseas restablecerla, haz clic en el siguiente enlace:\n\n{reset_url}\n\nSaludos.'
+#                 from_email = 'tu_correo@gmail.com'  # Cambia este correo por el que desees usar
+#                 recipient_list = [email]
+
+#                 # Enviar el correo
+#                 send_mail(subject, message, from_email, recipient_list)
+
+#                 messages.success(request, "Te hemos enviado un correo para restablecer tu contraseña.")
+#                 return redirect('password_reset_done')
+#             except User.DoesNotExist:
+#                 messages.error(request, "No encontramos ninguna cuenta con ese correo electrónico.")
+#                 return redirect('password_reset')
+
+#     else:
+#         form = PasswordResetForm()
+
+#     return render(request, 'usuarios/password_reset.html', {'form': form})
 
 
 #Redireccion a la pagina mediante enlace enviado via gmail, el cual permite realizar la actualizacion de contraseña y redireccion a login.

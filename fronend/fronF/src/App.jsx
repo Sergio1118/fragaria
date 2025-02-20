@@ -5,6 +5,8 @@ import FromSigul from "./components/Sign_in/fromSigul";
 import FromLogin from "./components/Login/fromLogin.jsx"; 
 import PasswordRecuper from "./components/Password/passwordRecovery.jsx"; 
 import Actividades from"./components/actividade/actvidades.jsx";
+import Password from"./components/Password/password.jsx";
+import AgregarTrabajador from "./components/trabadore/trabajar.jsx"
 
 
 function App() {
@@ -61,6 +63,22 @@ function App() {
           element={
             <>
               <Actividades />
+            </>
+          }
+        />
+        <Route
+          path="/password"
+          element={
+            <>
+              <Password />
+            </>
+          }
+        />
+         <Route
+          path="/trabadores"
+          element={
+            <>
+              <AgregarTrabajador/>
             </>
           }
         />

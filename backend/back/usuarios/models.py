@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.conf import settings
 
 
+
+
 # Manager personalizado para el Usuario
 class UsuarioManager(BaseUserManager):
     def create_user(self, email, first_name, last_name, password=None):
