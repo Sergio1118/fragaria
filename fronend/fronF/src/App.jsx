@@ -7,6 +7,7 @@ import PasswordRecuper from "./components/Password/passwordRecovery.jsx";
 import Actividades from"./components/actividade/actvidades.jsx";
 import Password from"./components/Password/password.jsx";
 import AgregarTrabajador from "./components/trabadore/trabajar.jsx"
+import DashboardAdmin from "./components/Dash_admin/dash_admin.jsx";
 
 
 function App() {
@@ -42,7 +43,7 @@ function App() {
         />
 
         <Route
-          path="/dashboard"
+          path="/"
           element={
             <>
               <Dashboard />
@@ -51,10 +52,10 @@ function App() {
         />
 
         <Route
-          path="/"
+          path="/dash"
           element={
             <>
-              <Dashboard />
+              <DashboardAdmin />
             </>
           }
         />

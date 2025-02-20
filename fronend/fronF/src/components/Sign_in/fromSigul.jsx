@@ -4,15 +4,15 @@ import Footer from '../Footer/footer';
 
 function FromSigul() {
   const [formData, setFormData] = useState({
-    name: "", surname: "", email: "", password: "", confirmation: ""
+    first_name: "", last_name: "", email: "", password1: "", password2: ""
   });
 
   const [errors, setErrors] = useState({
-    name: "", surname: "", email: "", password: "", confirmation: ""
+    first_name: "", last_name: "", email: "", password1: "", password2: ""
   });
 
   const [showPasswords, setShowPasswords] = useState({
-    password: false, confirmation: false
+    password1: false, password2: false
   });
 
   const handleInputChange = (key, value) => {
@@ -24,28 +24,56 @@ function FromSigul() {
 
   const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const handleValidations = () => {
+  const handleValidations = async () => {
     let formErrors = {};
-    const { name, surname, email, password, confirmation } = formData;
+    const { first_name, last_name, email, password1, password2 } = formData;
 
-    if (!name) formErrors.name = "Es obligatorio.";
-    if (!surname) formErrors.surname = "Es obligatorio.";
+    if (!first_name) formErrors.first_name = "Es obligatorio.";
+    if (!last_name) formErrors.last_name = "Es obligatorio.";
     if (!email) formErrors.email = "Es obligatorio.";
     if (email && !isValidEmail(email)) formErrors.email = "Correo electrónico no válido.";
-    if (!password) formErrors.password = "Es obligatoria.";
-    if (!confirmation) formErrors.confirmation = "Es obligatoria.";
-    if (password && confirmation && password !== confirmation) formErrors.confirmation = "Las contraseñas no coinciden.";
+    if (!password1) formErrors.password1 = "Es obligatoria.";
+    if (!password2) formErrors.password2 = "Es obligatoria.";
+    if (password1 && password2 && password1 !== password2) formErrors.password2 = "Las contraseñas no coinciden.";
 
+    // Si hay errores, no enviar la solicitud y mostrar los mensajes
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
       // Ocultar iconos si hay errores en las contraseñas
-      if (formErrors.password || formErrors.confirmation) {
-        setShowPasswords({ password: false, confirmation: false });
+      if (formErrors.password1 || formErrors.password2) {
+        setShowPasswords({ password1: false, password2: false });
       }
-    } else {
-      setErrors({});
-      alert("Registro exitoso.");
-      console.log("Datos del formulario:", formData);
+      return;
+    }
+
+    // Si las validaciones son correctas, enviar la solicitud
+    try {
+      const requestData = {
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        email: formData.email,
+        password1: formData.password1,
+        password2: formData.password2,
+      };
+
+      const response = await fetch('http://localhost:8000/registro/', {  // Cambia la URL por la del endpoint correspondiente
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        window.location.href = '/'; // Redirigir al login
+      } else {
+        const errorData = await response.json();
+        alert('Error: ' + JSON.stringify(errorData.errors)); // Mostrar errores de backend
+      }
+    } catch (error) {
+      console.error('Error al enviar la solicitud:', error);
+      alert('Error al enviar la solicitud');
     }
   };
 
@@ -134,24 +162,25 @@ function FromSigul() {
           />
           <h2 className="text-center mb-4 fw-bold" style={{ color: "#dc3545" }}>Registro</h2>
           <form>
-            {["name", "surname", "email"].map(field => (
-              <div key={field} className="mb-3">
-                <input
-                  type={field === "email" ? "email" : "text"}
-                  className={`form-control border-2 rounded-pill ${errors[field] ? "is-invalid" : ""}`}
-                  placeholder={field === "email" ? "Correo electrónico" : field.charAt(0).toUpperCase() + field.slice(1)}
-                  onChange={(e) => handleInputChange(field, e.target.value)}
-                />
-                {errors[field] && <div className="invalid-feedback">{errors[field]}</div>}
-              </div>
-            ))}
+              {["first_name", "last_name", "email"].map(field => (
+                <div key={field} className="mb-3">
+                  <input
+                    type={field === "email" ? "email" : "text"}
+                    className={`form-control border-2 rounded-pill ${errors[field] ? "is-invalid" : ""}`}
+                    placeholder={field === "email" ? "Correo electrónico" : (field === "first_name" ? "Nombre" : "Apellido")}
+                    onChange={(e) => handleInputChange(field, e.target.value)}
+                  />
+                  {errors[field] && <div className="invalid-feedback">{errors[field]}</div>}
+                </div>
+              ))}
 
-            {["password", "confirmation"].map(field => (
+
+            {["password1", "password2"].map(field => (
               <div key={field} className="mb-3 position-relative">
                 <input
                   type={showPasswords[field] ? "text" : "password"}
                   className={`form-control border-2 rounded-pill ${errors[field] ? "is-invalid" : ""}`}
-                  placeholder={field === "confirmation" ? "Confirmar contraseña" : "Contraseña"}
+                  placeholder={field === "password2" ? "Confirmar contraseña" : "Contraseña"}
                   onChange={(e) => handleInputChange(field, e.target.value)}
                 />
                 {(formData[field] || formData.email) && (
@@ -188,3 +217,4 @@ function FromSigul() {
 }
 
 export default FromSigul;
+

@@ -16,7 +16,7 @@ function LoginForm() {
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const isValidPassword = (password) => password.length >= 6;
 
-  const handleValidations = () => {
+  const handleValidations = async () => {
     const formErrors = {};
     const { email, password } = formData;
 
@@ -29,9 +29,33 @@ function LoginForm() {
     setErrors(formErrors);
 
     if (Object.keys(formErrors).length === 0) {
-      alert("Inicio de sesión exitoso.");
-      setFormData({ email: "", password: "" });
-      navigate("/inicio"); // Cambiar la ruta según sea necesario
+      // Si no hay errores, hacer la petición de inicio de sesión
+      try {
+        const response = await fetch("http://localhost:8000/login/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          alert("Inicio de sesión exitoso.");
+          setFormData({ email: "", password: "" });
+          // Redirigir según el role del usuario
+          navigate(data.redirect_url); // Se espera que el backend envíe la URL de redirección
+        } else {
+          alert(data.message || "Error al iniciar sesión.");
+        }
+      } catch (error) {
+        console.error("Error al realizar la solicitud:", error);
+        alert("Error al realizar la solicitud. Intenta de nuevo.");
+      }
     }
   };
 
@@ -45,7 +69,7 @@ function LoginForm() {
     // Eliminar el mensaje de error cuando el usuario comience a escribir
     setErrors((prevErrors) => ({
       ...prevErrors,
-      [name]: "", 
+      [name]: "",
     }));
   };
 
@@ -60,7 +84,7 @@ function LoginForm() {
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
       />
-      <div className="form1 p-4  shadow-sm rounded mx-auto">
+      <div className="form1 p-4 shadow-sm rounded mx-auto">
         {/* Logo y título */}
         <div className="text-center mb-3">
           <img
@@ -79,21 +103,21 @@ function LoginForm() {
             placeholder="Correo Electrónico"
             value={formData.email}
             onChange={handleInputChange}
-            className={`form-control  border-2 rounded-pill ${errors.email ? "is-invalid" : ""}`}
+            className={`form-control border-2 rounded-pill ${errors.email ? "is-invalid" : ""}`}
             autoComplete="email"
           />
           {errors.email && <div className="invalid-feedback">{errors.email}</div>}
         </div>
 
         {/* Contraseña */}
-        <div className="form-group  position-relative">
+        <div className="form-group position-relative">
           <input
             type={showPassword ? "text" : "password"}
             name="password"
             placeholder="Contraseña"
             value={formData.password}
             onChange={handleInputChange}
-            className= {`form-control border-2 rounded-pill ${errors.password ? "is-invalid" : ""}`}
+            className={`form-control border-2 rounded-pill ${errors.password ? "is-invalid" : ""}`}
             autoComplete="current-password"
           />
           {(formData.password || (formData.email && formData.password)) && (

@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from usuarios import views as usuarios_views
 from django.contrib.auth import views as auth_views
-from usuarios.views import password_reset_api
+from usuarios.views import password_reset_api, registro, iniciar_sesion
 
 
 urlpatterns = [
@@ -26,8 +26,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # Rutas de inicio de sesión y registro como de dashboard de la página (inicio)
-    path('registro/', usuarios_views.registro, name='registro'),
-    path('login/', usuarios_views.iniciar_sesion, name='login'),
+    path('registro/', registro, name='registro'),
+    path('login/', iniciar_sesion, name='login'),
     path('inicio/', usuarios_views.inicio, name='inicio'),  # NUEVA RUTA
 
     # Gestión de usuarios (solo para administradores y superusuario)
