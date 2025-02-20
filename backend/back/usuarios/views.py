@@ -63,21 +63,23 @@ def iniciar_sesion(request):
             user = authenticate(request, email=email, password=password)
             
             if user is not None:
+                # Iniciar sesión
                 login(request, user)
                 
+                # Respuesta JSON con el estado y la redirección
                 if user.is_superuser:
-                    return redirect('dashboard_admin')
+                    return JsonResponse({'success': True, 'redirect_url': 'dashboard_admin'})
                 elif user.is_staff:
-                    return redirect('admin_dashboard_limited')
+                    return JsonResponse({'success': True, 'redirect_url': 'admin_dashboard_limited'})
                 else:
-                    return redirect('inicio')
+                    return JsonResponse({'success': True, 'redirect_url': 'inicio'})
             else:
-                messages.error(request, 'Datos incorrectos')
-                return render(request, 'usuarios/login.html', {'form': form})
+                return JsonResponse({'success': False, 'message': 'Datos incorrectos'})
     else:
         form = LoginForm()
 
-    return render(request, 'usuarios/login.html', {'form': form})
+    # Si es GET, puedes devolver algo en JSON o vaciar el formulario
+    return JsonResponse({'success': False, 'message': 'Método no permitido, se esperaba POST.'})
 
 
 
