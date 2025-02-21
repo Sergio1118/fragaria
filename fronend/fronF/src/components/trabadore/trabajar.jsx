@@ -11,11 +11,6 @@ const AgregarTrabajador = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const [showPasswords, setShowPasswords] = useState({
-    password: false,
-    confirmation: false,
-  });
-
   const [trabajadores, setTrabajadores] = useState([]);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
@@ -36,21 +31,24 @@ const AgregarTrabajador = () => {
     e.preventDefault();
     const newErrors = {};
 
+    // Validación del correo
     if (!formData.email) {
       newErrors.email = "El correo es obligatorio";
     } else if (!validateEmail(formData.email)) {
       newErrors.email = "El correo electrónico no es válido";
     }
 
-    if (editIndex !== null) {
+    // Validación de campos para crear o editar
+    if (editIndex === null) {
+      // Si no estamos editando, validamos todos los campos
+      if (!formData.name) newErrors.name = "El nombre es obligatorio";
+      if (!formData.surname) newErrors.surname = "El apellido es obligatorio";
       if (!formData.password) newErrors.password = "La contraseña es obligatoria";
       if (formData.password !== formData.confirmation) {
         newErrors.confirmation = "Las contraseñas no coinciden";
       }
     } else {
-      if (!formData.name) newErrors.name = "El nombre es obligatorio";
-      if (!formData.surname) newErrors.surname = "El apellido es obligatorio";
-      if (!formData.password) newErrors.password = "La contraseña es obligatoria";
+      // Si estamos editando, solo validamos la contraseña
       if (formData.password !== formData.confirmation) {
         newErrors.confirmation = "Las contraseñas no coinciden";
       }
@@ -58,23 +56,32 @@ const AgregarTrabajador = () => {
 
     setErrors(newErrors);
 
+    // Si no hay errores, actualizamos o añadimos el trabajador
     if (Object.keys(newErrors).length === 0) {
       const newTrabajadores = [...trabajadores];
 
       if (editIndex !== null) {
-        newTrabajadores[editIndex].email = formData.email;
+        // Actualizamos el trabajador con todos los campos
+        newTrabajadores[editIndex] = {
+          name: formData.name,
+          surname: formData.surname,
+          email: formData.email,
+          password: formData.password, // Agregamos la contraseña en la actualización
+        };
       } else {
+        // Añadimos un nuevo trabajador
         newTrabajadores.push({
           name: formData.name,
           surname: formData.surname,
           email: formData.email,
+          password: formData.password, // Añadimos la contraseña al nuevo trabajador
         });
       }
 
       setTrabajadores(newTrabajadores);
       setIsFormVisible(false);
       setFormData({ name: "", surname: "", email: "", password: "", confirmation: "" });
-      setEditIndex(null);
+      setEditIndex(null); // Limpiamos el índice de edición
     }
   };
 
@@ -83,7 +90,7 @@ const AgregarTrabajador = () => {
       name: trabajadores[index].name,
       surname: trabajadores[index].surname,
       email: trabajadores[index].email,
-      password: "",
+      password: "", // Limpiamos la contraseña y confirmación al editar
       confirmation: "",
     });
     setEditIndex(index);
@@ -130,7 +137,8 @@ const AgregarTrabajador = () => {
                   className="form-control border-0 rounded-pill p-3"
                   placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
                   value={formData[field]}
-                  disabled={editIndex !== null} // Bloqueado al editar
+                  onChange={(e) => handleInputChange(field, e.target.value)} // Asegúrate de que el cambio se maneje
+                  disabled={editIndex !== null && field !== "name" && field !== "surname"} // Solo se deshabilita si estamos editando
                 />
               </div>
             ))}
@@ -200,6 +208,3 @@ const AgregarTrabajador = () => {
 };
 
 export default AgregarTrabajador;
-
-
-
