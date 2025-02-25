@@ -65,17 +65,19 @@ body, html {
 
 .btn-login {
   background-color: #d17c53;
-  border: none;
   color: white;
   font-size: 1rem; /* Menor tamaño del texto del botón */
   padding: 8px; /* Menos espacio */
   transition: background-color 0.3s ease;
   flex-grow: 1.5;
   font-weight: bold; 
+  border: 2px solid rgb(255, 185, 153);
 }
 
 .btn-login:hover {
   background-color: #b95d46;
+  color : #552323;
+  border: 2px solid rgb(255, 185, 153);
 }
 
 .link-recovery, .link-register, .link-terms {

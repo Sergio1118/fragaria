@@ -4,10 +4,12 @@ import Dashboard from "./components/Dashboardprincipal/dashboard";
 import FromSigul from "./components/Sign_in/fromSigul"; 
 import FromLogin from "./components/Login/fromLogin.jsx"; 
 import PasswordRecuper from "./components/Password/passwordRecovery.jsx"; 
-import Actividades from"./components/actividade/actvidades.jsx";
+import Actividades from"./components/Actividad/actvidades.jsx";
 import Password from"./components/Password/password.jsx";
-import AgregarTrabajador from "./components/trabadore/trabajar.jsx"
+import AgregarTrabajador from "./components/Trabajadores/trabajar.jsx"
 import DashboardAdmin from "./components/Dash_admin/dash_admin.jsx";
+import Plantacion from "./components/Plantacion/platacion.jsx"
+
 
 
 function App() {
@@ -46,10 +48,20 @@ function App() {
           path="/"
           element={
             <>
-              <Dashboard />
+              < Dashboard/>
             </>
           }
         />
+
+        <Route
+          path="/dashprincipal"
+          element={
+            <>
+              < Dashboard/>
+            </>
+          }
+        />
+
 
         <Route
           path="/dash"
@@ -60,7 +72,7 @@ function App() {
           }
         />
          <Route
-          path="/Actvidades"
+          path="/actividad"
           element={
             <>
               <Actividades />
@@ -76,10 +88,18 @@ function App() {
           }
         />
          <Route
-          path="/trabadores"
+          path="/trabajador"
           element={
             <>
               <AgregarTrabajador/>
+            </>
+          }
+        />
+        <Route
+          path="/plantacion"
+          element={
+            <>
+              <Plantacion/>
             </>
           }
         />

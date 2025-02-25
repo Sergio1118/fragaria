@@ -51,6 +51,7 @@ def iniciar_sesion(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         form = LoginForm(data)
+        
         if form.is_valid():
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
@@ -219,7 +220,6 @@ def registro(request):
     if request.method == 'POST':
         # Convertir el cuerpo de la solicitud a un diccionario
         data = json.loads(request.body)
-
         # Pasamos los datos al formulario, pero como estamos recibiendo JSON, utilizamos los datos directamente
         form = RegistroForm(data)
         

@@ -134,7 +134,7 @@ function LoginForm() {
 
         {/* Botón de iniciar sesión */}
         <div className="form-group d-flex justify-content-between">
-          <button className="btn btn-login border-2 rounded-pill" onClick={handleValidations}>
+          <button className="btn btn-login rounded-pill" onClick={handleValidations}>
             Iniciar Sesión
           </button>
         </div>
