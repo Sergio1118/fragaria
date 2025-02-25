@@ -8,7 +8,8 @@ import Actividades from"./components/Actividad/actvidades.jsx";
 import Password from"./components/Password/password.jsx";
 import AgregarTrabajador from "./components/Trabajadores/trabajar.jsx"
 import DashboardAdmin from "./components/Dash_admin/dash_admin.jsx";
-import Plantacion from "./components/Plantacion/platacion.jsx"
+import Plantacion from "./components/Plantacion/platacion.jsx";
+import Informes from"./components/informe/info.jsx"
 
 
 
@@ -100,6 +101,14 @@ function App() {
           element={
             <>
               <Plantacion/>
+            </>
+          }
+        />
+        <Route
+          path="/informes"
+          element={
+            <>
+              <Informes/>
             </>
           }
         />
