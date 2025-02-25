@@ -11,27 +11,27 @@ const styles = {
     flexDirection: "column",
     minHeight: "100vh",
     marginTop: "125px",
-    minWidth: "100%",
+    width: "100%",
+    overflowX: "hidden", 
     margin: 0,
     padding: 0,
    
   },
   formContainer: {
-    //minWidth: "500px",  
     margin: "0 auto 30px auto",  
     padding: "20px",
     backgroundColor: "#fff",  
     borderRadius: "10px",
     boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
     fontFamily: "'Montserrat', sans-serif",
-    minWidth: "90%",
+    minWidth: "70%",
+    
   },
   cardStyle: {
-    marginLeft: "auto",
-    marginRight: "auto",
+    margin: "0 auto",
     marginBottom: "60px",
-    width: "90%", // Ajusta según necesites
-    maxWidth: "400px", // Evita que se estiren demasiado en pantallas grandes
+    width: "100%", // En lugar de minWidth/maxWidth, usa esto
+    maxWidth: "300px", // Limita el tamaño máximo
     padding: "20px",
   },
   btnCustom: {
@@ -146,8 +146,8 @@ function Plantacion() {
     <div style={styles.plantacionContainer}>
 
       <Navbaradmin/>
-      <div className="text-center" style={{ marginBottom: "30px", marginTop:"30px", color: "#4b2215" }}>
-        <h2 className="text-center" style={{ marginBottom: "10px", marginTop:"70px" , color: "#4b2215"}}>Gestión de Plantaciones</h2>
+      <div className="text-center " style={{ marginBottom: "30px", marginTop:"30px", color: "#4b2215" }}>
+        <h2 className="text-center " style={{ marginBottom: "10px", marginTop:"90px" , color: "#4b2215"}}>Gestión de Plantaciones</h2>
         <button
           style={styles.btnCustom}
           className="btn btn-custom px-4 py-2 border-2 rounded-pill"
