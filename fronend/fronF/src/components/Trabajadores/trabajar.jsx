@@ -1,5 +1,30 @@
 import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Navbaradmin  from "../NavbarAdmin/Navadmin";
+
+
+const styles ={
+  container: {
+    minHeight: "100vh", // Usa "100vh" para ocupar el 100% de la altura de la ventana
+    minWidth: "100vh",
+    display: "flex",  // Usamos flex para asegurarnos de que los elementos dentro se distribuyan correctamente
+    flexDirection: "column", 
+    background: "linear-gradient(to bottom,rgb(252, 234, 208),rgb(255, 222, 199))",
+  },
+    btnCustom: {
+    backgroundColor: "#d17c53",
+    color: "#ffff",
+    border: "2px solid rgb(255, 185, 153)",
+    padding: "10px 20px",
+    borderRadius: "25px",
+    fontWeight: "bold",
+    marginTop: "60px",
+    transition: "background-color 0.3s ease",
+    minWidth: "auto",
+    maxWidth: "200px", 
+    
+  },
+}
 
 const AgregarTrabajador = () => {
   const [formData, setFormData] = useState({
@@ -104,104 +129,109 @@ const AgregarTrabajador = () => {
   };
 
   return (
-    <div className="container my-5">
-      <div className="d-flex justify-content-center mb-4">
-        <button
-          onClick={() => {
-            setIsFormVisible(!isFormVisible);
-            setEditIndex(null);
-            setFormData({ name: "", surname: "", email: "", password: "", confirmation: "" });
-          }}
-          className="btn btn-gradient shadow-lg text-white py-3 px-5"
-          style={{
-            borderRadius: "50px",
-            fontSize: "1.2rem",
-            background: "linear-gradient(90deg, #f47c7c, #5c47f4)",
-            border: "none",
-          }}
-        >
-          {isFormVisible ? "Cancelar" : "Agregar trabajador"}
-        </button>
-      </div>
-
-      {isFormVisible && (
-        <div className="card shadow-lg p-4 rounded-lg">
-          <h3 className="mb-4 text-center text-gradient">
-            {editIndex !== null ? "Editar Trabajador" : "Registrar Trabajador"}
-          </h3>
-          <form onSubmit={handleSubmit}>
-            {["name", "surname"].map((field) => (
-              <div key={field} className="mb-4">
-                <input
-                  type="text"
-                  className="form-control border-0 rounded-pill p-3"
-                  placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                  value={formData[field]}
-                  onChange={(e) => handleInputChange(field, e.target.value)} // Asegúrate de que el cambio se maneje
-                  disabled={editIndex !== null && field !== "name" && field !== "surname"} // Solo se deshabilita si estamos editando
-                />
-              </div>
-            ))}
-
-            <div className="mb-4">
-              <input
-                type="email"
-                className={`form-control border-0 rounded-pill p-3 ${errors.email ? "is-invalid" : ""}`}
-                placeholder="Correo electrónico"
-                value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-              />
-              {errors.email && <div className="invalid-feedback">{errors.email}</div>}
-            </div>
-
-            {["password", "confirmation"].map((field) => (
-              <div key={field} className="mb-4 position-relative">
-                <input
-                  type="password"
-                  className={`form-control border-0 rounded-pill p-3 ${errors[field] ? "is-invalid" : ""}`}
-                  placeholder={field === "confirmation" ? "Confirmar contraseña" : "Contraseña"}
-                  value={formData[field]}
-                  onChange={(e) => handleInputChange(field, e.target.value)}
-                />
-                {errors[field] && <div className="invalid-feedback">{errors[field]}</div>}
-              </div>
-            ))}
-
-            <button type="submit" className="btn btn-gradient w-100 mt-3 py-3">
-              {editIndex !== null ? "Actualizar" : "Registrar"}
-            </button>
-          </form>
+    <div style={styles.container}>
+      <div className="my-5" >
+          <Navbaradmin/>
+        <div className="d-flex justify-content-center mb-3">
+          <button
+            onClick={() => {
+              setIsFormVisible(!isFormVisible);
+              setEditIndex(null);
+              setFormData({ name: "", surname: "", email: "", password: "", confirmation: "" });
+            }}
+            className="btn btn-gradient shadow-lg text-white py-3 px-3 mb-3 btn-sm text-center" style={styles.btnCustom}
+            //</div>style={{
+              //borderRadius: "50px",
+              //fontSize: "1.2rem",
+              //background: "linear-gradient(90deg, #f47c7c, #5c47f4)",
+              //border: "none",
+              //marginTop: "50px"
+            //}}
+          >
+            {isFormVisible ? "Cancelar" : "Agregar trabajador"}
+          </button>
         </div>
-      )}
 
-      <div className="mt-5">
-        <h3 className="mb-4 text-center text-gradient">Trabajadores Registrados</h3>
-        {trabajadores.length > 0 ? (
-          <div className="row row-cols-1 row-cols-md-3">
-            {trabajadores.map((trabajador, index) => (
-              <div key={index} className="col mb-4">
-                <div className="card shadow-lg h-100 rounded-lg">
-                  <div className="card-body">
-                    <h5 className="card-title text-center text-primary">
-                      {trabajador.name} {trabajador.surname}
-                    </h5>
-                    <p className="card-text text-muted text-center">{trabajador.email}</p>
-                    <div className="d-flex justify-content-between">
-                      <button onClick={() => handleEdit(index)} className="btn btn-warning">
-                        Editar
-                      </button>
-                      <button onClick={() => handleDelete(index)} className="btn btn-danger">
-                        Eliminar
-                      </button>
+        {isFormVisible && (
+          <div className="card shadow-lg p-4 rounded-lg">
+            <h3 className="mb-4 text-center text-gradient">
+              {editIndex !== null ? "Editar Trabajador" : "Registrar Trabajador"}
+            </h3>
+            <form onSubmit={handleSubmit}>
+              {["name", "surname"].map((field) => (
+                <div key={field} className="mb-4">
+                  <input
+                    type="text"
+                    className="form-control border-0 rounded-pill p-3"
+                    placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                    value={formData[field]}
+                    onChange={(e) => handleInputChange(field, e.target.value)} // Asegúrate de que el cambio se maneje
+                    disabled={editIndex !== null && field !== "name" && field !== "surname"} // Solo se deshabilita si estamos editando
+                  />
+                </div>
+              ))}
+
+              <div className="mb-4">
+                <input
+                  type="email"
+                  className={`form-control border-0 rounded-pill p-3 ${errors.email ? "is-invalid" : ""}`}
+                  placeholder="Correo electrónico"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
+                />
+                {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+              </div>
+
+              {["password", "confirmation"].map((field) => (
+                <div key={field} className="mb-4 position-relative">
+                  <input
+                    type="password"
+                    className={`form-control border-0 rounded-pill p-3 ${errors[field] ? "is-invalid" : ""}`}
+                    placeholder={field === "confirmation" ? "Confirmar contraseña" : "Contraseña"}
+                    value={formData[field]}
+                    onChange={(e) => handleInputChange(field, e.target.value)}
+                  />
+                  {errors[field] && <div className="invalid-feedback">{errors[field]}</div>}
+                </div>
+              ))}
+
+              <button type="submit" className="btn btn-gradient w-100 mt-3 py-3">
+                {editIndex !== null ? "Actualizar" : "Registrar"}
+              </button>
+            </form>
+          </div>
+        )}
+
+        <div className="mt-5">
+          <h3 className="mb-4 text-center text-gradient">Trabajadores Registrados</h3>
+          {trabajadores.length > 0 ? (
+            <div className="row row-cols-1 row-cols-md-3">
+              {trabajadores.map((trabajador, index) => (
+                <div key={index} className="col mb-4">
+                  <div className="card shadow-lg h-100 rounded-lg">
+                    <div className="card-body">
+                      <h5 className="card-title text-center text-primary">
+                        {trabajador.name} {trabajador.surname}
+                      </h5>
+                      <p className="card-text text-muted text-center">{trabajador.email}</p>
+                      <div className="d-flex justify-content-between">
+                        <button onClick={() => handleEdit(index)} className="btn btn-warning">
+                          Editar
+                        </button>
+                        <button onClick={() => handleDelete(index)} className="btn btn-danger">
+                          Eliminar
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-center">No hay trabajadores registrados.</p>
-        )}
+              ))}
+            </div>
+          ) : (
+            <p className="text-center">No hay trabajadores registrados.</p>
+          )}
+        </div>
+        
       </div>
     </div>
   );
