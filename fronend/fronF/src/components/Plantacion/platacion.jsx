@@ -150,7 +150,7 @@ function Plantacion() {
         <h2 className="text-center " style={{ marginBottom: "10px", marginTop:"90px" , color: "#4b2215"}}>Gestión de Plantaciones</h2>
         <button
           style={styles.btnCustom}
-          className="btn btn-custom px-4 py-2 border-2 rounded-pill"
+          className="btn btn-custom px-4 py-2 "
           onClick={() => setMostrandoFormulario(!mostrandoFormulario)}
         >
           {mostrandoFormulario ? "Cerrar" : "Crear Nueva Plantación"}

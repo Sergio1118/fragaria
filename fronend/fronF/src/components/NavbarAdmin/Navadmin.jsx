@@ -1,10 +1,39 @@
+import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 
 function Navbaradmin() {
+  const [showNavbar, setShowNavbar] = useState(true);
+  let lastScrollY = window.scrollY;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > lastScrollY) {
+        // Si el usuario hace scroll hacia abajo, ocultar el navbar
+        setShowNavbar(false);
+      } else {
+        // Si el usuario hace scroll hacia arriba, mostrar el navbar
+        setShowNavbar(true);
+      }
+      lastScrollY = window.scrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   const styles = {
     navbar: {
       background: "linear-gradient(to right, #f4b183, #f8d8a8)",
       fontFamily: "'Montserrat', sans-serif",
+      transition: "top 0.3s ease-in-out",
+      position: "fixed",
+      top: showNavbar ? "0" : "-80px", // Desaparece al hacer scroll hacia abajo
+      left: 0,
+      width: "100%",
+      zIndex: 1000,
     },
     brand: {
       fontWeight: "bold",
@@ -14,11 +43,10 @@ function Navbaradmin() {
       color: "#4b2215",
       fontWeight: "bold",
     },
-    
   };
 
   return (
-    <nav className="navbar navbar-expand-lg px-4" style={styles.navbar}>
+    <nav className="navbar navbar-expand-lg navbar-light" style={styles.navbar}>
       <div className="container-fluid">
         <a className="navbar-brand" href="/dashprincipal" style={styles.brand}>
           <img

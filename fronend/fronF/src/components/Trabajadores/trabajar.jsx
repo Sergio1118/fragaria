@@ -1,28 +1,48 @@
 import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Navbaradmin  from "../NavbarAdmin/Navadmin";
-
+import Footer from "../Footer/footer";
 
 const styles ={
   container: {
-    minHeight: "100vh", // Usa "100vh" para ocupar el 100% de la altura de la ventana
-    minWidth: "100vh",
-    display: "flex",  // Usamos flex para asegurarnos de que los elementos dentro se distribuyan correctamente
-    flexDirection: "column", 
-    background: "linear-gradient(to bottom,rgb(252, 234, 208),rgb(255, 222, 199))",
+    minHeight: "100vh",
+    minWidth: "100%", // <-- Aquí lo agregas
+    display: "flex",
+    flexDirection: "column",
+    background: "linear-gradient(to bottom, rgb(252, 234, 208), rgb(255, 222, 199))",
   },
     btnCustom: {
     backgroundColor: "#d17c53",
     color: "#ffff",
     border: "2px solid rgb(255, 185, 153)",
-    padding: "10px 20px",
+    padding: "10px 10px",
     borderRadius: "25px",
     fontWeight: "bold",
-    marginTop: "60px",
     transition: "background-color 0.3s ease",
-    minWidth: "auto",
-    maxWidth: "200px", 
-    
+    minWidth: "250px", // Aumenta el ancho mínimo del botón
+    maxWidth: "300px", // Aumenta el ancho máximo
+    marginTop: "100px",
+  },
+  card: {
+    width: "90%",  // Por defecto, ocupará el 90% del ancho disponible
+    maxWidth: "900px",  // Máximo de 900px en pantallas grandes
+    minWidth: "250px",  // Mínimo de 250px en pantallas pequeñas
+    margin: "30px auto", // Centrar la tarjeta horizontalmente
+    background: "#ffff",
+    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+    borderRadius: "10px",
+    border: "2px solid rgba(83, 83, 83, 0.2)",
+    padding: "20px",
+  },
+  input: {
+    border: "3px solid rgba(95, 95, 95, 0.2)", // Borde claro y delgado
+    borderRadius: "25px",
+    padding: "10px",
+  },
+  footerContainer: {
+    textAlign: "center",
+    width: "100%",
+    marginTop: "auto", 
   },
 }
 
@@ -127,34 +147,38 @@ const AgregarTrabajador = () => {
       setTrabajadores(trabajadores.filter((_, i) => i !== index));
     }
   };
+  const [showPasswords, setShowPasswords] = useState({ password: false, confirmation: false });
+  const togglePasswordVisibility = (field) => {
+    setShowPasswords((prev) => ({ ...prev, [field]: !prev[field] }));
+  };
 
   return (
     <div style={styles.container}>
-      <div className="my-5" >
+        <link
+              rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+            />
+
+      <div className="d-flex justify-content-center align-items-center" >
+
           <Navbaradmin/>
-        <div className="d-flex justify-content-center mb-3">
+        
+        <div className="d-flex justify-content-center">
           <button
             onClick={() => {
               setIsFormVisible(!isFormVisible);
               setEditIndex(null);
               setFormData({ name: "", surname: "", email: "", password: "", confirmation: "" });
             }}
-            className="btn btn-gradient shadow-lg text-white py-3 px-3 mb-3 btn-sm text-center" style={styles.btnCustom}
-            //</div>style={{
-              //borderRadius: "50px",
-              //fontSize: "1.2rem",
-              //background: "linear-gradient(90deg, #f47c7c, #5c47f4)",
-              //border: "none",
-              //marginTop: "50px"
-            //}}
+            className="d-flex justify-content-center mb-2" style={styles.btnCustom}
           >
             {isFormVisible ? "Cancelar" : "Agregar trabajador"}
           </button>
         </div>
 
         {isFormVisible && (
-          <div className="card shadow-lg p-4 rounded-lg">
-            <h3 className="mb-4 text-center text-gradient">
+          <div className="shadow-lg p-4 rounded-lg justify-content-center border-2" style={styles.card}>
+            <h3 className="mb-4 text-center text-gradient" style={{color: "#4b2215"}}>
               {editIndex !== null ? "Editar Trabajador" : "Registrar Trabajador"}
             </h3>
             <form onSubmit={handleSubmit}>
@@ -162,7 +186,8 @@ const AgregarTrabajador = () => {
                 <div key={field} className="mb-4">
                   <input
                     type="text"
-                    className="form-control border-0 rounded-pill p-3"
+                    style={styles.input}
+                    className="form-control  border-light rounded-pill p-3"
                     placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
                     value={formData[field]}
                     onChange={(e) => handleInputChange(field, e.target.value)} // Asegúrate de que el cambio se maneje
@@ -174,7 +199,8 @@ const AgregarTrabajador = () => {
               <div className="mb-4">
                 <input
                   type="email"
-                  className={`form-control border-0 rounded-pill p-3 ${errors.email ? "is-invalid" : ""}`}
+                  style={styles.input}
+                  className={`form-control border2 border-light rounded-pill p-3 ${errors.email ? "is-invalid" : ""}`}
                   placeholder="Correo electrónico"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
@@ -185,53 +211,79 @@ const AgregarTrabajador = () => {
               {["password", "confirmation"].map((field) => (
                 <div key={field} className="mb-4 position-relative">
                   <input
-                    type="password"
-                    className={`form-control border-0 rounded-pill p-3 ${errors[field] ? "is-invalid" : ""}`}
+                    style={styles.input}
+                    type={showPasswords[field] ? "text" : "password"}
+                    className={`form-control border2 border-light rounded-pill p-3 ${errors[field] ? "is-invalid" : ""}`}
                     placeholder={field === "confirmation" ? "Confirmar contraseña" : "Contraseña"}
                     value={formData[field]}
                     onChange={(e) => handleInputChange(field, e.target.value)}
                   />
+                  {formData[field] && (
+                    <button
+                      type="button"
+                      className="btn position-absolute end-0 translate-middle-y me-3 rounded-circle"
+                      style={{ top: "50%", border: "none", color: "#7d3c2a" }}
+                      onClick={() => togglePasswordVisibility(field)}
+                    >
+                      <i className={`fa ${showPasswords[field] ? "fa-eye-slash" : "fa-eye"}`}></i>
+                    </button>
+                  )}
                   {errors[field] && <div className="invalid-feedback">{errors[field]}</div>}
                 </div>
               ))}
 
-              <button type="submit" className="btn btn-gradient w-100 mt-3 py-3">
+              <button type="submit" className="btn btn-gradient w-100 mt-3 py-2 fw-bold btn-sm" 
+                      style={{ 
+                      color: "#ffff", 
+                      fontFamily: "'Montserrat', sans-serif", 
+                      backgroundColor: "#d17c53", 
+                      borderRadius: "10px",
+                      border: "2px solid rgb(255, 185, 153)", }}>
                 {editIndex !== null ? "Actualizar" : "Registrar"}
               </button>
             </form>
           </div>
         )}
 
-        <div className="mt-5">
-          <h3 className="mb-4 text-center text-gradient">Trabajadores Registrados</h3>
-          {trabajadores.length > 0 ? (
-            <div className="row row-cols-1 row-cols-md-3">
-              {trabajadores.map((trabajador, index) => (
-                <div key={index} className="col mb-4">
-                  <div className="card shadow-lg h-100 rounded-lg">
-                    <div className="card-body">
-                      <h5 className="card-title text-center text-primary">
-                        {trabajador.name} {trabajador.surname}
-                      </h5>
-                      <p className="card-text text-muted text-center">{trabajador.email}</p>
-                      <div className="d-flex justify-content-between">
-                        <button onClick={() => handleEdit(index)} className="btn btn-warning">
-                          Editar
-                        </button>
-                        <button onClick={() => handleDelete(index)} className="btn btn-danger">
-                          Eliminar
-                        </button>
+                
+          <div className="container mt-3 mb-5"> {/* Contenedor para evitar que las tarjetas queden pegadas a los márgenes */}
+            <h3 className="mb-5 text-center text-gradient" style={{ color: "#4b2215", marginTop: "10px"}}>
+              Trabajadores Registrados
+            </h3>
+            {trabajadores.length > 0 ? (
+              <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 "> {/* Separación entre tarjetas */}
+                {trabajadores.map((trabajador, index) => (
+                  <div key={index} className="col">
+                    <div className="card shadow-lg h-100 rounded-lg p-3 " style={{ backgroundColor: "#f5f5f5",minWidth:"200px"}}>
+                      <div className="card-body">
+                        <h5 className="card-title text-center" style={{color: "#4b2215"}}>
+                          {trabajador.name} {trabajador.surname}
+                        </h5>
+                        <p className="card-text text-muted text-center">{trabajador.email}</p>
+                        <div className="d-flex justify-content-center gap-2"> {/* Espacio entre botones */}
+                          <button onClick={() => handleEdit(index)} className="btn fw-bold " 
+                            style={{backgroundColor: "#fad885", 
+                                    fontFamily: "'Montserrat', sans-serif",}}>
+                            Editar
+                          </button>
+                          <button onClick={() => handleDelete(index)} className="btn fw-bold " 
+                            style={{backgroundColor:"#c65b4a", 
+                                    fontFamily: "'Montserrat', sans-serif",}}>
+                            Eliminar
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-center">No hay trabajadores registrados.</p>
-          )}
-        </div>
-        
+                ))}
+              </div>
+            ) : (
+              <p className="text-center" style={{ color: "#4b2215"}}>No hay trabajadores registrados.</p>
+            )}
+          </div>
+      </div>
+      <div style={styles.footerContainer}>
+          <Footer/>
       </div>
     </div>
   );

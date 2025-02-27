@@ -83,7 +83,7 @@ function PasswordRecuper() {
       </nav>
 
       {/* Contenido */}
-      <div className="d-flex justify-content-center align-items-center flex-grow-1">
+      <div className="d-flex justify-content-center align-items-center flex-grow-1" style={{background: "linear-gradient(to bottom, rgb(252, 234, 208), rgb(255, 222, 199))",}}>
         <div className="card p-4 shadow-lg rounded-4" style={{ width: "400px", background: "linear-gradient(to right, #f4b183, #f8d8a8)", maxWidth: "85%" }}>
           {currentForm === "emailForm" && (
             <>

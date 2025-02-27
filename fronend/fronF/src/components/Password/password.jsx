@@ -67,9 +67,9 @@ function Password() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "linear-gradient(to bottom, rgb(252, 234, 208), rgb(255, 222, 199))", }}>
       <div className="d-flex justify-content-center align-items-center flex-grow-1">
-        <div className="card p-4 shadow-lg rounded-4" style={{ width: "400px", background: "linear-gradient(to right, #f4b183, #f8d8a8)", maxWidth: "85%" }}>
+        <div className="card p-4 shadow-lg rounded-4" style={{ width: "400px",  maxWidth: "85%" }}>
           <h2 className="text-center mb-4 fw-bold" style={{ color: "#dc3545" }}>
             Nueva contraseña
           </h2>
