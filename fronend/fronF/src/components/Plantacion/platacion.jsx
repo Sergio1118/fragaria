@@ -24,14 +24,15 @@ const styles = {
     borderRadius: "10px",
     boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
     fontFamily: "'Montserrat', sans-serif",
-    minWidth: "70%",
+    minWidth: "50%",
+    maxWidth: "450px",
     
   },
   cardStyle: {
     margin: "0 auto",
     marginBottom: "60px",
-    width: "100%", // En lugar de minWidth/maxWidth, usa esto
-    maxWidth: "300px", // Limita el tamaño máximo
+    minWidth: "250px", // En lugar de minWidth/maxWidth, usa esto
+    maxWidth: "100px", // Limita el tamaño máximo
     padding: "20px",
   },
   btnCustom: {
@@ -211,7 +212,7 @@ function Plantacion() {
       <div className="row">
         {plantaciones.map((plantacion, index) => (
           <div className="col-sm-12 col-md-6 col-lg-4 mb-4" key={index} >
-            <div className="card p-3" style={styles.cardStyle}>
+            <div className="card p-3 gap-2" style={styles.cardStyle}>
               <img
                 src={plantacion.imagen || "imagenes/fresa2.jpg"}
                 alt="Imagen de la Plantación"
@@ -221,8 +222,8 @@ function Plantacion() {
               <h5 className="mt-2">{plantacion.nombre}</h5>
               <p>{plantacion.descripcion}</p>
               <p  style={{ color: "#4b2215"}}><strong>Fecha de Siembra:</strong> {plantacion.fecha || "No seleccionada"}</p>
-              <button style={styles.btnCustom}  onClick={() => editarPlantacion(index)}>Editar</button>
-              <button style={styles.btnCustom}  onClick={() => eliminarPlantacion(index)}>Eliminar</button>
+              <button className={"btn fw-bold "}style={{backgroundColor: "#fad885", fontFamily: "'Montserrat', sans-serif",}}  onClick={() => editarPlantacion(index)}>Editar</button>
+              <button className={"btn fw-bold"} style={{backgroundColor:"#c65b4a", fontFamily: "'Montserrat', sans-serif",}}  onClick={() => eliminarPlantacion(index)}>Eliminar</button>
             </div>
           </div>
         ))}

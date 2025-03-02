@@ -9,15 +9,14 @@ import Password from"./components/Password/password.jsx";
 import AgregarTrabajador from "./components/Trabajadores/trabajar.jsx"
 import DashboardAdmin from "./components/Dash_admin/dash_admin.jsx";
 import Plantacion from "./components/Plantacion/platacion.jsx";
-import Informes from"./components/informe/info.jsx"
-
+import Informes from"./components/informe/info.jsx";
+import Perfil from "./components/Perfil/perfil.jsx";
 
 
 function App() {
   
   return (
     <Router>
-      {/* Navbar persistente en todas las páginas */}
       <Routes>
         <Route
           path="/registro"
@@ -41,6 +40,15 @@ function App() {
           element={
             <>
               <PasswordRecuper />
+            </>
+          }
+        />
+        <Route
+          path="/perfil"
+          element={
+            <>
+              
+              <Perfil/>
             </>
           }
         />

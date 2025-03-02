@@ -1,5 +1,22 @@
 import { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Navbaradmin from "../NavbarAdmin/Navadmin";
+import Footer from "../Footer/footer";
+
+const styles={
+  container: {
+    minHeight: "100vh",
+    minWidth: "100%", // <-- Aquí lo agregas
+    display: "flex",
+    flexDirection: "column",
+    background: "linear-gradient(to bottom, rgb(252, 234, 208), rgb(255, 222, 199))",
+  },
+  footerContainer: {
+    textAlign: "center",
+    width: "100%",
+    marginTop: "auto", 
+  },
+}
 
 function Actividades() {
   const [actividades, setActividades] = useState([
@@ -48,23 +65,27 @@ function Actividades() {
   };
 
   return (
-    <div className="container mt-4">
-      <h2 className="text-center fw-bold mb-4" style={{ color: "#8B0000" }}>
+  <div style={styles.container}>
+     <div className="container mt-5 mb-5">
+          <Navbaradmin/>
+      <h2 className="text-center fw-bold mb-5 mt-5 d-flex justify-content-cente" style={{color: "#4b2215"}}>
         📌 Gestión de Actividades
       </h2>
 
-      <div className="row">
+      <div className="row g-4">
         {/* Sección de actividades pendientes */}
-        <div className="col-md-4">
+        <div className="col-md-4 ">
           <section className="p-3 border rounded shadow-sm bg-light">
-            <h4 className="text-warning text-center mb-3">📌 Pendientes</h4>
+            <h4 className="text-center mb-3" 
+                  style={{
+                    color:"#febd30"}}>📌 Pendientes</h4>
             <div className="overflow-auto" style={{ maxHeight: "400px" }}>
               {actividades
                 .filter((act) => act.estado === "pendiente")
                 .map((act) => (
-                  <div key={act.id} className="card border-warning shadow-sm mb-3">
+                  <div key={act.id} className="card shadow-sm mb-3  " style={{border:"2px solid #f7dc6f "}}>
                     <div className="card-body text-center">
-                      <h6 className="fw-bold">{act.nameActividad}</h6>
+                      <h6 className="fw-bold"style={{ color: "#8B0000" }}>{act.nameActividad}</h6>
                       <p className="text-muted">📅 {act.fecha}</p>
                       {editando === act.id ? (
                         <>
@@ -85,13 +106,15 @@ function Actividades() {
                       ) : (
                         <>
                           <button
-                            className="btn btn-success btn-sm w-100 mb-2"
+                            className="btn btn-sm w-100 mb-2"
+                            style={{backgroundColor: "#28b463", fontFamily: "'Montserrat', sans-serif" }}
                             onClick={() => marcarComoCompletada(act.id)} // Completar tarea
                           >
                             ✅ Completar
                           </button>
                           <button
-                            className="btn btn-warning btn-sm w-100"
+                            className="btn btn-sm w-100"
+                            style={{backgroundColor: "#fad885", fontFamily: "'Montserrat', sans-serif"}}
                             onClick={() => habilitarEdicion(act)} // Editar fecha
                           >
                             ✏️ Editar Fecha
@@ -106,16 +129,16 @@ function Actividades() {
         </div>
 
         {/* Sección de actividades incompletas */}
-        <div className="col-md-4">
+        <div className="col-md-4 ">
           <section className="p-3 border rounded shadow-sm bg-light">
-            <h4 className="text-danger text-center mb-3">❌ Incompletas</h4>
+            <h4 className="text-center mb-3" style={{color: "#c65b4a"}}>❌ Incompletas</h4>
             <div className="overflow-auto" style={{ maxHeight: "400px" }}>
               {actividades
                 .filter((act) => act.estado === "incompleta")
                 .map((act) => (
-                  <div key={act.id} className="card border-danger shadow-sm mb-3">
+                  <div key={act.id} className="card shadow-sm mb-3" style={{border:" 2px solid #c65b4a"}}>
                     <div className="card-body text-center">
-                      <h6 className="fw-bold">{act.nameActividad}</h6>
+                      <h6 className="fw-bold" style={{ color: "#8B0000" }}>{act.nameActividad}</h6>
                       <p className="text-muted">📅 {act.fecha}</p>
                       {editando === act.id ? (
                         <>
@@ -135,7 +158,8 @@ function Actividades() {
                         </>
                       ) : (
                         <button
-                          className="btn btn-warning btn-sm w-100"
+                          className="btn btn-sm w-100"
+                          style={{backgroundColor: "#fad885", fontFamily: "'Montserrat', sans-serif"}}
                           onClick={() => habilitarEdicion(act)}
                         >
                           ✏️ Editar Fecha
@@ -151,16 +175,16 @@ function Actividades() {
         {/* Sección de actividades completadas */}
         <div className="col-md-4">
           <section className="p-3 border rounded shadow-sm bg-light">
-            <h4 className="text-success text-center mb-3">✅ Completadas</h4>
-            <div className="overflow-auto" style={{ maxHeight: "400px" }}>
+            <h4 className="text-success text-center mb-3" >✅ Completadas</h4>
+            <div className="overflow-auto" style={{ maxHeight: "400px",   }}>
               {actividades
                 .filter((act) => act.estado === "completada")
                 .map((act) => (
-                  <div key={act.id} className="card border-success shadow-sm mb-3">
+                  <div key={act.id} className="card shadow-sm mb-3" style={{border:"2px solid #1e8449 "}}>
                     <div className="card-body text-center">
-                      <h6 className="fw-bold">{act.nameActividad}</h6>
+                      <h6 className="fw-bold" style={{ color: "#8B0000" }}>{act.nameActividad}</h6>
                       <p className="text-muted">📅 {act.fecha}</p>
-                      <span className="badge bg-success">Completada</span>
+                      <span className="badge" style={{backgroundColor:" #28b463", color:"rgb(0, 0, 0) " }}>Completada</span>
                     </div>
                   </div>
                 ))}
@@ -169,6 +193,10 @@ function Actividades() {
         </div>
       </div>
     </div>
+      <div style={styles.footerContainer}>
+          <Footer/>
+      </div>
+  </div>
   );
 }
 

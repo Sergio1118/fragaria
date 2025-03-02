@@ -25,19 +25,18 @@ const styles ={
   },
   card: {
     width: "90%",  // Por defecto, ocupará el 90% del ancho disponible
-    maxWidth: "900px",  // Máximo de 900px en pantallas grandes
+    maxWidth: "500px",  // Máximo de 900px en pantallas grandes
     minWidth: "250px",  // Mínimo de 250px en pantallas pequeñas
     margin: "30px auto", // Centrar la tarjeta horizontalmente
     background: "#ffff",
     boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
     borderRadius: "10px",
-    border: "2px solid rgba(83, 83, 83, 0.2)",
+    border: "1px solid rgba(83, 83, 83, 0.2)",
     padding: "20px",
   },
   input: {
-    border: "3px solid rgba(95, 95, 95, 0.2)", // Borde claro y delgado
-    borderRadius: "25px",
-    padding: "10px",
+    
+    fontFamily: "'Montserrat', sans-serif", 
   },
   footerContainer: {
     textAlign: "center",
@@ -65,7 +64,14 @@ const AgregarTrabajador = () => {
       ...prev,
       [field]: value,
     }));
+  
+    // Si el usuario empieza a escribir en un campo con error, eliminamos el mensaje de error
+    setErrors((prev) => ({
+      ...prev,
+      [field]: "",
+    }));
   };
+  
 
   const validateEmail = (email) => {
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
@@ -177,7 +183,7 @@ const AgregarTrabajador = () => {
         </div>
 
         {isFormVisible && (
-          <div className="shadow-lg p-4 rounded-lg justify-content-center border-2" style={styles.card}>
+          <div className="shadow-lg p-4 rounded-lg justify-content-center " style={styles.card}>
             <h3 className="mb-4 text-center text-gradient" style={{color: "#4b2215"}}>
               {editIndex !== null ? "Editar Trabajador" : "Registrar Trabajador"}
             </h3>
@@ -187,7 +193,7 @@ const AgregarTrabajador = () => {
                   <input
                     type="text"
                     style={styles.input}
-                    className="form-control  border-light rounded-pill p-3"
+                    className="form-control"
                     placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
                     value={formData[field]}
                     onChange={(e) => handleInputChange(field, e.target.value)} // Asegúrate de que el cambio se maneje
@@ -200,7 +206,7 @@ const AgregarTrabajador = () => {
                 <input
                   type="email"
                   style={styles.input}
-                  className={`form-control border2 border-light rounded-pill p-3 ${errors.email ? "is-invalid" : ""}`}
+                  className={`form-control  ${errors.email ? "is-invalid" : ""}`}
                   placeholder="Correo electrónico"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
@@ -213,12 +219,13 @@ const AgregarTrabajador = () => {
                   <input
                     style={styles.input}
                     type={showPasswords[field] ? "text" : "password"}
-                    className={`form-control border2 border-light rounded-pill p-3 ${errors[field] ? "is-invalid" : ""}`}
+                    className={`form-control  ${errors[field] ? "is-invalid" : ""}`}
                     placeholder={field === "confirmation" ? "Confirmar contraseña" : "Contraseña"}
                     value={formData[field]}
                     onChange={(e) => handleInputChange(field, e.target.value)}
                   />
-                  {formData[field] && (
+                  {/* Mostrar el icono solo si hay texto en el campo y no hay error */}
+                  {formData[field] && !errors[field] && (
                     <button
                       type="button"
                       className="btn position-absolute end-0 translate-middle-y me-3 rounded-circle"
@@ -247,7 +254,7 @@ const AgregarTrabajador = () => {
 
                 
           <div className="container mt-3 mb-5"> {/* Contenedor para evitar que las tarjetas queden pegadas a los márgenes */}
-            <h3 className="mb-5 text-center text-gradient" style={{ color: "#4b2215", marginTop: "10px"}}>
+            <h3 className="mb-4 text-center text-gradient" style={{ color: "#4b2215", marginTop: "10px"}}>
               Trabajadores Registrados
             </h3>
             {trabajadores.length > 0 ? (
@@ -278,7 +285,7 @@ const AgregarTrabajador = () => {
                 ))}
               </div>
             ) : (
-              <p className="text-center" style={{ color: "#4b2215"}}>No hay trabajadores registrados.</p>
+              <p className="text-center " style={{ color: "#4b2215"}}>No hay trabajadores registrados.</p>
             )}
           </div>
       </div>
