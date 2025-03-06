@@ -24,7 +24,6 @@ from .models import Actividad, EstadoActividad
 from .forms import ActividadForm, EstadoActividadForm
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User
 from django.utils.http import urlsafe_base64_encode
@@ -34,10 +33,16 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.views.decorators.csrf import csrf_exempt 
 from django.contrib.auth import get_user_model
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.middleware.csrf import get_token
 
+@ensure_csrf_cookie
+def obtener_csrf_token(request):
+    csrf_token = get_token(request)  # Obtener el token CSRF
+    return JsonResponse({"csrfToken": csrf_token})  # Enviar el token en la respuesta JSON
 
 def inicio(request):
-    return render(request, 'usuarios/base.html')  # Plantilla de dashboard principal
+    return render(request), #'usuarios/base.html'  # Plantilla de dashboard principal
 
 #Funcion que valida el tipo de ingreso como credenciales dependiendo el acceso
 
@@ -46,9 +51,27 @@ def mi_vista(request):
     messages.success(request, "¡Operación completada correctamente!")
     return redirect('nombre_de_la_url')
 
-@csrf_exempt
+
+
+
+def user_info(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "No autenticado"}, status=401)  # ✅ Evita la redirección a /accounts/login/
+
+    return JsonResponse({
+        "id": request.user.id,
+        "email": request.user.email,
+        "is_staff": request.user.is_staff,  # ✅ Enviar si es admin o no
+        "first_name": request.user.first_name,
+        "last_name": request.user.last_name
+    })
+
+
+
+
+@csrf_exempt 
 def iniciar_sesion(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         data = json.loads(request.body)
         form = LoginForm(data)
         
@@ -62,19 +85,70 @@ def iniciar_sesion(request):
                 # Iniciar sesión
                 login(request, user)
                 
-                # Respuesta JSON con el estado y la redirección
-                if user.is_superuser:
-                    return JsonResponse({'status': 200, 'success': True, 'redirect_url': 'dashboard_admin'})
-                elif user.is_staff:
-                    return JsonResponse({'status': 200, 'success': True, 'redirect_url': 'admin_dashboard_limited'})
-                else:
-                    return JsonResponse({'status': 200, 'success': True, 'redirect_url': 'inicio'})
+                # Respuesta JSON con estado y `is_staff`
+                return JsonResponse({
+                    'status': 200,
+                    'success': True,
+                    'is_staff': user.is_staff,  # ✅ Aquí enviamos si es admin o no
+                    'message': 'Inicio de sesión exitoso'
+                })
             else:
                 return JsonResponse({'status': 400, 'success': False, 'message': 'Datos incorrectos'})
         else:
             return JsonResponse({'status': 400, 'success': False, 'message': 'Formulario inválido. Verifica los datos ingresados.'})
     else:
         return JsonResponse({'status': 405, 'success': False, 'message': 'Método no permitido, se esperaba POST.'})
+
+
+# def iniciar_sesion(request):
+#     if request.method == "POST":
+#         data = json.loads(request.body)
+#         email= data.get("email")
+#         password = data.get("password")
+        
+#         user = authenticate(request, email=email, password=password)
+#         if user:
+#             login(request, user)  # Inicia sesión
+#             return JsonResponse({
+#                 "message": "Login exitoso",
+#                 "user_id": user.id,
+#                 "is_admin": user.is_superuser,
+#                 "is_staff": user.is_staff
+#             }, status=200)
+#         else:
+#             return JsonResponse({"error": "Credenciales inválidas"}, status=400)
+
+#     return JsonResponse({"error": "Método no permitido"}, status=405)
+
+
+# def iniciar_sesion(request):
+#     if request.method == 'POST':
+#         data = json.loads(request.body)
+#         form = LoginForm(data)
+        
+#         if form.is_valid():
+#             email = form.cleaned_data['email']
+#             password = form.cleaned_data['password']
+            
+#             user = authenticate(request, email=email, password=password)
+            
+#             if user is not None:
+#                 # Iniciar sesión
+#                 login(request, user)
+                
+#                 # Respuesta JSON con el estado y la redirección
+#                 if user.is_superuser:
+#                     return JsonResponse({'status': 200, 'success': True, 'redirect_url': 'dashboard_admin'})
+#                 elif user.is_staff:
+#                     return JsonResponse({'status': 200, 'success': True, 'redirect_url': 'admin_dashboard_limited'})
+#                 else:
+#                     return JsonResponse({'status': 200, 'success': True, 'redirect_url': 'inicio'})
+#             else:
+#                 return JsonResponse({'status': 400, 'success': False, 'message': 'Datos incorrectos'})
+#         else:
+#             return JsonResponse({'status': 400, 'success': False, 'message': 'Formulario inválido. Verifica los datos ingresados.'})
+#     else:
+#         return JsonResponse({'status': 405, 'success': False, 'message': 'Método no permitido, se esperaba POST.'})
 
 
 
@@ -111,14 +185,14 @@ def login_admin(request):
             if user.is_staff:  # Verificamos si es un administrador
                 login(request, user)
                 messages.success(request, "Bienvenido administrador.")
-                return redirect('gestion_usuarios')  # Redirige al panel de administración
+                #return redirect('gestion_usuarios')  # Redirige al panel de administración
             else:
                 messages.error(request, "No tienes permisos de administrador.")
-                return redirect('login')  # Redirige a login si no es admin
+                #return redirect('login')  # Redirige a login si no es admin
     else:
         form = LoginForm()  # Si el método no es POST, creamos un formulario vacío
     
-    return render(request, 'usuarios/login.html', {'form': form})
+    #return render(request, 'usuarios/login.html', {'form': form})
 
 #Vista que permite la gestion de usuarios via administrador
 
@@ -130,33 +204,42 @@ def gestion_usuarios(request):
 
     usuarios = Usuario.objects.filter(admin_creator = request.user)  # Obtén todos los usuarios
 
-    return render(request, 'usuarios/gestion_usuarios.html', {'usuarios': usuarios})
+    #return render(request, 'usuarios/gestion_usuarios.html', {'usuarios': usuarios})
 
 
 #Vista que permite agregar usuarios via administrador
 
-
-@login_required
+@csrf_exempt  # 👈 Desactivar CSRF solo para pruebas en Postman (Opcional)
 def agregar_usuario(request):
+    print("Usuario autenticado:", request.user)
+    print("Es superusuario:", request.user.is_superuser)
+    print("Es staff:", request.user.is_staff)
+
     if not request.user.is_superuser and not request.user.is_staff:
-        return HttpResponseForbidden("No tienes permiso para acceder a esta página.")
-    
+        return JsonResponse({"error": "No tienes permiso para acceder a esta página."}, status=403)
+
     if request.method == 'POST':
-        form = RegistroForm(request.POST)
-     
-        if form.is_valid(): 
+        # ✅ Verifica si la solicitud viene en JSON
+        if request.content_type != "application/json":
+            return JsonResponse({"error": "Se esperaba JSON en la solicitud"}, status=400)
+
+        try:
+            data = json.loads(request.body)  # 📌 Leer el JSON enviado
+            form = RegistroForm(data)  # Pasar los datos al formulario
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Formato JSON inválido"}, status=400)
+
+        if form.is_valid():
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password1'])
             user.admin_creator = request.user
             user.is_staff = False
             user.save()
-            messages.success(request, "Usuario creado exitosamente.")
-            return redirect('gestion_usuarios')
-    else:
-        form = RegistroForm()
+            return JsonResponse({"message": "Usuario creado exitosamente", "user_id": user.id}, status=201)
+        else:
+            return JsonResponse({"error": "Datos inválidos", "details": form.errors}, status=400)
 
-    return render(request, 'usuarios/agregar_usuario.html', {'form': form})
-
+    return JsonResponse({"error": "Método no permitido"}, status=405)
 
 #Vista que permite editar usuarios via administrador
 
@@ -215,27 +298,33 @@ def eliminar_usuario(request, user_id):
 
 #Vista que permite el registro para nuevos empleados u usuarios de la app
 
-@csrf_exempt 
+@csrf_exempt
 def registro(request):
     if request.method == 'POST':
-        # Convertir el cuerpo de la solicitud a un diccionario
-        data = json.loads(request.body)
-        # Pasamos los datos al formulario, pero como estamos recibiendo JSON, utilizamos los datos directamente
+        try:
+            # Convertir el cuerpo de la solicitud a un diccionario
+            data = json.loads(request.body)
+            
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "El formato del JSON es inválido."}, status=400)
+
+        # Pasamos los datos al formulario
         form = RegistroForm(data)
-        
+
         if form.is_valid():
             # Guardar el usuario sin confirmar el commit para poder ajustar la contraseña
             user = form.save(commit=False)
-            user.set_password(data['password1'])  # Usar la contraseña proporcionada
-            user.is_staff = True  # Todos los usuarios serán administradores, si así lo deseas
+            user.set_password(data.get('password1'))  # Usar la contraseña proporcionada
+            user.is_staff = True  # Opcional: hacer que todos sean staff
             user.save()
 
             # Realizar el login automáticamente después de guardar el usuario
             login(request, user)
-
-            # Enviar respuesta de éxito
+            print("Errores del formulario:", form.errors)  
+            # Respuesta de éxito
             return JsonResponse({"message": "Registro exitoso."}, status=200)
         else:
+            print("Errores del formulario:", form.errors)  
             # Si el formulario no es válido, devolver los errores en formato JSON
             return JsonResponse({"errors": form.errors}, status=400)
 
@@ -281,26 +370,26 @@ def password_reset_api(request):
 
 
 
-def agregar_usuario(request):
-    # Descomentar y habilitar este bloque si deseas restringir el acceso solo a superusuarios o usuarios staff
-    # if not request.user.is_superuser and not request.user.is_staff:
-    #     return HttpResponseForbidden("No tienes permiso para acceder a esta página.")
+# def agregar_usuario(request):
+#     # Descomentar y habilitar este bloque si deseas restringir el acceso solo a superusuarios o usuarios staff
+#     # if not request.user.is_superuser and not request.user.is_staff:
+#     #     return HttpResponseForbidden("No tienes permiso para acceder a esta página.")
 
-    if request.method == 'POST':
-        form = RegistroForm(request.POST)
+#     if request.method == 'POST':
+#         form = RegistroForm(request.POST)
 
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password1'])  # Establecer la contraseña de forma segura
-            user.admin_creator = request.user  # Registrar al usuario que creó este nuevo usuario
-            user.is_staff = False  # Establecer el usuario como no staff
-            user.save()
-            messages.success(request, "Usuario creado exitosamente.")
-            return redirect('gestion_usuarios')  # Redirigir a la página de gestión de usuarios
-    else:
-        form = RegistroForm()  # Si no es POST, mostrar el formulario vacío
+#         if form.is_valid():
+#             user = form.save(commit=False)
+#             user.set_password(form.cleaned_data['password1'])  # Establecer la contraseña de forma segura
+#             user.admin_creator = request.user  # Registrar al usuario que creó este nuevo usuario
+#             user.is_staff = False  # Establecer el usuario como no staff
+#             user.save()
+#             messages.success(request, "Usuario creado exitosamente.")
+#             return redirect('gestion_usuarios')  # Redirigir a la página de gestión de usuarios
+#     else:
+#         form = RegistroForm()  # Si no es POST, mostrar el formulario vacío
     
-    return render(request, 'usuarios/agregar_usuario.html', {'form': form})
+#     return render(request, 'usuarios/agregar_usuario.html', {'form': form})
 
 
 # #Vista que permite editar usuarios via administrador

@@ -7,22 +7,37 @@ from django import forms
 from .models import Plantacion
 from .models import Usuario  # Importa Usuario correctamente
 from .models import Actividad, EstadoActividad
+from django.core.validators import EmailValidator
+from django.core.exceptions import ValidationError
+#Registro de formulario donde incluyen los datos de validacion para un registro cono nombre, apellido, correo, contraseñas etc..
+import re
 
 
 #Registro de formulario donde incluyen los datos de validacion para un registro cono nombre, apellido, correo, contraseñas etc..
 
+
 class RegistroForm(UserCreationForm):
+    email = forms.EmailField(
+        required=True,
+        error_messages={"invalid": "Correo electrónico no válido."}
+    )
+
     class Meta:
         model = Usuario
         fields = ['email', 'first_name', 'last_name', 'password1', 'password2']
 
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.is_staff = True  # Todos los usuarios son staff
-        if commit:
-            user.save()
-        return user
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        
+        # Validar que solo se acepten correos con dominio @gmail.com
+        if not re.match(r'^[\w\.-]+@gmail\.com$', email):
+            raise ValidationError("Solo se permiten correos de Gmail (@gmail.com).")
+        
+        # Validar si el correo ya está registrado
+        if Usuario.objects.filter(email=email).exists():
+            raise ValidationError("Este correo ya está registrado.")
 
+        return email
 
 #Registro de formulario donde incluyen los datos inicio de sesion
 

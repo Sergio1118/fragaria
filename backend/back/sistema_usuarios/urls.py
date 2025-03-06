@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.urls import path
 from usuarios import views as usuarios_views
 from django.contrib.auth import views as auth_views
-from usuarios.views import password_reset_api, registro, iniciar_sesion
+from usuarios.views import password_reset_api, registro, iniciar_sesion, obtener_csrf_token,agregar_usuario,user_info
+#from .views import agregar_usuario, obtener_csrf_token
 
 
 urlpatterns = [
@@ -27,14 +28,17 @@ urlpatterns = [
 
     # Rutas de inicio de sesión y registro como de dashboard de la página (inicio)
     path('registro/', registro, name='registro'),
+  
+    path("obtener_token/", obtener_csrf_token, name="obtener_csrf_token"),
     path('login/', iniciar_sesion, name='login'),
-    path('inicio/', usuarios_views.inicio, name='inicio'),  # NUEVA RUTA
+    path("api/user-info/", user_info, name="user-info"),
+   # path('inicio/', usuarios_views.inicio, name='inicio'),  # NUEVA RUTA
 
     # Gestión de usuarios (solo para administradores y superusuario)
     path('dashboard-admin/', usuarios_views.dashboard_admin, name='dashboard_admin'),
     path('admin_dashboard_limited/', usuarios_views.admin_dashboard_limited, name='admin_dashboard_limited'),
     path('gestion-usuarios/', usuarios_views.gestion_usuarios, name='gestion_usuarios'),
-    path('agregar-usuario/', usuarios_views.agregar_usuario, name='agregar_usuario'),
+    path('api/agregar-usuario/', agregar_usuario, name='api_agregar_usuario'), 
     path('editar-usuario/<int:user_id>/', usuarios_views.editar_usuario, name='editar_usuario'),
     path('eliminar-usuario/<int:user_id>/', usuarios_views.eliminar_usuario, name='eliminar_usuario'),
 

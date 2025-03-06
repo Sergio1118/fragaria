@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.conf import settings
+from django.core.validators import EmailValidator
 
 
 
@@ -61,7 +62,7 @@ class EstadoActividad(models.Model):
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, null=True)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, validators=[EmailValidator()])
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)

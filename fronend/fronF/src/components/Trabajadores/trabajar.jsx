@@ -78,34 +78,77 @@ const AgregarTrabajador = () => {
     return emailRegex.test(email);
   };
 
-  const handleSubmit = (e) => {
+  const getCsrfToken = async () => {
+    const response = await fetch("http://localhost:8000/obtener_token/", {
+        credentials: "include",
+    });
+
+    if (!response.ok) {
+        console.error("No se pudo obtener el token CSRF");
+        return null;
+    }
+
+    const data = await response.json();
+    console.log("Token CSRF obtenido:", data.csrfToken); // Verifica si el token aparece en consola
+    return data.csrfToken;
+};
+
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
 
-    // Validación del correo
-    if (!formData.email) {
-      newErrors.email = "El correo es obligatorio";
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = "El correo electrónico no es válido";
-    }
-
-    // Validación de campos para crear o editar
-    if (editIndex === null) {
-      // Si no estamos editando, validamos todos los campos
-      if (!formData.name) newErrors.name = "El nombre es obligatorio";
-      if (!formData.surname) newErrors.surname = "El apellido es obligatorio";
-      if (!formData.password) newErrors.password = "La contraseña es obligatoria";
-      if (formData.password !== formData.confirmation) {
+    // Validaciones
+    if (!formData.name) newErrors.name = "El nombre es obligatorio";
+    if (!formData.surname) newErrors.surname = "El apellido es obligatorio";
+    if (!formData.email) newErrors.email = "El correo es obligatorio";
+    if (!validateEmail(formData.email)) newErrors.email = "El correo no es válido";
+    if (!formData.password) newErrors.password = "La contraseña es obligatoria";
+    if (formData.password !== formData.confirmation) {
         newErrors.confirmation = "Las contraseñas no coinciden";
-      }
-    } else {
-      // Si estamos editando, solo validamos la contraseña
-      if (formData.password !== formData.confirmation) {
-        newErrors.confirmation = "Las contraseñas no coinciden";
-      }
     }
 
     setErrors(newErrors);
+     // Obtener token CSRF antes de enviar el formulario
+     const csrfToken = await getCsrfToken();
+     if (!csrfToken) {
+         alert("Error obteniendo el token CSRF");
+         return;
+     }
+ 
+
+    if (Object.keys(newErrors).length === 0) {
+        try {
+            const response = await fetch("http://localhost:8000/api/agregar-usuario/", {  // ✅ Asegúrate de que la URL sea correcta
+                method: "POST",
+                credentials: "include",  // ✅ Permite enviar cookies de sesión
+                headers: { "Content-Type": "application/json" , "X-CSRFToken": csrfToken,},
+                body: JSON.stringify({
+                  first_name: formData.name,  // Cambio aquí
+                  last_name: formData.surname,  // Cambio aquí
+                  email: formData.email,
+                  password1: formData.password,
+                  password2: formData.confirmation,
+              }),
+              
+            });
+
+            const data = await response.json(); // Obtener respuesta del backend
+
+            if (!response.ok) {
+                throw new Error(data.error || "Error al agregar el trabajador");
+            }
+
+            setTrabajadores([...trabajadores, data]); // Actualizar lista con el nuevo usuario
+            setIsFormVisible(false);
+            setFormData({ name: "", surname: "", email: "", password: "", confirmation: "" });
+
+        } catch (error) {
+            console.error("Error:", error);
+            alert(error.message);
+        }
+    }
 
     // Si no hay errores, actualizamos o añadimos el trabajador
     if (Object.keys(newErrors).length === 0) {

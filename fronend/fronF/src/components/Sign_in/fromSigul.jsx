@@ -22,61 +22,61 @@ function FromSigul() {
     setErrors(prevErrors => ({ ...prevErrors, [key]: "" }));
   };
 
-  const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+ 
 
   const handleValidations = async () => {
     let formErrors = {};
     const { first_name, last_name, email, password1, password2 } = formData;
+    const isValidEmail = email => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i.test(email);
+   
 
-    if (!first_name) formErrors.first_name = "Es obligatorio.";
-    if (!last_name) formErrors.last_name = "Es obligatorio.";
-    if (!email) formErrors.email = "Es obligatorio.";
-    if (email && !isValidEmail(email)) formErrors.email = "Correo electrónico no válido.";
-    if (!password1) formErrors.password1 = "Es obligatoria.";
-    if (!password2) formErrors.password2 = "Es obligatoria.";
-    if (password1 && password2 && password1 !== password2) formErrors.password2 = "Las contraseñas no coinciden.";
-
-    // Si hay errores, no enviar la solicitud y mostrar los mensajes
+    console.log("Datos ingresados:", formData);
+  
+    // Validaciones de los campos obligatorios
+    if (!first_name) formErrors.first_name = "El nombre es obligatorio.";
+    if (!last_name) formErrors.last_name = "El apellido es obligatorio.";
+    if (!email) {
+      formErrors.email = "El correo es obligatorio.";
+    } else if (!isValidEmail(email)) {
+      formErrors.email = "Correo electrónico no válido.";
+    }
+    if (!password1) formErrors.password1 = "La contraseña es obligatoria.";
+    if (!password2) formErrors.password2 = "Debes confirmar la contraseña.";
+    if (password1 && password2 && password1 !== password2) {
+      formErrors.password2 = "Las contraseñas no coinciden.";
+    }
+  
+    // Si hay errores, detener la ejecución y mostrarlos
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
-      // Ocultar iconos si hay errores en las contraseñas
-      if (formErrors.password1 || formErrors.password2) {
-        setShowPasswords({ password1: false, password2: false });
-      }
       return;
     }
-
-    // Si las validaciones son correctas, enviar la solicitud
+  
     try {
-      const requestData = {
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        email: formData.email,
-        password1: formData.password1,
-        password2: formData.password2,
-      };
-
-      const response = await fetch('http://localhost:8000/registro/', {  // Cambia la URL por la del endpoint correspondiente
+      const requestData = { first_name, last_name, email, password1, password2 };
+  
+      const response = await fetch('http://localhost:8000/registro/', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestData),
       });
-
+  
+      const data = await response.json();
+  
       if (response.ok) {
-        const data = await response.json();
-        window.location.href = '/'; // Redirigir al login
+        console.log("Registro exitoso:", data);
+        alert("Registro exitoso. Ahora puedes iniciar sesión.");
+        window.location.href = "/";
       } else {
-        const errorData = await response.json();
-        alert('Error: ' + JSON.stringify(errorData.errors)); // Mostrar errores de backend
+        console.error("Errores del backend:", data.errors);
+        alert("Error: " + JSON.stringify(data.errors));
       }
     } catch (error) {
-      console.error('Error al enviar la solicitud:', error);
-      alert('Error al enviar la solicitud');
+      console.error("Error al enviar la solicitud:", error);
+      alert("Error al enviar la solicitud. Revisa la consola.");
     }
   };
-
+  
   const togglePasswordVisibility = field => {
     setShowPasswords(prevState => ({ ...prevState, [field]: !prevState[field] }));
   };

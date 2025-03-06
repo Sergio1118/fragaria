@@ -11,6 +11,7 @@ import DashboardAdmin from "./components/Dash_admin/dash_admin.jsx";
 import Plantacion from "./components/Plantacion/platacion.jsx";
 import Informes from"./components/informe/info.jsx";
 import Perfil from "./components/Perfil/perfil.jsx";
+import RegistroActividades from "./components/Registrar_actividad/registrar_actividad.jsx";
 
 
 function App() {
@@ -117,6 +118,15 @@ function App() {
           element={
             <>
               <Informes/>
+            </>
+          }
+        />
+        <Route
+          path="/registraractividad"
+          element={
+            <>
+              
+              <RegistroActividades/>
             </>
           }
         />

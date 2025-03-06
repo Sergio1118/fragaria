@@ -40,6 +40,7 @@ function LoginForm() {
             email: formData.email,
             password: formData.password,
           }),
+          credentials: "include", 
         });
 
         const data = await response.json();
@@ -47,8 +48,11 @@ function LoginForm() {
         if (response.ok && data.success) {
           alert("Inicio de sesión exitoso.");
           setFormData({ email: "", password: "" });
+
+          localStorage.setItem("is_staff", data.is_staff ? "true" : "false");
+
           // Redirigir según el role del usuario
-          navigate(data.redirect_url); // Se espera que el backend envíe la URL de redirección
+          navigate("/dash"); // Se espera que el backend envíe la URL de redirección
         } else {
           alert(data.message || "Error al iniciar sesión.");
         }
@@ -58,6 +62,9 @@ function LoginForm() {
       }
     }
   };
+
+  
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
