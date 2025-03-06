@@ -352,7 +352,7 @@ def password_reset_api(request):
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
 
                 # Crear enlace de restablecimiento
-                reset_url = f'http://127.0.0.1:3000/reset-password/{uid}/{token}/'
+                reset_url = f'http://localhost:5173/password/?token={token}&uid={uid}'
 
                 # Enviar el correo
                 subject = "Restablecimiento de contraseña"

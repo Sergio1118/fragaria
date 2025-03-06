@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import Navbaradmin from "../NavbarAdmin/Navadmin";
 import Footer from "../Footer/footer";
 
@@ -25,42 +25,42 @@ function Perfil() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
 
-  useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/perfil/", {
-      method: "GET",
-      credentials: "include", // Para enviar cookies con la sesión
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setName(data.name);
-        setLastName(data.lastName);
-        setEmail(data.email);
-      })
-      .catch((error) => console.error("Error al obtener perfil:", error));
-  }, []);
+  // useEffect(() => {
+  //   fetch("http://127.0.0.1:8000/api/perfil/", {
+  //     method: "GET",
+  //     credentials: "include", // Para enviar cookies con la sesión
+  //   })
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       setName(data.name);
+  //       setLastName(data.lastName);
+  //       setEmail(data.email);
+  //     })
+  //     .catch((error) => console.error("Error al obtener perfil:", error));
+  // }, []);
 
-  const handleUpdate = () => {
-    fetch("http://127.0.0.1:8000/api/perfil/actualizar/", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name, lastName, email }),
-    })
-      .then((response) => response.json())
-      .then(() => alert("Datos actualizados correctamente"))
-      .catch((error) => console.error("Error al actualizar perfil:", error));
-  };
+  // const handleUpdate = () => {
+  //   fetch("http://127.0.0.1:8000/api/perfil/actualizar/", {
+  //     method: "POST",
+  //     credentials: "include",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({ name, lastName, email }),
+  //   })
+  //     .then((response) => response.json())
+  //     .then(() => alert("Datos actualizados correctamente"))
+  //     .catch((error) => console.error("Error al actualizar perfil:", error));
+  // };
 
-  const handleLogout = () => {
-    fetch("http://127.0.0.1:8000/logout/", { method: "POST", credentials: "include" })
-      .then(() => {
-        alert("Sesión cerrada");
-        window.location.reload();
-      })
-      .catch((error) => console.error("Error al cerrar sesión:", error));
-  };
+  // const handleLogout = () => {
+  //   fetch("http://127.0.0.1:8000/logout/", { method: "POST", credentials: "include" })
+  //     .then(() => {
+  //       alert("Sesión cerrada");
+  //       window.location.reload();
+  //     })
+  //     .catch((error) => console.error("Error al cerrar sesión:", error));
+
 
   return (
     <div style={styles.container}>
@@ -103,7 +103,7 @@ function Perfil() {
                         />
                         </div>
                         <button className="btn fw-bold  w-100" 
-                        style={{backgroundColor: "#fad885", fontFamily: "'Montserrat', sans-serif", color: "#4b2215"}} onClick={handleUpdate}>
+                        style={{backgroundColor: "#fad885", fontFamily: "'Montserrat', sans-serif", color: "#4b2215"}} >
                         Actualizar Datos
                         </button>
                     </div>
@@ -120,7 +120,7 @@ function Perfil() {
                         style={{ width: "100px", height: "100px", objectFit: "cover" }}
                     />
                     <button className="btn fw-bold w-100 mt-4"  
-                    style={{backgroundColor:"#c65b4a", fontFamily: "'Montserrat', sans-serif", color: "#4b2215"}}onClick={handleLogout}>
+                    style={{backgroundColor:"#c65b4a", fontFamily: "'Montserrat', sans-serif", color: "#4b2215"}}>
                     Cerrar Sesión
                     </button>
                 </div>

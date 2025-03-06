@@ -48,8 +48,28 @@ function LoginForm() {
         if (response.ok && data.success) {
           alert("Inicio de sesión exitoso.");
           setFormData({ email: "", password: "" });
+          
+          const getCsrfToken = async () => {
+            const response = await fetch("http://localhost:8000/obtener_token/", {
+                credentials: "include",
+            });
 
-          localStorage.setItem("is_staff", data.is_staff ? "true" : "false");
+            if (!response.ok) {
+                console.error("No se pudo obtener el token CSRF");
+                return null;
+            }
+
+            const data = await response.json();
+            return data.csrfToken;
+        };
+
+        const csrfToken = await getCsrfToken();
+        if (!csrfToken) {
+         alert("Error obteniendo el token CSRF");
+         return;
+     }
+
+          localStorage.setItem("is_staff", data.is_staff ? "true" : "false", "token", data.csrfToken);
 
           // Redirigir según el role del usuario
           navigate("/dash"); // Se espera que el backend envíe la URL de redirección

@@ -78,20 +78,20 @@ const AgregarTrabajador = () => {
     return emailRegex.test(email);
   };
 
-  const getCsrfToken = async () => {
-    const response = await fetch("http://localhost:8000/obtener_token/", {
-        credentials: "include",
-    });
+//   const getCsrfToken = async () => {
+//     const response = await fetch("http://localhost:8000/obtener_token/", {
+//         credentials: "include",
+//     });
 
-    if (!response.ok) {
-        console.error("No se pudo obtener el token CSRF");
-        return null;
-    }
+//     if (!response.ok) {
+//         console.error("No se pudo obtener el token CSRF");
+//         return null;
+//     }
 
-    const data = await response.json();
-    console.log("Token CSRF obtenido:", data.csrfToken); // Verifica si el token aparece en consola
-    return data.csrfToken;
-};
+//     const data = await response.json();
+//     console.log("Token CSRF obtenido:", data.csrfToken); // Verifica si el token aparece en consola
+//     return data.csrfToken;
+// };
 
 
 
@@ -111,11 +111,11 @@ const AgregarTrabajador = () => {
 
     setErrors(newErrors);
      // Obtener token CSRF antes de enviar el formulario
-     const csrfToken = await getCsrfToken();
-     if (!csrfToken) {
-         alert("Error obteniendo el token CSRF");
-         return;
-     }
+    //  const csrfToken = await getCsrfToken();
+    //  if (!csrfToken) {
+    //      alert("Error obteniendo el token CSRF");
+    //      return;
+    //  }
  
 
     if (Object.keys(newErrors).length === 0) {
@@ -123,7 +123,7 @@ const AgregarTrabajador = () => {
             const response = await fetch("http://localhost:8000/api/agregar-usuario/", {  // ✅ Asegúrate de que la URL sea correcta
                 method: "POST",
                 credentials: "include",  // ✅ Permite enviar cookies de sesión
-                headers: { "Content-Type": "application/json" , "X-CSRFToken": csrfToken,},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                   first_name: formData.name,  // Cambio aquí
                   last_name: formData.surname,  // Cambio aquí

@@ -8,10 +8,13 @@ import Actividades from"./components/Actividad/actvidades.jsx";
 import Password from"./components/Password/password.jsx";
 import AgregarTrabajador from "./components/Trabajadores/trabajar.jsx"
 import DashboardAdmin from "./components/Dash_admin/dash_admin.jsx";
+import Dashuser from "./components/Dash_user/dash_user.jsx";
 import Plantacion from "./components/Plantacion/platacion.jsx";
 import Informes from"./components/informe/info.jsx";
 import Perfil from "./components/Perfil/perfil.jsx";
 import RegistroActividades from "./components/Registrar_actividad/registrar_actividad.jsx";
+import ActividadesT from "./components/actvidadesTrabajador/actvidadesT.jsx";
+import Perfiluser from "./components/Perfiluser/perfiluser.jsx";
 
 
 function App() {
@@ -45,7 +48,7 @@ function App() {
           }
         />
         <Route
-          path="/perfil"
+          path="/perfiladmin"
           element={
             <>
               
@@ -53,6 +56,16 @@ function App() {
             </>
           }
         />
+          <Route
+          path="/perfiluser"
+          element={
+            <>
+              
+              <Perfiluser/>
+            </>
+          }
+        />
+
 
         <Route
           path="/"
@@ -78,6 +91,16 @@ function App() {
           element={
             <>
               <DashboardAdmin />
+            </>
+          }
+        />
+
+        
+        <Route
+          path="/dashuser"
+          element={
+            <>
+              <Dashuser />
             </>
           }
         />
@@ -127,6 +150,15 @@ function App() {
             <>
               
               <RegistroActividades/>
+            </>
+          }
+        />
+          <Route
+          path="/ActividadesT"
+          element={
+            <>
+              
+              <ActividadesT/>
             </>
           }
         />
