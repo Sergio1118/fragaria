@@ -103,7 +103,6 @@ function Plantacion() {
       : { nombre, descripcion, fecha: fechaFinal, imagen };
 
     console.log("Plantación guardada:", nuevaPlantacion);
-
     if (editando) {
       const nuevasPlantaciones = [...plantaciones];
       nuevasPlantaciones[indiceEdicion] = nuevaPlantacion;

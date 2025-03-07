@@ -15,6 +15,7 @@ import Perfil from "./components/Perfil/perfil.jsx";
 import RegistroActividades from "./components/Registrar_actividad/registrar_actividad.jsx";
 import ActividadesT from "./components/actvidadesTrabajador/actvidadesT.jsx";
 import Perfiluser from "./components/Perfiluser/perfiluser.jsx";
+import Calendario from "./components/cronograma/cronogra.jsx";
 
 
 function App() {
@@ -159,6 +160,15 @@ function App() {
             <>
               
               <ActividadesT/>
+            </>
+          }
+        />
+         <Route
+          path="/cronograma"
+          element={
+            <>
+              
+              <Calendario/>
             </>
           }
         />

@@ -30,7 +30,6 @@ function FromSigul() {
     const isValidEmail = email => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i.test(email);
    
 
-    console.log("Datos ingresados:", formData);
   
     // Validaciones de los campos obligatorios
     if (!first_name) formErrors.first_name = "El nombre es obligatorio.";

@@ -28,7 +28,6 @@ function PasswordRecuper() {
       formErrors.email = "Es obligatorio.";
     } else if (!isValidEmail(email)) {
       formErrors.email = "Correo electrónico no válido.";
-      console.log(isValidEmail("tuemail@example.com"));
     }
 
     if (Object.keys(formErrors).length > 0) {
