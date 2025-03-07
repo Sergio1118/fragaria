@@ -4,6 +4,23 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import esLocale from "@fullcalendar/core/locales/es"; // Idioma español
 import { Card, Button } from "react-bootstrap"; // Bootstrap para las tarjetas
 import "bootstrap/dist/css/bootstrap.min.css";
+import Navbaradmin from "../NavbarAdmin/Navadmin";
+import Footer from "../Footer/footer";
+
+const styles={
+  container: {
+    minHeight: "100vh",
+    minWidth: "100%", // <-- Aquí lo agregas
+    display: "flex",
+    flexDirection: "column",
+    background: "linear-gradient(to bottom, rgb(252, 234, 208), rgb(255, 222, 199))",
+  },
+  footerContainer: {
+    textAlign: "center",
+    marginTop: "auto", 
+    height:'100%'
+  },
+}
 
 const Calendario = () => {
   const [mostrarCompletadas, setMostrarCompletadas] = useState(false);
@@ -44,7 +61,11 @@ const Calendario = () => {
   };
 
   return (
-    <div className="container mt-4 d-flex justify-content-center">
+    <div className="container mt-4 d-flex justify-content-center" style={styles.container}>
+      <Navbaradmin/>
+      <h2 className="text-center fw-bold mb-5 mt-5 d-flex justify-content-cente" style={{color: "#4b2215"}}>
+        Calendario
+      </h2>
       <div className="row w-100">
         {/* Calendario */}
         <div className="col-md-8">
@@ -156,7 +177,11 @@ const Calendario = () => {
           </Card>
         </div>
       </div>
+      <div style={styles.footerContainer}>
+          <Footer/>
+      </div>
     </div>
+    
   );
 };
 
