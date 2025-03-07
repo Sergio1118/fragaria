@@ -34,6 +34,7 @@ from .emails import notificar_actividad  # Importa la función que creamos antes
 from .forms import EditarPerfilForm
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.contrib.auth import logout
 
 @ensure_csrf_cookie
 def obtener_csrf_token(request):
@@ -205,7 +206,7 @@ def editar_usuario(request, user_id):
                 'status': 200,
                 'success': True,
                 'message': 'Usuario actualizado exitosamente.',
-                'redirect_url': 'gestion_usuarios'
+                #'redirect_url': 'gestion_usuarios'
             })
         else:
             errors = form.errors.as_json()
@@ -215,9 +216,9 @@ def editar_usuario(request, user_id):
                 'message': 'Formulario inválido.',
                 'errors': errors
             }, status=400)
-    else:
-        form = UsuarioForm(instance=usuario)
-        return render(request, 'usuarios/editar_usuario.html', {'form': form, 'usuario': usuario})
+    # else:
+    #     form = UsuarioForm(instance=usuario)
+    #     return render(request, 'usuarios/editar_usuario.html', {'form': form, 'usuario': usuario})
 
 
 #Vista que permite eliminar usuarios via administrador
@@ -825,23 +826,20 @@ def asignar_actividad(request):
 
 # Hacer metodo GET 
 
+
 @csrf_exempt
-@login_required
 def perfil(request):
+   
     usuario = request.user  
+
     es_administrador = usuario.is_superuser or usuario.is_staff  
 
     if request.method == 'POST':
-        # Permitir edición solo a administradores
-        if not es_administrador:
-            return JsonResponse({
-                'status': 403,
-                'success': False,
-                'message': 'No tienes permisos para editar el perfil.'
-            }, status=403)
 
+        # Permitir edición solo a administradores
+        data = json.loads(request.body)  # Parseamos el cuerpo de la solicit
         # Si el usuario es administrador, permitir edición
-        form = EditarPerfilForm(request.POST, instance=usuario)
+        form = EditarPerfilForm(data, instance=usuario)
         if form.is_valid():
             form.save()
             return JsonResponse({
@@ -874,6 +872,14 @@ def perfil(request):
             'usuario': datos_usuario,
             'es_administrador': es_administrador,
         })
+
+@csrf_exempt
+def logout_view(request):
+    logout(request)  # Esto elimina la sesión en el servidor
+    return JsonResponse({
+        "status": 200,
+        "message": "Logout exitoso"
+    })
         
         
         

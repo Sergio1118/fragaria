@@ -78,21 +78,6 @@ const AgregarTrabajador = () => {
     return emailRegex.test(email);
   };
 
-//   const getCsrfToken = async () => {
-//     const response = await fetch("http://localhost:8000/obtener_token/", {
-//         credentials: "include",
-//     });
-
-//     if (!response.ok) {
-//         console.error("No se pudo obtener el token CSRF");
-//         return null;
-//     }
-
-//     const data = await response.json();
-//     console.log("Token CSRF obtenido:", data.csrfToken); // Verifica si el token aparece en consola
-//     return data.csrfToken;
-// };
-
 
 
   const handleSubmit = async (e) => {
@@ -110,50 +95,12 @@ const AgregarTrabajador = () => {
     }
 
     setErrors(newErrors);
-     // Obtener token CSRF antes de enviar el formulario
-    //  const csrfToken = await getCsrfToken();
-    //  if (!csrfToken) {
-    //      alert("Error obteniendo el token CSRF");
-    //      return;
-    //  }
- 
-
-    if (Object.keys(newErrors).length === 0) {
-        try {
-            const response = await fetch("http://localhost:8000/api/agregar-usuario/", {  // ✅ Asegúrate de que la URL sea correcta
-                method: "POST",
-                credentials: "include",  // ✅ Permite enviar cookies de sesión
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  first_name: formData.name,  // Cambio aquí
-                  last_name: formData.surname,  // Cambio aquí
-                  email: formData.email,
-                  password1: formData.password,
-                  password2: formData.confirmation,
-              }),
-              
-            });
-
-            const data = await response.json(); // Obtener respuesta del backend
-
-            if (!response.ok) {
-                throw new Error(data.error || "Error al agregar el trabajador");
-            }
-
-            setTrabajadores([...trabajadores, data]); // Actualizar lista con el nuevo usuario
-            setIsFormVisible(false);
-            setFormData({ name: "", surname: "", email: "", password: "", confirmation: "" });
-
-        } catch (error) {
-            console.error("Error:", error);
-            alert(error.message);
-        }
-    }
 
     // Si no hay errores, actualizamos o añadimos el trabajador
     if (Object.keys(newErrors).length === 0) {
       const newTrabajadores = [...trabajadores];
 
+      //hacemos el fecth de actualizar 
       if (editIndex !== null) {
         // Actualizamos el trabajador con todos los campos
         newTrabajadores[editIndex] = {
@@ -161,9 +108,38 @@ const AgregarTrabajador = () => {
           surname: formData.surname,
           email: formData.email,
           password: formData.password, // Agregamos la contraseña en la actualización
-        };
+        }; 
       } else {
-        // Añadimos un nuevo trabajador
+        // Añadimos un nuevo trabajador //
+        try {
+          const response = await fetch("http://localhost:8000/api/agregar-usuario/", {  // ✅ Asegúrate de que la URL sea correcta
+              method: "POST",
+              credentials: "include",  // ✅ Permite enviar cookies de sesión
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                first_name: formData.name,  // Cambio aquí
+                last_name: formData.surname,  // Cambio aquí
+                email: formData.email,
+                password1: formData.password,
+                password2: formData.confirmation,
+            }),
+            
+          });
+
+          const data = await response.json(); // Obtener respuesta del backend
+
+          if (!response.ok) {
+              throw new Error(data.error || "Error al agregar el trabajador");
+          }
+
+          setTrabajadores([...trabajadores, data]); // Actualizar lista con el nuevo usuario
+          setIsFormVisible(false);
+          setFormData({ name: "", surname: "", email: "", password: "", confirmation: "" });
+
+      } catch (error) {
+          console.error("Error:", error);
+          alert(error.message);
+      }
         newTrabajadores.push({
           name: formData.name,
           surname: formData.surname,
@@ -190,7 +166,7 @@ const AgregarTrabajador = () => {
     setEditIndex(index);
     setIsFormVisible(true);
   };
-
+  //fetch de delete
   const handleDelete = (index) => {
     if (window.confirm("¿Estás seguro de que quieres eliminar este trabajador?")) {
       setTrabajadores(trabajadores.filter((_, i) => i !== index));

@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from usuarios import views as usuarios_views
 from django.contrib.auth import views as auth_views
-from usuarios.views import  obtener_csrf_token, password_reset_api, iniciar_sesion, agregar_usuario, registro
+from usuarios.views import  obtener_csrf_token, password_reset_api, iniciar_sesion, agregar_usuario, registro,perfil,logout_view
 
 
 urlpatterns = [
@@ -31,6 +31,7 @@ urlpatterns = [
     # Rutas de inicio de sesión y registro como de dashboard de la página (inicio)
     path('registro/', registro, name='registro'),
     path('login/', iniciar_sesion, name='login'),
+    path('logout/', logout_view, name='logout'),
 
     # Gestión de usuarios (solo para administradores y superusuario)
     path('dashboard-admin/', usuarios_views.dashboard_admin, name='dashboard_admin'),
@@ -58,7 +59,7 @@ urlpatterns = [
     
     # Administrador envia actividades a usuarios
     path('asignar_actividad/', usuarios_views.asignar_actividad, name='asignar_actividad'),
-    path('perfil/', usuarios_views.perfil, name='perfil'),
+    path('perfil/', perfil, name='perfil'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 
     # URL para informes (si es necesaria)

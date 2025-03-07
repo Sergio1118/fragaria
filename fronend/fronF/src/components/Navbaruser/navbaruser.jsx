@@ -48,7 +48,7 @@ function Navbaruser() {
   return (
     <nav className="navbar navbar-expand-lg navbar-light" style={styles.navbar}>
       <div className="container-fluid">
-        <a className="navbar-brand" href="/dashprincipal" style={styles.brand}>
+        <a className="navbar-brand" href="/dashuser" style={styles.brand}>
           <img
             src="imagenes/iconoFragaria.png"
             alt="Fragaria Logo"

@@ -71,8 +71,13 @@ function LoginForm() {
 
           localStorage.setItem("is_staff", data.is_staff ? "true" : "false", "token", data.csrfToken);
 
-          // Redirigir según el role del usuario
-          navigate("/dash"); // Se espera que el backend envíe la URL de redirección
+          if (data.is_staff) {
+            // Redirige a la página de administrador
+            navigate("/dashadmin");
+          } else {
+            // Redirige a la página de trabajador
+            navigate("/dashuser");
+          }
         } else {
           alert(data.message || "Error al iniciar sesión.");
         }

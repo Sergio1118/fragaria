@@ -88,7 +88,7 @@ function App() {
 
 
         <Route
-          path="/dash"
+          path="/dashadmin"
           element={
             <>
               <DashboardAdmin />
