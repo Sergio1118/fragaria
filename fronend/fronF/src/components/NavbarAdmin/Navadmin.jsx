@@ -73,7 +73,7 @@ function Navbaradmin() {
 
         <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
           <div className="navbar-nav ms-4">
-            <NavLink className="nav-link mx-2" to="/perfil" style={styles.link}>
+            <NavLink className="nav-link mx-2" to="/perfiladmin" style={styles.link}>
               <img
                 src="imagenes/usuario.png"
                 alt="Perfil"

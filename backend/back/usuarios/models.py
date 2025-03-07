@@ -1,9 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.conf import settings
-from django.core.validators import EmailValidator
-
-
 
 
 # Manager personalizado para el Usuario
@@ -31,6 +28,11 @@ class Actividad(models.Model):
     clima_requerido = models.CharField(max_length=50)
     fecha_vencimiento = models.DateField()
     fecha = models.DateField()
+    descripcion = models.TextField()  # Asegúrate de que el campo descripcion esté presente.
+
+
+    # Relación con Usuario, añadiendo un 'related_name' único
+    usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE, related_name='actividades_asignadas')
 
     def __str__(self):
         return self.nombre_actividad
@@ -42,8 +44,9 @@ class Actividad(models.Model):
         estado = self.estadoactividad_set.last()  # Obtén el último estado
         return estado.estado if estado else 'Sin estado'
 
+# Modelo de Usuario
+# models.py
 
-# Modelo de Estado de la Actividad
 class EstadoActividad(models.Model):
     ESTADOS = [
         ('Pendiente', 'Pendiente'),
@@ -57,12 +60,9 @@ class EstadoActividad(models.Model):
         return f"Estado: {self.estado} de la actividad {self.actividad.nombre_actividad}"
 
 
-# Modelo de Usuario
-# models.py
-
 class Usuario(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, null=True)
-    email = models.EmailField(unique=True, validators=[EmailValidator()])
+    email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)
@@ -72,16 +72,15 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     # Relación con Plantación
     plantacion = models.ForeignKey('Plantacion', on_delete=models.CASCADE, related_name='usuarios', null=True, blank=True)
     
-    # Relación Muchos a Muchos con Actividad
-    actividades = models.ManyToManyField(Actividad, blank=True)
-    
+    # Relación Muchos a Muchos con Actividad (no hace falta related_name aquí)
+    actividades = models.ManyToManyField('Actividad', blank=True, related_name='usuarios_asociados')
+
     admin_creator = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='created_users')
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
-    objects = BaseUserManager()
-
+    objects = UsuarioManager()
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -100,8 +99,8 @@ class FechasSiembra(models.Model):
 # Modelo de Plantación
 class Plantacion(models.Model):
     nombre = models.CharField(max_length=100)
-    descripcion = models.TextField()
-    fecha_siembra = models.DateField()
+    descripcion = models.TextField(null=True, blank=True)
+    fecha_siembra = models.DateField(null=True, blank=True)  
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='plantaciones')
 
     def __str__(self):
@@ -111,8 +110,9 @@ class Plantacion(models.Model):
 # Modelo de Siembra
 class Siembra(models.Model):
     nombre = models.CharField(max_length=100)
-    fecha_siembra = models.DateField()
-
+    fecha_siembra = models.DateField() 
+    
+    
     # Relación con Plantación
     plantacion = models.ForeignKey(Plantacion, on_delete=models.CASCADE, related_name='siembras')
 
