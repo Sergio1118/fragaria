@@ -53,7 +53,7 @@ class UsuarioForm(UserChangeForm):
 class PlantacionForm(forms.ModelForm):
     class Meta:
         model = Plantacion
-        fields = ['nombre', 'descripcion']
+        fields = ['nombre', 'descripcion','fecha_siembra']
         
 
         

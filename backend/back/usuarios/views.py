@@ -332,15 +332,6 @@ def password_reset_api(request):
 
 #Redireccion a la pagina mediante enlace enviado via gmail, el cual permite realizar la actualizacion de contraseña y redireccion a login.
 
-# de los front deben hacer fech 
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from django.contrib.auth.forms import SetPasswordForm
-from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth import get_user_model
-from django.utils.http import urlsafe_base64_decode
-import json
-
 @csrf_exempt
 def reset_password(request, uidb64, token):
     if request.method != 'POST':
@@ -469,28 +460,50 @@ def obtener_clima(ubicacion):
 # Vista para mostrar todas las plantaciones
 # se dee hacer un metodo GET
 def plantacion(request):
-    
-    plantaciones = Plantacion.objects.filter(usuario=request.user)
-    ubicacion = 'Pereira'
-    clima_data = obtener_clima(ubicacion)
+    if request.method == 'GET':
+        try:
+            # Filtrar las plantaciones del usuario actual
+            plantaciones = Plantacion.objects.filter(usuario=request.user)
+            
+            # Obtener los datos del clima (supongo que esta función está correctamente implementada)
+            ubicacion = 'Pereira'
+            clima_data = obtener_clima(ubicacion)
 
-    # Simplificar la asignación de variables relacionadas con el clima
-    temperatura = clima_data.get('temperatura') if clima_data else None
-    descripcion = clima_data.get('descripcion') if clima_data else None
-    humedad = clima_data.get('humedad') if clima_data else None
-    presion = clima_data.get('presion') if clima_data else None
-    velocidad_viento = clima_data.get('velocidad_viento') if clima_data else None
-    
-    return render(request,'usuarios/plantaciones.html', {'plantaciones': plantaciones, 
-        'temperatura': temperatura,
-        'descripcion': descripcion,
-        'humedad': humedad,
-        'presion': presion,
-        'velocidad_viento': velocidad_viento,
-        'ubicacion': ubicacion,
-    })
-    
+            # Simplificar la asignación de variables relacionadas con el clima
+            temperatura = clima_data.get('temperatura') if clima_data else None
+            descripcion = clima_data.get('descripcion') if clima_data else None
+            humedad = clima_data.get('humedad') if clima_data else None
+            presion = clima_data.get('presion') if clima_data else None
+            velocidad_viento = clima_data.get('velocidad_viento') if clima_data else None
 
+            # Crear la respuesta JSON con los datos
+            plantaciones_data = list(plantaciones.values('id', 'nombre', 'descripcion', 'fecha_siembra'))
+            
+            # Si no tienes datos, no hagas nada
+            if not plantaciones_data:
+                return JsonResponse({'message': 'No hay plantaciones registradas.'}, status=404)
+
+            response_data = {
+                'plantaciones': plantaciones_data,
+                'clima': {
+                    'temperatura': temperatura,
+                    'descripcion': TRADUCCION_CLIMA.get(descripcion, descripcion),
+                    'humedad': humedad,
+                    'presion': presion,
+                    'velocidad_viento': velocidad_viento,
+                }
+            }
+
+            return JsonResponse(response_data, status=200)
+        
+        except Exception as e:
+            # En caso de error, devolver un mensaje de error
+            error_data = {
+                'status': 'error',
+                'message': str(e),
+            }
+            return JsonResponse(error_data, status=500)
+        
 TRADUCCION_CLIMA = {
         "Clear": "Despejado",
         "Clouds": "Nublado",
@@ -523,10 +536,7 @@ TRADUCCION_CLIMA = {
         "few clouds": "pocas nubes"
 }
 
-# necesita cambios con status
-# Vista para registrar una nueva plantación
-@login_required
-def registrar_plantacion(request):
+def obtener_fechas_recomendadas(request):
     # Configuración de la API del clima
     API_KEY = 'b38f3f8558d7bee2759f548984ae5505'  # Reemplaza con tu clave API
     ubicacion = 'Pereira,CO'
@@ -535,8 +545,7 @@ def registrar_plantacion(request):
     # Obtener datos del clima
     response = requests.get(url)
     if response.status_code != 200:
-        messages.error(request, 'No se pudo obtener el clima. Inténtalo de nuevo más tarde.')
-        return render(request, 'usuarios/registrar_plantacion.html', {'form': PlantacionForm()})
+        return JsonResponse({'status': 500, 'message': 'No se pudo obtener el clima. Inténtalo de nuevo más tarde.'}, status=500)
 
     clima_data = response.json()
     fechas_recomendadas = []
@@ -550,46 +559,28 @@ def registrar_plantacion(request):
             if fecha_formateada not in fechas_recomendadas:  # Evitar duplicados
                 fechas_recomendadas.append(fecha_formateada)
 
-    # Obtener el clima actual
-    clima_actual_url = f"http://api.openweathermap.org/data/2.5/weather?q={ubicacion}&appid={API_KEY}&units=metric"
-    clima_actual_response = requests.get(clima_actual_url)
-    if clima_actual_response.status_code == 200:
-        clima_actual_data = clima_actual_response.json()
-        temperatura_actual = clima_actual_data['main']['temp']
-        descripcion_ingles = clima_actual_data['weather'][0]['description']
-        descripcion_actual = TRADUCCION_CLIMA.get(descripcion_ingles, descripcion_ingles)
-        humedad_actual = clima_actual_data['main']['humidity']
-        presion_actual = clima_actual_data['main']['pressure']
-        velocidad_viento_actual = clima_actual_data['wind']['speed']
-    else:
-        temperatura_actual = descripcion_actual = humedad_actual = presion_actual = velocidad_viento_actual = None
+    return JsonResponse({
+        'status': 200,
+        'success': True,
+        'fechas_recomendadas': fechas_recomendadas
+    })
 
-    # solicitudes POST estoy cansadoooooo jaja erdaa con tanta cosa por hacer y nos las estoy haciendo bien por estar pensando si estás bien.
+
+@csrf_exempt
+def registrar_plantacion(request):
     if request.method == 'POST':
-        form = PlantacionForm(request.POST)
+        data = json.loads(request.body)
+        form = PlantacionForm(data)
         if form.is_valid():
             plantacion = form.save(commit=False)
             plantacion.usuario = request.user
-            fecha_recomendada = request.POST.get('fecha_recomendada')
-            fecha_personalizada = request.POST.get('fecha_personalizada')
-
-            if fecha_personalizada:
-                plantacion.fecha_siembra = fecha_personalizada
-            elif fecha_recomendada:
-                plantacion.fecha_siembra = fecha_recomendada
-            else:
-                return JsonResponse({
-                    'status': 400,
-                    'success': False,
-                    'message': 'Debes seleccionar una fecha de siembra.'
-                }, status=400)
 
             plantacion.save()
             return JsonResponse({
                 'status': 200,
                 'success': True,
                 'message': 'Plantación registrada correctamente.',
-                'redirect_url': 'plantaciones'
+                'redirect_url': '/plantaciones'
             })
         else:
             errors = form.errors.as_json()
@@ -600,19 +591,99 @@ def registrar_plantacion(request):
                 'errors': errors
             }, status=400)
 
+    return render(request, 'usuarios/registrar_plantacion.html', {'form': PlantacionForm()})
+
+
+# necesita cambios con status
+# Vista para registrar una nueva plantación
+# @login_required
+# def registrar_plantacion(request):
+#     # Configuración de la API del clima
+#     API_KEY = 'b38f3f8558d7bee2759f548984ae5505'  # Reemplaza con tu clave API
+#     ubicacion = 'Pereira,CO'
+#     url = f"http://api.openweathermap.org/data/2.5/forecast?q={ubicacion}&appid={API_KEY}&units=metric"
+
+#     # Obtener datos del clima
+#     response = requests.get(url)
+#     if response.status_code != 200:
+#         messages.error(request, 'No se pudo obtener el clima. Inténtalo de nuevo más tarde.')
+#         return render(request, 'usuarios/registrar_plantacion.html', {'form': PlantacionForm()})
+
+#     clima_data = response.json()
+#     fechas_recomendadas = []
+
+#     # Filtrar fechas con clima templado
+#     for pronostico in clima_data['list']:
+#         fecha = pronostico['dt_txt']  # Fecha en formato 'año-mes-dia h:min:seg'
+#         temperatura = pronostico['main']['temp']
+#         if 15 <= temperatura <= 25:  # Rango de clima templado
+#             fecha_formateada = datetime.strptime(fecha, '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%d')
+#             if fecha_formateada not in fechas_recomendadas:  # Evitar duplicados
+#                 fechas_recomendadas.append(fecha_formateada)
+
+#     # Obtener el clima actual
+#     clima_actual_url = f"http://api.openweathermap.org/data/2.5/weather?q={ubicacion}&appid={API_KEY}&units=metric"
+#     clima_actual_response = requests.get(clima_actual_url)
+#     if clima_actual_response.status_code == 200:
+#         clima_actual_data = clima_actual_response.json()
+#         temperatura_actual = clima_actual_data['main']['temp']
+#         descripcion_ingles = clima_actual_data['weather'][0]['description']
+#         descripcion_actual = TRADUCCION_CLIMA.get(descripcion_ingles, descripcion_ingles)
+#         humedad_actual = clima_actual_data['main']['humidity']
+#         presion_actual = clima_actual_data['main']['pressure']
+#         velocidad_viento_actual = clima_actual_data['wind']['speed']
+#     else:
+#         temperatura_actual = descripcion_actual = humedad_actual = presion_actual = velocidad_viento_actual = None
+
+#     # solicitudes POST estoy cansadoooooo jaja erdaa con tanta cosa por hacer y nos las estoy haciendo bien por estar pensando si estás bien.
+#     if request.method == 'POST':
+#         form = PlantacionForm(request.POST)
+#         if form.is_valid():
+#             plantacion = form.save(commit=False)
+#             plantacion.usuario = request.user
+#             fecha_recomendada = request.POST.get('fecha_recomendada')
+#             fecha_personalizada = request.POST.get('fecha_personalizada')
+
+#             if fecha_personalizada:
+#                 plantacion.fecha_siembra = fecha_personalizada
+#             elif fecha_recomendada:
+#                 plantacion.fecha_siembra = fecha_recomendada
+#             else:
+#                 return JsonResponse({
+#                     'status': 400,
+#                     'success': False,
+#                     'message': 'Debes seleccionar una fecha de siembra.'
+#                 }, status=400)
+
+#             plantacion.save()
+#             return JsonResponse({
+#                 'status': 200,
+#                 'success': True,
+#                 'message': 'Plantación registrada correctamente.',
+#                 'redirect_url': 'plantaciones'
+#             })
+#         else:
+#             errors = form.errors.as_json()
+#             return JsonResponse({
+#                 'status': 400,
+#                 'success': False,
+#                 'message': 'Formulario inválido.',
+#                 'errors': errors
+#             }, status=400)
+
     # solicitudes GET
-    else:
-        form = PlantacionForm()
-        return render(request, 'usuarios/registrar_plantacion.html', {
-            'form': form,
-            'fechas_recomendadas': fechas_recomendadas,
-            'temperatura': temperatura_actual,
-            'descripcion': descripcion_actual,
-            'humedad': humedad_actual,
-            'presion': presion_actual,
-            'velocidad_viento': velocidad_viento_actual,
-            'ubicacion': ubicacion,
-        })           
+    # else:
+    #     form = PlantacionForm()
+    #     return render(request, 'usuarios/registrar_plantacion.html', {
+    #         'form': form,
+    #         'fechas_recomendadas': fechas_recomendadas,
+    #         'temperatura': temperatura_actual,
+    #         'descripcion': descripcion_actual,
+    #         'humedad': humedad_actual,
+    #         'presion': presion_actual,
+    #         'velocidad_viento': velocidad_viento_actual,
+    #         'ubicacion': ubicacion,
+    #     })           
 
 # hacer metodo GET  
 def lista_actividades(request):
@@ -716,12 +787,12 @@ def listar_plantaciones(request):
     plantaciones = Plantacion.objects.all()  
     return render(request, 'usuarios/plantaciones.html', {'plantaciones': plantaciones})
 
-
-@login_required
+@csrf_exempt
 def editar_plantacion(request, id):
     plantacion = get_object_or_404(Plantacion, id=id)
     if request.method == 'POST':
-        form = PlantacionForm(request.POST, instance=plantacion)
+        data = json.loads(request.body)
+        form = PlantacionForm(data, instance=plantacion)
         if form.is_valid():
             form.save()
             return JsonResponse({
@@ -744,7 +815,7 @@ def editar_plantacion(request, id):
 
 
 
-@login_required
+@csrf_exempt
 def eliminar_plantacion(request, id):
     plantacion = get_object_or_404(Plantacion, id=id)
     if request.method == 'POST':

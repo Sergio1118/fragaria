@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import Navbaradmin from "../NavbarAdmin/Navadmin";
-import Footer from "../Footer/footer"
-
-
+import Footer from "../Footer/footer";
 
 const styles = {
   plantacionContainer: {
@@ -15,7 +13,6 @@ const styles = {
     overflowX: "hidden", 
     margin: 0,
     padding: 0,
-   
   },
   formContainer: {
     margin: "0 auto 30px auto",  
@@ -26,13 +23,12 @@ const styles = {
     fontFamily: "'Montserrat', sans-serif",
     minWidth: "50%",
     maxWidth: "450px",
-    
   },
   cardStyle: {
     margin: "0 auto",
     marginBottom: "60px",
-    minWidth: "250px", // En lugar de minWidth/maxWidth, usa esto
-    maxWidth: "100px", // Limita el tamaño máximo
+    minWidth: "250px",
+    maxWidth: "100px",
     padding: "20px",
   },
   btnCustom: {
@@ -57,7 +53,6 @@ const styles = {
   },
 };
 
-
 function Plantacion() {
   const [plantaciones, setPlantaciones] = useState([]);
   const [nombre, setNombre] = useState("");
@@ -73,10 +68,52 @@ function Plantacion() {
   const [errores, setErrores] = useState({});
 
   useEffect(() => {
-    fetch("URL_DE_TU_API")
-      .then((res) => res.json())
-      .then((data) => setFechasRecomendadas(data.fechas_recomendadas))
-      .catch((err) => console.error("Error al obtener las fechas recomendadas:", err));
+    const plantacionGet = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/plantacion/", {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setPlantaciones(data.plantaciones);
+        } else {
+          setError(data.message || "Error fetching profile data");
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        setError("Error fetching profile.");
+      }
+    };
+    plantacionGet();
+  }, []);
+
+
+  useEffect(() => {
+    const fecharecomrdat = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/obtener_fechas_recomendadas/", {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setFechasRecomendadas(data.fechas_recomendadas);
+        } else {
+          setError(data.message || "Error fetching profile data");
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        setError("Error fetching profile.");
+      }
+    };
+    fecharecomrdat();
   }, []);
 
   const validarFormulario = () => {
@@ -93,26 +130,72 @@ function Plantacion() {
     return Object.keys(erroresTemp).length === 0;
   };
 
-  const guardarPlantacion = () => {
+  const guardarPlantacion = async () => {
     if (!validarFormulario()) return;
-
+  
     const fechaFinal = usarFechaPersonalizada ? fechaPersonalizada : fechaSeleccionada;
-
+  
     const nuevaPlantacion = editando
       ? { ...plantaciones[indiceEdicion], nombre, descripcion, fecha: fechaFinal }
-      : { nombre, descripcion, fecha: fechaFinal, imagen };
-
-    console.log("Plantación guardada:", nuevaPlantacion);
+      : { nombre, descripcion, fecha: fechaFinal };
+  
+  
+  
+    // Al finalizar, actualizamos el estado de las plantaciones
     if (editando) {
+      const id = plantaciones[indiceEdicion].id
+      try {
+        const response = await fetch(`http://localhost:8000/editar-plantacion/${id}/`, {
+          method: "POST",
+          credentials: "include", // enviar cookies
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nombre: plantaciones[indiceEdicion].nombre,
+            descripcion: plantaciones[indiceEdicion].descripcion,
+          }),
+        });
+    
+        const data = await response.json();
+    
+        if (response.ok) {
+          alert("Plantación guardada correctamente.");
+        } else {
+          console.error("Error:", data.message || "Error al guardar la plantación.");
+        }
+      } catch (error) {
+        console.error("Error al guardar la plantación:");
+      }
       const nuevasPlantaciones = [...plantaciones];
       nuevasPlantaciones[indiceEdicion] = nuevaPlantacion;
       setPlantaciones(nuevasPlantaciones);
       setEditando(false);
       setIndiceEdicion(null);
     } else {
+      try {
+        const response = await fetch("http://localhost:8000/registrar_plantacion/", {
+          method: "POST",
+          credentials: "include", // enviar cookies
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nombre: nuevaPlantacion.nombre,
+            descripcion: nuevaPlantacion.descripcion,
+            fecha_siembra: nuevaPlantacion.fecha,
+          }),
+        });
+    
+        const data = await response.json();
+    
+        if (response.ok) {
+          alert("Plantación guardada correctamente.");
+        } else {
+          console.error("Error:", data.message || "Error al guardar la plantación.");
+        }
+      } catch (error) {
+        console.error("Error al guardar la plantación:");
+      }
       setPlantaciones([...plantaciones, nuevaPlantacion]);
     }
-
+  
     limpiarFormulario();
   };
 
@@ -138,19 +221,38 @@ function Plantacion() {
     setMostrandoFormulario(true);
   };
 
-  const eliminarPlantacion = (index) => {
-    setPlantaciones(plantaciones.filter((_, i) => i !== index));
+  const eliminarPlantacion = async (index) => {  // Marca la función como async
+    const id = plantaciones[index].id;  // Usar index para obtener el id correcto
+    try {
+      const response = await fetch(`http://localhost:8000/eliminar-plantacion/${id}/`, {
+        method: "POST",
+        credentials: "include", // Enviar cookies si es necesario
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        alert("Plantación eliminada correctamente.");
+        setPlantaciones(plantaciones.filter((_, i) => i !== index)); // Actualiza el estado eliminando la plantación
+      } else {
+        console.error("Error:", data.message || "Error al eliminar la plantación.");
+      }
+    } catch (error) {
+      console.error("Error al eliminar la plantación:", error);
+    }
   };
 
   return (
     <div style={styles.plantacionContainer}>
-
-      <Navbaradmin/>
-      <div className="text-center " style={{ marginBottom: "30px", marginTop:"30px", color: "#4b2215" }}>
-        <h2 className="text-center " style={{ marginBottom: "10px", marginTop:"90px" , color: "#4b2215"}}>Gestión de Plantaciones</h2>
+      <Navbaradmin />
+      <div className="text-center" style={{ marginBottom: "30px", marginTop: "30px", color: "#4b2215" }}>
+        <h2 className="text-center" style={{ marginBottom: "10px", marginTop: "90px", color: "#4b2215" }}>
+          Gestión de Plantaciones
+        </h2>
         <button
           style={styles.btnCustom}
-          className="btn btn-custom px-4 py-2 "
+          className="btn btn-custom px-4 py-2"
           onClick={() => setMostrandoFormulario(!mostrandoFormulario)}
         >
           {mostrandoFormulario ? "Cerrar" : "Crear Nueva Plantación"}
@@ -160,12 +262,22 @@ function Plantacion() {
         <div className="card p-3 mb-5" style={styles.formContainer}>
           <div className="mb-3">
             <label className="form-label">Nombre de la Plantación:</label>
-            <input type="text" className="form-control" value={nombre} onChange={(e) => setNombre(e.target.value)} />
+            <input
+              type="text"
+              className="form-control"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+            />
             {errores.nombre && <small className="text-danger">{errores.nombre}</small>}
           </div>
           <div className="mb-3">
             <label className="form-label">Descripción:</label>
-            <textarea className="form-control" rows="3" value={descripcion} onChange={(e) => setDescripcion(e.target.value)}></textarea>
+            <textarea
+              className="form-control"
+              rows="3"
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+            ></textarea>
             {errores.descripcion && <small className="text-danger">{errores.descripcion}</small>}
           </div>
           {!editando && (
@@ -179,7 +291,9 @@ function Plantacion() {
               >
                 <option value="">Selecciona una fecha</option>
                 {fechasRecomendadas.map((fecha, index) => (
-                  <option key={index}  value={fecha}>{fecha}</option>
+                  <option key={index} value={fecha}>
+                    {fecha}
+                  </option>
                 ))}
               </select>
               <div className="form-check mt-2">
@@ -202,7 +316,7 @@ function Plantacion() {
               {errores.fecha && <small className="text-danger">{errores.fecha}</small>}
             </div>
           )}
-          <button style={styles.btnCustom}  onClick={guardarPlantacion}>
+          <button style={styles.btnCustom} onClick={guardarPlantacion}>
             {editando ? "Actualizar" : "Guardar"} Plantación
           </button>
         </div>
@@ -210,7 +324,7 @@ function Plantacion() {
 
       <div className="row">
         {plantaciones.map((plantacion, index) => (
-          <div className="col-sm-12 col-md-6 col-lg-4 mb-4" key={index} >
+          <div className="col-sm-12 col-md-6 col-lg-4 mb-4" key={index}>
             <div className="card p-3 gap-2" style={styles.cardStyle}>
               <img
                 src={plantacion.imagen || "imagenes/fresa2.jpg"}
@@ -220,19 +334,31 @@ function Plantacion() {
               />
               <h5 className="mt-2">{plantacion.nombre}</h5>
               <p>{plantacion.descripcion}</p>
-              <p  style={{ color: "#4b2215"}}><strong>Fecha de Siembra:</strong> {plantacion.fecha || "No seleccionada"}</p>
-              <button className={"btn fw-bold "}style={{backgroundColor: "#fad885", fontFamily: "'Montserrat', sans-serif",}}  onClick={() => editarPlantacion(index)}>Editar</button>
-              <button className={"btn fw-bold"} style={{backgroundColor:"#c65b4a", fontFamily: "'Montserrat', sans-serif",}}  onClick={() => eliminarPlantacion(index)}>Eliminar</button>
+              <p style={{ color: "#4b2215" }}>
+                <strong>Fecha de Siembra:</strong> {plantacion.fecha_siembra || "No seleccionada"}
+              </p>
+              <button
+                className={"btn fw-bold "}
+                style={{ backgroundColor: "#fad885", fontFamily: "'Montserrat', sans-serif" }}
+                onClick={() => editarPlantacion(index)}
+              >
+                Editar
+              </button>
+              <button
+                className={"btn fw-bold"}
+                style={{ backgroundColor: "#c65b4a", fontFamily: "'Montserrat', sans-serif" }}
+                onClick={() => eliminarPlantacion(index)}
+              >
+                Eliminar
+              </button>
             </div>
           </div>
         ))}
-
-      </div>  
-        <div style={styles.footerContainer}>
-          <Footer/>
-        </div>
+      </div>
+      <div style={styles.footerContainer}>
+        <Footer />
+      </div>
     </div>
-   
   );
 }
 

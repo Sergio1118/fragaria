@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from usuarios import views as usuarios_views
 from django.contrib.auth import views as auth_views
-from usuarios.views import  obtener_csrf_token, password_reset_api, iniciar_sesion, agregar_usuario, registro,perfil,logout_view,reset_password
+from usuarios.views import  obtener_csrf_token, password_reset_api, iniciar_sesion, agregar_usuario, registro,perfil,logout_view,reset_password, obtener_fechas_recomendadas, registrar_plantacion, plantacion, editar_plantacion
 
 
 urlpatterns = [
@@ -50,9 +50,11 @@ urlpatterns = [
 
     # Actividades de fragaria
     # path('siembra/', usuarios_views.seleccion_siembra, name='siembra'),
-    path('plantacion/', usuarios_views.plantacion, name='plantacion'),  # Mostrar las plantaciones
+    path('plantacion/', plantacion, name='plantacion'),  # Mostrar las plantaciones
     path('plantaciones/', usuarios_views.listar_plantaciones, name='plantaciones'),
-    path('registrar-plantacion/', usuarios_views.registrar_plantacion, name='registrar_plantacion'),  # Formulario de registro de plantación
+    # path('registrar-plantacion/', usuarios_views.registrar_plantacion, name='registrar_plantacion'),  # Formulario de registro de plantación
+    path('obtener_fechas_recomendadas/', obtener_fechas_recomendadas, name='obtener_fechas_recomendadas'),
+    path('registrar_plantacion/', registrar_plantacion, name='registrar_plantacion'),
     path('actividades/', usuarios_views.lista_actividades, name='lista_actividades'),
     path('actividades/<int:actividad_id>/estado/<str:nuevo_estado>/', usuarios_views.cambiar_estado, name='cambiar_estado'),
     path('mis_actividades/', usuarios_views.mis_actividades, name='mis_actividades'),
@@ -64,7 +66,7 @@ urlpatterns = [
 
     # URL para informes (si es necesaria)
     path('informes/', usuarios_views.informes, name='informes'),
-    path('editar-plantacion/<int:id>/', usuarios_views.editar_plantacion, name='editar_plantacion'),
+    path('editar-plantacion/<int:id>/', editar_plantacion, name='editar_plantacion'),
     path('eliminar-plantacion/<int:id>/', usuarios_views.eliminar_plantacion, name='eliminar_plantacion')
     
 
