@@ -157,9 +157,6 @@ def gestion_usuarios(request):
 
 @csrf_exempt  
 def agregar_usuario(request):
-    print("Usuario autenticado:", request.user)
-    print("Es superusuario:", request.user.is_superuser)
-    print("Es staff:", request.user.is_staff)
 
     if not request.user.is_superuser and not request.user.is_staff:
         return JsonResponse({"error": "No tienes permiso para acceder a esta página."}, status=403)
@@ -316,7 +313,8 @@ def password_reset_api(request):
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
 
                 # Crear enlace de restablecimiento
-                reset_url = f'http://localhost:5173/password/?token={token}&uid={uid}'
+                reset_url = f'http://localhost:5173/password/?uid64={uid}&token={token}'
+
                 # Enviar el correo
                 subject = "Restablecimiento de contraseña"
                 message = f"Hola {user.username},\n\nPara restablecer tu contraseña, haz clic en este enlace:\n\n{reset_url}\n\nSi no solicitaste este cambio, ignora este mensaje."
@@ -335,43 +333,62 @@ def password_reset_api(request):
 #Redireccion a la pagina mediante enlace enviado via gmail, el cual permite realizar la actualizacion de contraseña y redireccion a login.
 
 # de los front deben hacer fech 
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth import get_user_model
+from django.utils.http import urlsafe_base64_decode
+import json
+
+@csrf_exempt
 def reset_password(request, uidb64, token):
+    if request.method != 'POST':
+        return JsonResponse({
+            'status': 405,
+            'success': False,
+            'message': 'Método no permitido. Solo se permite POST.'
+        }, status=405)
+
     try:
+        data = json.loads(request.body)
         uid = urlsafe_base64_decode(uidb64).decode()
         user = get_user_model().objects.get(pk=uid)
-        if default_token_generator.check_token(user, token):
-            if request.method == 'POST':
-                form = SetPasswordForm(user, request.POST)
-                if form.is_valid():
-                    form.save()
-                    return JsonResponse({
-                        'status': 200,
-                        'success': True,
-                        'message': 'Tu contraseña ha sido restablecida correctamente.',
-                        'redirect_url': 'login'
-                    })
-                else:
-                    errors = form.errors.as_json()
-                    return JsonResponse({
-                        'status': 400,
-                        'success': False,
-                        'message': 'Formulario inválido.',
-                        'errors': errors
-                    }, status=400)
-            else:
-                form = SetPasswordForm(user)
-                return render(request, 'usuarios/reset_password.html', {'form': form})
-        else:
+
+        if not default_token_generator.check_token(user, token):
             return JsonResponse({
                 'status': 400,
                 'success': False,
                 'message': 'El enlace de restablecimiento de contraseña no es válido o ha expirado.'
             }, status=400)
-    except (TypeError, ValueError, OverflowError, user.DoesNotExist):
+
+        form = SetPasswordForm(user, data)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({
+                'status': 200,
+                'success': True,
+                'message': 'Tu contraseña ha sido restablecida correctamente.',
+            })
+
+        return JsonResponse({
+            'status': 400,
+            'success': False,
+            'message': 'Formulario inválido.',
+            'errors': form.errors.as_json()
+        }, status=400)
+
+    except (TypeError, ValueError, OverflowError, get_user_model().DoesNotExist):
         return JsonResponse({
             'status': 400,
             'success': False,
             'message': 'El enlace de restablecimiento de contraseña no es válido o ha expirado.'
+        }, status=400)
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'status': 400,
+            'success': False,
+            'message': 'Error en la solicitud. Asegúrate de enviar datos en formato JSON válido.'
         }, status=400)
 
 

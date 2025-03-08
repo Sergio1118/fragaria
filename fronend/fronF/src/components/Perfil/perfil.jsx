@@ -99,7 +99,6 @@ function Perfil() {
             last_name: updatedData.last_name,  // Cambio aquí
             email: updatedData.email,
         }),
-        body: JSON.stringify(updatedData)
       });
 
       const data = await response.json();

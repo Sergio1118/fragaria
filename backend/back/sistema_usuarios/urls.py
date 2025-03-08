@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from usuarios import views as usuarios_views
 from django.contrib.auth import views as auth_views
-from usuarios.views import  obtener_csrf_token, password_reset_api, iniciar_sesion, agregar_usuario, registro,perfil,logout_view
+from usuarios.views import  obtener_csrf_token, password_reset_api, iniciar_sesion, agregar_usuario, registro,perfil,logout_view,reset_password
 
 
 urlpatterns = [
@@ -45,7 +45,7 @@ urlpatterns = [
     # Recuperación de contraseña
     path('password-reset/', password_reset_api, name='password_reset_api'),
     path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='usuarios/password_reset_done.html'), name='password_reset_done'),
-    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='usuarios/password_reset_confirm.html'), name='password_reset_confirm'),
+    path('reset/<uidb64>/<token>/', reset_password, name='reset_password'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='usuarios/password_reset_complete.html'), name='password_reset_complete'),
 
     # Actividades de fragaria

@@ -43,14 +43,13 @@ function Perfiluser() {
         if (response.ok) {
           // Set profile data into state
           setName(data.usuario.first_name);
-          setLastName(data.usuario.last_name || '');  // Usar '' si no está disponible
+          setLastName(data.usuario.last_name );  // Usar '' si no está disponible
           setEmail(data.usuario.email);
         } else {
-          setError(data.message || "Error fetching profile data");
+          alert(data.message || "Error fetching profile data");
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
-        setError("Error fetching profile.");
       }
     };
    
