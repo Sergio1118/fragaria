@@ -335,7 +335,7 @@ function Plantacion() {
               <h5 className="mt-2">{plantacion.nombre}</h5>
               <p>{plantacion.descripcion}</p>
               <p style={{ color: "#4b2215" }}>
-                <strong>Fecha de Siembra:</strong> {plantacion.fecha_siembra || "No seleccionada"}
+                <strong>Fecha de Siembra:</strong> {plantacion.fecha_siembra || plantacion.fecha}
               </p>
               <button
                 className={"btn fw-bold "}

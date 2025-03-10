@@ -8,6 +8,7 @@ class UsuarioManager(BaseUserManager):
     def create_user(self, email, first_name, last_name, password=None):
         if not email:
             raise ValueError("El email es obligatorio")
+        email = self.normalize_email(email)
         user = self.model(email=email, first_name=first_name, last_name=last_name)
         user.set_password(password)
         user.save(using=self._db)
@@ -21,47 +22,9 @@ class UsuarioManager(BaseUserManager):
         return user
 
 
-# Modelo para las actividades
-class Actividad(models.Model):
-    nombre_actividad = models.CharField(max_length=50)
-    tiempo_estimado = models.TimeField()
-    clima_requerido = models.CharField(max_length=50)
-    fecha_vencimiento = models.DateField()
-    fecha = models.DateField()
-    descripcion = models.TextField()  # Asegúrate de que el campo descripcion esté presente.
-
-
-    # Relación con Usuario, añadiendo un 'related_name' único
-    usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE, related_name='actividades_asignadas')
-
-    def __str__(self):
-        return self.nombre_actividad
-
-    def get_estado(self):
-        """
-        Devuelve el último estado de la actividad.
-        """
-        estado = self.estadoactividad_set.last()  # Obtén el último estado
-        return estado.estado if estado else 'Sin estado'
-
 # Modelo de Usuario
-# models.py
-
-class EstadoActividad(models.Model):
-    ESTADOS = [
-        ('Pendiente', 'Pendiente'),
-        ('Completada', 'Completada'),
-        ('En Progreso', 'En Progreso'),
-    ]
-    estado = models.CharField(max_length=50, choices=ESTADOS, default='Pendiente')
-    actividad = models.ForeignKey(Actividad, on_delete=models.CASCADE)  # Relación con Actividad
-
-    def __str__(self):
-        return f"Estado: {self.estado} de la actividad {self.actividad.nombre_actividad}"
-
-
 class Usuario(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=255, null=True)
+    username = models.CharField(max_length=255, null=True, blank=True)
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
@@ -70,11 +33,12 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)  # Solo algunos serán superusuarios
     
     # Relación con Plantación
-    plantacion = models.ForeignKey('Plantacion', on_delete=models.CASCADE, related_name='usuarios', null=True, blank=True)
+    plantacion = models.ForeignKey('Plantacion', on_delete=models.SET_NULL, related_name='usuarios', null=True, blank=True)
     
-    # Relación Muchos a Muchos con Actividad (no hace falta related_name aquí)
+    # Relación Muchos a Muchos con Actividad
     actividades = models.ManyToManyField('Actividad', blank=True, related_name='usuarios_asociados')
 
+    # Usuario que creó este usuario (para jerarquía de permisos)
     admin_creator = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='created_users')
 
     USERNAME_FIELD = 'email'
@@ -84,9 +48,44 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+   
 
 
-# Modelo para las fechas de siembra
+
+
+   
+
+# Modelo de Estado de Actividad
+class EstadoActividad(models.Model):
+    ESTADOS = [
+        ('Pendiente', 'Pendiente'),
+        ('Completada', 'Completada'),
+        ('En Progreso', 'En Progreso'),
+    ]
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='Pendiente')
+
+    def __str__(self):
+        return f"Estado: {self.estado}"
+
+
+   
+
+class Actividad(models.Model):
+    nombre_actividad = models.CharField(max_length=50)
+    tiempo_estimado = models.TimeField()
+    clima_requerido = models.CharField(max_length=50, blank=True, null=True)
+    fecha_vencimiento = models.DateField()
+    fecha = models.DateField()
+    descripcion = models.TextField()
+    
+    estado = models.ForeignKey(EstadoActividad, on_delete=models.CASCADE)  # 🔥 Corrección aquí
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='actividades_asignadas')
+
+    def __str__(self):
+        return self.nombre_actividad
+
+
+# Modelo de Fechas de Siembra
 class FechasSiembra(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     tipo_fresa = models.CharField(max_length=50)
@@ -100,7 +99,7 @@ class FechasSiembra(models.Model):
 class Plantacion(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField(null=True, blank=True)
-    fecha_siembra = models.DateField(null=True, blank=True)  
+    fecha_siembra = models.DateField(null=True, blank=True)
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='plantaciones')
 
     def __str__(self):
@@ -110,10 +109,8 @@ class Plantacion(models.Model):
 # Modelo de Siembra
 class Siembra(models.Model):
     nombre = models.CharField(max_length=100)
-    fecha_siembra = models.DateField() 
-    
-    
-    # Relación con Plantación
+    fecha_siembra = models.DateField()
+
     plantacion = models.ForeignKey(Plantacion, on_delete=models.CASCADE, related_name='siembras')
 
     def __str__(self):
@@ -145,7 +142,8 @@ class UsuarioCronograma(models.Model):
     fecha = models.DateField()
 
     class Meta:
-        db_table = 'usuarios_usuario_cronograma'  # Tabla personalizada para la relación
+        db_table = 'usuarios_usuario_cronograma'  # Nombre personalizado para la tabla
 
     def __str__(self):
         return f"{self.usuario.first_name} - {self.cronograma.nombre}"
+

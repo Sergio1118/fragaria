@@ -19,9 +19,8 @@ class ActividadAdmin(admin.ModelAdmin):
 
 # Configurar el admin para la clase EstadoActividad
 class EstadoActividadAdmin(admin.ModelAdmin):
-    list_display = ('estado', 'actividad')
-    list_filter = ('estado',)  # Permitir filtrar por estado
-    search_fields = ('actividad__nombre_actividad',)  # Permitir búsqueda por nombre de actividad
+   list_display = ['estado']  # ✅ Correcto
+# Permitir búsqueda por nombre de actividad
 
 # Registrar los modelos en el admin
 admin.site.register(Actividad, ActividadAdmin)

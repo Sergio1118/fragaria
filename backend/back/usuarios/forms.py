@@ -38,7 +38,7 @@ class UsuarioForm(UserChangeForm):
     # Definimos los campos que quieres que los administradores puedan modificar
     class Meta:
         model = Usuario
-        fields = ['first_name', 'last_name', 'email', 'is_active', 'is_staff']
+        fields = ['first_name', 'last_name', 'email',  'is_staff']
 
     # Añadimos un campo para confirmar la contraseña si es necesario
     password = forms.CharField(label="Contraseña", widget=forms.PasswordInput, required=False)
@@ -65,7 +65,7 @@ class ActividadForm(forms.ModelForm):
 class EstadoActividadForm(forms.ModelForm):
     class Meta:
         model = EstadoActividad
-        fields = ['estado', 'actividad']
+        fields = ['estado']
         
 User = get_user_model()
 

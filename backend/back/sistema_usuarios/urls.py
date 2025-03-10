@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from usuarios import views as usuarios_views
 from django.contrib.auth import views as auth_views
-from usuarios.views import  obtener_csrf_token, password_reset_api, iniciar_sesion, agregar_usuario, registro,perfil,logout_view,reset_password, obtener_fechas_recomendadas, registrar_plantacion, plantacion, editar_plantacion
+from usuarios.views import  obtener_csrf_token, password_reset_api, iniciar_sesion, agregar_usuario, registro,perfil,logout_view,reset_password, obtener_fechas_recomendadas, registrar_plantacion, plantacion, editar_plantacion,asignar_actividad,gestion_usuarios
 
 
 urlpatterns = [
@@ -36,7 +36,7 @@ urlpatterns = [
     # Gestión de usuarios (solo para administradores y superusuario)
     path('dashboard-admin/', usuarios_views.dashboard_admin, name='dashboard_admin'),
     path('admin_dashboard_limited/', usuarios_views.admin_dashboard_limited, name='admin_dashboard_limited'),
-    path('gestion-usuarios/', usuarios_views.gestion_usuarios, name='gestion_usuarios'),
+    path('gestion_usuarios/', gestion_usuarios, name='gestion_usuarios'),
     path('api/agregar-usuario/', agregar_usuario, name='api_agregar_usuario'), 
     path('editar-usuario/<int:user_id>/', usuarios_views.editar_usuario, name='editar_usuario'),
     path('eliminar-usuario/<int:user_id>/', usuarios_views.eliminar_usuario, name='eliminar_usuario'),
@@ -60,7 +60,7 @@ urlpatterns = [
     path('mis_actividades/', usuarios_views.mis_actividades, name='mis_actividades'),
     
     # Administrador envia actividades a usuarios
-    path('asignar_actividad/', usuarios_views.asignar_actividad, name='asignar_actividad'),
+    path('asignar_actividad/', asignar_actividad, name='asignar_actividad'),
     path('perfil/', perfil, name='perfil'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 

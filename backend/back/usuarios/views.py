@@ -1,40 +1,36 @@
-from django.contrib.auth import login, authenticate
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from .forms import RegistroForm, LoginForm
-from django.core.mail import send_mail
-from django.contrib.auth.forms import PasswordResetForm
-from django.shortcuts import get_object_or_404
-from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.models import User
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from .forms import SetPasswordForm 
-from django.contrib.auth import get_user_model
-from .forms import UsuarioForm  
-from django.http import HttpResponseForbidden
-from .models import Usuario
-from django.http import HttpResponse
-import requests
-from django.http import JsonResponse
-from datetime import datetime
-from .models import Plantacion, Siembra
-from .forms import PlantacionForm, RegistroForm
-from .models import Usuario, FechasSiembra
-from django.shortcuts import render, redirect
-from .models import Actividad, EstadoActividad
-from .forms import ActividadForm, EstadoActividadForm
-from django.views.decorators.cache import never_cache
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.encoding import force_bytes
 import json
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Actividad, EstadoActividad
+import requests
+from datetime import datetime
+
 from django.conf import settings
-from .emails import notificar_actividad  # Importa la función que creamos antes
-from .forms import EditarPerfilForm
+from django.contrib import messages
+from django.contrib.auth import (
+    login, authenticate, logout, get_user_model
+)
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.models import User
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.middleware.csrf import get_token
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.contrib.auth import logout
+
+from .emails import notificar_actividad  # Importa la función que creamos antes
+from .models import (
+    Usuario, FechasSiembra, Plantacion, Siembra, 
+    Actividad, EstadoActividad
+)
+from .forms import (
+    RegistroForm, LoginForm, SetPasswordForm, UsuarioForm, 
+    PlantacionForm, ActividadForm, EstadoActividadForm, EditarPerfilForm
+)
+import logging
+logger = logging.getLogger(__name__)
 
 @ensure_csrf_cookie
 def obtener_csrf_token(request):
@@ -145,14 +141,22 @@ def iniciar_sesion(request):
 
 # se debe hacer un metodo GET
 
-@login_required
+@csrf_exempt
 def gestion_usuarios(request):
-    if not request.user.is_superuser and not request.user.is_staff:
-        return HttpResponseForbidden("No tienes permiso para acceder a esta página.")
+    # Verificar autenticación y permisos
+    if not request.user.is_authenticated or (not request.user.is_superuser and not request.user.is_staff):
+        return JsonResponse({"error": "No tienes permiso para acceder a esta página."}, status=403)
 
-    usuarios = Usuario.objects.filter(admin_creator = request.user)  
+    if request.method == 'GET':
+        # Obtener los usuarios creados por el usuario actual
+        usuarios = Usuario.objects.filter(admin_creator=request.user).values("id", "first_name", "email")
 
-    return render(request, 'usuarios/gestion_usuarios.html', {'usuarios': usuarios})
+        logger.debug(f"Usuarios creados por {request.user.email}: {list(usuarios)}")
+
+        return JsonResponse({"usuarios": list(usuarios)}, status=200)
+
+    # Métodos no permitidos
+    return JsonResponse({"error": "Método no permitido"}, status=405)
 
 
 @csrf_exempt  
@@ -840,77 +844,91 @@ def eliminar_plantacion(request, id):
             'message': 'Método no permitido.'
         }, status=405)
         
-
-# Pregunatar a kenfer
-
+@csrf_exempt
 def asignar_actividad(request):
-    users = Usuario.objects.all()  # Obtén todos los usuarios
-    if request.method == 'POST':
-        # Recibe los datos del formulario
-        usuario_id = request.POST.get('usuario_id')
-        actividad = request.POST.get('actividad')
-        descripcion = request.POST.get('descripcion')
-        tiempo_estimado = request.POST.get('tiempo_estimado')  # Recibe el valor del campo tiempo estimado
-        fecha_vencimiento = request.POST.get('fecha_vencimiento')
-        fecha = request.POST.get('fecha')
+    if request.method != 'POST':
+        return JsonResponse({"status": "error", "message": "Método no permitido."}, status=405)
 
-        # Verifica que los campos de fecha no estén vacíos
-        if not fecha_vencimiento or not fecha:
-            return HttpResponse("Por favor, complete todas las fechas.")
-        
-        # Verifica que el campo 'actividad' no esté vacío
-        if not actividad:
-            return HttpResponse("Por favor, ingresa el nombre de la actividad.")
-        
-        # Verifica que el campo 'tiempo_estimado' no esté vacío
-        if not tiempo_estimado:
-            return HttpResponse("Por favor, ingresa el tiempo estimado.")
+    if not request.body:
+        return JsonResponse({"status": "error", "message": "No se recibió ninguna información."}, status=400)
 
-        # Asegúrate de que 'tiempo_estimado' esté en el formato correcto: HH:MM:SS
-        try:
-            tiempo_estimado = datetime.strptime(tiempo_estimado, '%H:%M:%S').time()  # Convertir a formato Time
-        except ValueError:
-            return HttpResponse("El tiempo estimado debe tener el formato HH:MM:SS.")
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"status": "error", "message": "El formato del JSON es inválido."}, status=400)
 
-        # No es necesario convertir las fechas, ya que el formulario las enviará como 'yyyy-mm-dd'
-        try:
-            fecha_vencimiento = datetime.strptime(fecha_vencimiento, '%Y-%m-%d').date()
-            fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
-        except ValueError:
-            return HttpResponse("Formato de fecha incorrecto. Usa el formato yyyy-mm-dd.")
+    usuario_id = data.get("usuario_id")
+    actividad = data.get("actividad")
+    descripcion = data.get("descripcion")
+    tiempo_estimado = data.get("tiempo_estimado")
+    fecha_vencimiento = data.get("fecha_vencimiento")
+    fecha = data.get("fecha")
 
-        # Verifica si el usuario seleccionado existe
-        if not usuario_id:
-            return HttpResponse("Por favor, selecciona un usuario.") 
-        
-        try:
-            usuario = Usuario.objects.get(id=usuario_id)
-        except Usuario.DoesNotExist:
-            return HttpResponse("El usuario no existe.")
-        
-        # Crear el estado 'Pendiente' y asociarlo a la actividad
-        estado_actividad = EstadoActividad.objects.create(
-            estado='Pendiente',  # El estado inicial de la actividad
-        )
+    if not all([usuario_id, actividad, tiempo_estimado, fecha_vencimiento, fecha]):
+        return JsonResponse({"status": "error", "message": "Todos los campos son obligatorios."}, status=400)
 
-        # Crear la actividad con el estado asociado
-        nueva_actividad = Actividad.objects.create(
-            usuario=usuario,
-            nombre_actividad=actividad,
-            descripcion=descripcion,
-            tiempo_estimado=tiempo_estimado,  # Asignar el tiempo estimado
-            fecha_vencimiento=fecha_vencimiento,
-            fecha=fecha,
-            estadoactividad=estado_actividad  # Asociamos el estado 'Pendiente'
-        )
+    # Normalizar formato de tiempo
+    if ":" not in tiempo_estimado or tiempo_estimado.count(":") < 2:
+        tiempo_estimado += ":00"
 
-        # Enviar la notificación por correo (si es necesario)
+    try:
+        tiempo_estimado = datetime.strptime(tiempo_estimado, '%H:%M:%S').time()
+    except ValueError:
+        return JsonResponse({"status": "error", "message": "El tiempo estimado debe tener el formato HH:MM:SS."}, status=400)
+
+    # Conversión de fechas
+    try:
+        fecha_vencimiento = datetime.strptime(fecha_vencimiento, '%Y-%m-%d').date()
+        fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
+    except ValueError:
+        return JsonResponse({"status": "error", "message": "Formato de fecha incorrecto. Usa el formato yyyy-mm-dd."}, status=400)
+
+    # Verificar existencia del usuario
+    usuario = Usuario.objects.filter(id=usuario_id).first()
+    if not usuario:
+        return JsonResponse({"status": "error", "message": "El usuario no existe."}, status=400)
+
+    # Buscar o crear el estado 'Pendiente'
+    estado_actividad, _ = EstadoActividad.objects.get_or_create(estado='Pendiente')
+
+    # Crear la actividad
+    nueva_actividad = Actividad.objects.create(
+        nombre_actividad=actividad,
+        tiempo_estimado=tiempo_estimado,
+        fecha_vencimiento=fecha_vencimiento,
+        fecha=fecha,
+        descripcion=descripcion,
+        usuario_id=usuario.id,  # 🔹 Cambio aquí: usar ID en lugar del objeto
+        estado_id=estado_actividad.id,
+    )
+
+    # Intentar enviar notificación
+    try:
         notificar_actividad(usuario, nueva_actividad)
-        
-        # Redirigir o mostrar la plantilla
-        return render(request, 'usuarios/actividad_creada.html', {'actividad': nueva_actividad})
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": f"Error al enviar notificación: {str(e)}"}, status=500)
+
+    # Respuesta de éxito
+    return JsonResponse({
+        "status": "success",
+        "message": "Actividad creada correctamente",
+        "actividad": {
+            "id": nueva_actividad.id,
+            "usuario": usuario.first_name,
+            "nombre_actividad": nueva_actividad.nombre_actividad,
+            "descripcion": nueva_actividad.descripcion,
+            "tiempo_estimado": str(nueva_actividad.tiempo_estimado),
+            "fecha_vencimiento": str(nueva_actividad.fecha_vencimiento),
+            "fecha": str(nueva_actividad.fecha),
+            "estado": estado_actividad.estado
+        }
+    }, status=201)
+
     
-    return render(request, 'usuarios/asignar_actividad.html', {'users': users})
+    # Si la solicitud no es POST, renderizar la página de asignación de actividades
+
+
+
 
 # Hacer metodo GET 
 
