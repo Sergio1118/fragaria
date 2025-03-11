@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Navbaradmin  from "../NavbarAdmin/Navadmin";
 import Footer from "../Footer/footer";
 
+
 const styles ={
   container: {
     minHeight: "100vh",
@@ -35,15 +36,16 @@ const styles ={
     padding: "20px",
   },
   input: {
-    
-    fontFamily: "'Montserrat', sans-serif", 
+   
+    fontFamily: "'Montserrat', sans-serif",
   },
   footerContainer: {
     textAlign: "center",
     width: "100%",
-    marginTop: "auto", 
+    marginTop: "auto",
   },
 }
+
 
 const AgregarTrabajador = () => {
   const [formData, setFormData] = useState({
@@ -54,12 +56,14 @@ const AgregarTrabajador = () => {
     confirmation: "",
   });
 
+
   const [errors, setErrors] = useState({});
   const [trabajadores, setTrabajadores] = useState([]);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
 
-  
+
+ 
     // Fetch para obtener los trabajadores
     const fetchTrabajadores = async () => {
       try {
@@ -69,6 +73,7 @@ const AgregarTrabajador = () => {
         });
         const data = await response.json();
         if (response.ok) {
+          console.log(data);
           setTrabajadores(data.usuarios);
         } else {
           throw new Error(data.error || "Error al obtener los trabajadores");
@@ -79,36 +84,44 @@ const AgregarTrabajador = () => {
       }
     };
 
+
     useEffect(() => {
       fetchTrabajadores();
     }, []);
 
-  
+
+ 
+
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
-  
+ 
     setErrors((prev) => ({
       ...prev,
       [field]: "",
     }));
   };
 
-  
+
+ 
+
 
   const validateEmail = (email) => {
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     return emailRegex.test(email);
   };
 
-  
+
+ 
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
+
 
     // Validaciones
     if (!formData.name) newErrors.name = "El nombre es obligatorio";
@@ -120,7 +133,9 @@ const AgregarTrabajador = () => {
         newErrors.confirmation = "Las contraseñas no coinciden";
     }
 
+
     setErrors(newErrors);
+
 
     // Si no hay errores, actualizamos o añadimos el trabajador
     if (Object.keys(newErrors).length === 0) {
@@ -128,7 +143,7 @@ const AgregarTrabajador = () => {
         // EDITAR USUARIO EXISTENTE
         try {
             const response = await fetch(`http://localhost:8000/editar-usuario/${trabajadores[editIndex].id}/`, {
-                method: "POST",  // También puede ser PATCH si no actualizas todos los campos
+                method: "PUT",  
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -138,17 +153,22 @@ const AgregarTrabajador = () => {
                 }),
             });
 
+
             const data = await response.json();
+
 
             if (!response.ok) {
                 throw new Error(data.error || "Error al actualizar el trabajador");
             }
-
             // Actualizar la lista de trabajadores con los datos editados
             const updatedTrabajadores = [...trabajadores];
             updatedTrabajadores[editIndex] = data;
             setTrabajadores(updatedTrabajadores);
+            //setTrabajadores([...trabajadores, data]);
+            fetchTrabajadores();
             alert("Trabajador actualizado con éxito");
+           
+
         } catch (error) {
             console.error("Error al actualizar:", error);
             alert(error.message);
@@ -169,28 +189,30 @@ const AgregarTrabajador = () => {
                 }),
             });
 
+
             const data = await response.json();
-            
+           
             if (!response.ok) {
                 throw new Error(data.error || "Error al agregar el trabajador");
             }
-            setTrabajadores([...trabajadores, data]); 
-            fetchTrabajadores(); // 🔥 Esto actualizará la lista 
+            setTrabajadores([...trabajadores, data]);
+            fetchTrabajadores(); // 🔥 Esto actualizará la lista
         } catch (error) {
             console.error("Error:", error);
             alert(error.message);
         }
     }
-    
+   
     // Limpiar formulario y cerrar modal
     setIsFormVisible(false);
     setFormData({ name: "", surname: "", email: "", password: "", confirmation: "" });
     setEditIndex(null);
 
+
   };
 
+
 }
-    
   const handleEdit = (index) => {
     setFormData({
       name: trabajadores[index].first_name,  // Asegúrate de usar las claves correctas del objeto
@@ -202,36 +224,44 @@ const AgregarTrabajador = () => {
     setEditIndex(index);  // Establecemos el índice del trabajador que estamos editando
     setIsFormVisible(true);  // Mostramos el formulario
 };
-  //fetch de delete
-  const handleDelete = async (index, userId) => {
+  const handleDelete = async (index) => {
+    const userId = trabajadores[index].id;  // Usar el índice para obtener el ID del trabajador
+    console.log("User ID:", userId);
+
+
     if (window.confirm("¿Estás seguro de que quieres eliminar este trabajador?")) {
       try {
-        const response = await fetch(`http://localhost:8000/eliminar-usuario/${userId}/`, {
-          method: 'DELETE',  // El backend está esperando un POST para la eliminación
-          credentials: "include",  // Asegúrate de enviar cookies de sesión si es necesario
+        const response = await fetch(`http://localhost:8000/eliminar_usuario/${userId}/`, {
+          method: 'DELETE',  // Método de eliminación, ya que el backend lo espera
+          credentials: "include",  // Asegúrate de enviar las cookies de sesión si es necesario
+          headers: { "Content-Type": "application/json" },  // Asegúrate de enviar la cabecera correcta
         });
-        const data = await response.json();
-  
+
+
+        const data = await response.json();  // Obtener los datos de la respuesta
+
+
         if (response.ok) {
-          // Eliminar trabajador del estado si la eliminación fue exitosa
+          // Si la respuesta es exitosa, elimina al trabajador del estado
           setTrabajadores(trabajadores.filter((_, i) => i !== index));
-          alert(data.message); // Puedes mostrar el mensaje de éxito
+          alert("Trabajador eliminado correctamente.");
         } else {
           throw new Error(data.message || "Error al eliminar el trabajador");
         }
       } catch (error) {
-        console.error("Error:", error);
-        alert(error.message);
+        console.error("Error al eliminar el trabajador:", error);
+        alert(error.message);  // Mostrar el mensaje de error
       }
     }
   };
-  
 
-  
+
+ 
   const [showPasswords, setShowPasswords] = useState({ password: false, confirmation: false });
   const togglePasswordVisibility = (field) => {
     setShowPasswords((prev) => ({ ...prev, [field]: !prev[field] }));
   };
+
 
   return (
     <div style={styles.container}>
@@ -240,10 +270,12 @@ const AgregarTrabajador = () => {
               href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
             />
 
+
       <div className="d-flex justify-content-center align-items-center" >
 
+
           <Navbaradmin/>
-        
+       
         <div className="d-flex justify-content-center">
           <button
             onClick={() => {
@@ -256,6 +288,7 @@ const AgregarTrabajador = () => {
             {isFormVisible ? "Cancelar" : "Agregar trabajador"}
           </button>
         </div>
+
 
         {isFormVisible && (
           <div className="shadow-lg p-4 rounded-lg justify-content-center " style={styles.card}>
@@ -276,6 +309,7 @@ const AgregarTrabajador = () => {
                 </div>
               ))}
 
+
               <div className="mb-4">
                 <input
                   type="email"
@@ -287,6 +321,7 @@ const AgregarTrabajador = () => {
                 />
                 {errors.email && <div className="invalid-feedback">{errors.email}</div>}
               </div>
+
 
               {["password", "confirmation"].map((field) => (
                 <div key={field} className="mb-4 position-relative">
@@ -313,11 +348,12 @@ const AgregarTrabajador = () => {
                 </div>
               ))}
 
-              <button type="submit" className="btn btn-gradient w-100 mt-3 py-2 fw-bold btn-sm" 
-                      style={{ 
-                      color: "#ffff", 
-                      fontFamily: "'Montserrat', sans-serif", 
-                      backgroundColor: "#d17c53", 
+
+              <button type="submit" className="btn btn-gradient w-100 mt-3 py-2 fw-bold btn-sm"
+                      style={{
+                      color: "#ffff",
+                      fontFamily: "'Montserrat', sans-serif",
+                      backgroundColor: "#d17c53",
                       borderRadius: "10px",
                       border: "2px solid rgb(255, 185, 153)", }}>
                 {editIndex !== null ? "Actualizar" : "Registrar"}
@@ -326,7 +362,8 @@ const AgregarTrabajador = () => {
           </div>
         )}
 
-                
+
+               
           <div className="container mt-3 mb-5"> {/* Contenedor para evitar que las tarjetas queden pegadas a los márgenes */}
             <h3 className="mb-4 text-center text-gradient" style={{ color: "#4b2215", marginTop: "10px"}}>
               Trabajadores Registrados
@@ -342,13 +379,13 @@ const AgregarTrabajador = () => {
                         </h5>
                         <p className="card-text text-muted text-center">{trabajador.email}</p>
                         <div className="d-flex justify-content-center gap-2"> {/* Espacio entre botones */}
-                          <button onClick={() => handleEdit(index)} className="btn fw-bold " 
-                            style={{backgroundColor: "#fad885", 
+                          <button onClick={() => handleEdit(index)} className="btn fw-bold "
+                            style={{backgroundColor: "#fad885",
                                     fontFamily: "'Montserrat', sans-serif",}}>
                             Editar
                           </button>
-                          <button onClick={() => handleDelete(index, trabajador.id)} className="btn fw-bold " 
-                            style={{backgroundColor:"#c65b4a", 
+                          <button onClick={() => handleDelete(index, trabajador.id)} className="btn fw-bold "
+                            style={{backgroundColor:"#c65b4a",
                                     fontFamily: "'Montserrat', sans-serif",}}>
                             Eliminar
                           </button>
@@ -370,4 +407,8 @@ const AgregarTrabajador = () => {
   );
 };
 
+
 export default AgregarTrabajador;
+
+
+
