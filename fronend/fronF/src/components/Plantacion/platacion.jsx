@@ -147,7 +147,7 @@ function Plantacion() {
       const id = plantaciones[indiceEdicion].id
       console.log(id)
       try {
-        const response = await fetch(http://localhost:8000/editar-plantacion/${id}/, {
+        const response = await fetch(`http://localhost:8000/editar-plantacion/${id}/`, {
           method: "POST",
           credentials: "include", // enviar cookies
           headers: { "Content-Type": "application/json" },
@@ -226,7 +226,7 @@ function Plantacion() {
   const eliminarPlantacion = async (index) => {  // Marca la función como async
     const id = plantaciones[index].id;  // Usar index para obtener el id correcto
     try {
-      const response = await fetch(http://localhost:8000/eliminar-plantacion/${id}/, {
+      const response = await fetch(`http://localhost:8000/eliminar-plantacion/${id}/`, {
         method: "POST",
         credentials: "include", // Enviar cookies si es necesario
         headers: { "Content-Type": "application/json" },
@@ -364,4 +364,4 @@ function Plantacion() {
   );
 }
 
-export default Plantacion;
+export default Plantacion;
