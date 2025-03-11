@@ -188,6 +188,8 @@ def agregar_usuario(request):
     return JsonResponse({"error": "Método no permitido"}, status=405)
 
 
+
+@csrf_exempt 
 @login_required
 def editar_usuario(request, user_id):
     if not request.user.is_staff:
@@ -200,31 +202,47 @@ def editar_usuario(request, user_id):
     usuario = get_object_or_404(Usuario, id=user_id)
 
     if request.method == 'POST':
-        form = UsuarioForm(request.POST, instance=usuario)
-        if form.is_valid():
-            form.save()
-            return JsonResponse({
-                'status': 200,
-                'success': True,
-                'message': 'Usuario actualizado exitosamente.',
-                #'redirect_url': 'gestion_usuarios'
-            })
-        else:
-            errors = form.errors.as_json()
-            return JsonResponse({
+        try:
+            # Cargar los datos del cuerpo de la solicitud (JSON)
+            data = json.loads(request.body)
+
+            # Pasar los datos al formulario
+            form = UsuarioForm(data, instance=usuario)
+
+            if form.is_valid():
+                form.save()
+                return JsonResponse({
+                    'status': 200,
+                    'success': True,
+                    'message': 'Usuario actualizado exitosamente.'
+                })
+            else:
+                errors = form.errors.as_json()
+                return JsonResponse({
                 'status': 400,
                 'success': False,
                 'message': 'Formulario inválido.',
                 'errors': errors
             }, status=400)
-    # else:
-    #     form = UsuarioForm(instance=usuario)
-    #     return render(request, 'usuarios/editar_usuario.html', {'form': form, 'usuario': usuario})
-
+                
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'status': 400,
+                'success': False,
+                'message': 'El cuerpo de la solicitud no es JSON válido.'
+            }, status=400)
+            
+    return JsonResponse({
+        'status': 405,
+        'success': False,
+        'message': 'Método no permitido'
+    }, status=405)
+    
 
 #Vista que permite eliminar usuarios via administrador
 
 @login_required
+@csrf_exempt
 def eliminar_usuario(request, user_id):
     if not request.user.is_staff:
         return JsonResponse({
@@ -235,7 +253,7 @@ def eliminar_usuario(request, user_id):
 
     usuario = get_object_or_404(Usuario, id=user_id)
 
-    if request.method == 'POST':
+    if request.method == 'DELETE':
         try:
             usuario.actividades.clear()
             usuario.plantacion = None
@@ -255,10 +273,10 @@ def eliminar_usuario(request, user_id):
             }, status=500)
     else:
         return JsonResponse({
-            'status': 405,
-            'success': False,
-            'message': 'Método no permitido.'
-        }, status=405)
+        "status": 405,
+        "success": False,
+        "message": "Método no permitido."
+    }, status=405)
 
 
 
@@ -815,7 +833,7 @@ def editar_plantacion(request, id):
             }, status=400)
     else:
         form = PlantacionForm(instance=plantacion)
-        return render(request, 'usuarios/editar_plantacion.html', {'form': form})
+        
 
 
 

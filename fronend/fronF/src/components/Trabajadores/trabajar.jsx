@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect  } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Navbaradmin  from "../NavbarAdmin/Navadmin";
 import Footer from "../Footer/footer";
@@ -59,18 +59,44 @@ const AgregarTrabajador = () => {
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
 
+  
+    // Fetch para obtener los trabajadores
+    const fetchTrabajadores = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/gestion_usuarios/", {
+          method: "GET",
+          credentials: "include",
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setTrabajadores(data.usuarios);
+        } else {
+          throw new Error(data.error || "Error al obtener los trabajadores");
+        }
+      } catch (error) {
+        console.error("Error al obtener los trabajadores:", error);
+        alert(error.message);
+      }
+    };
+
+    useEffect(() => {
+      fetchTrabajadores();
+    }, []);
+
+  
+
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
   
-    // Si el usuario empieza a escribir en un campo con error, eliminamos el mensaje de error
     setErrors((prev) => ({
       ...prev,
       [field]: "",
     }));
   };
+
   
 
   const validateEmail = (email) => {
@@ -78,7 +104,7 @@ const AgregarTrabajador = () => {
     return emailRegex.test(email);
   };
 
-
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -98,80 +124,110 @@ const AgregarTrabajador = () => {
 
     // Si no hay errores, actualizamos o añadimos el trabajador
     if (Object.keys(newErrors).length === 0) {
-      const newTrabajadores = [...trabajadores];
-
-      //hacemos el fecth de actualizar 
       if (editIndex !== null) {
-        // Actualizamos el trabajador con todos los campos
-        newTrabajadores[editIndex] = {
-          name: formData.name,
-          surname: formData.surname,
-          email: formData.email,
-          password: formData.password, // Agregamos la contraseña en la actualización
-        }; 
-      } else {
-        // Añadimos un nuevo trabajador //
+        // EDITAR USUARIO EXISTENTE
         try {
-          const response = await fetch("http://localhost:8000/api/agregar-usuario/", {  // ✅ Asegúrate de que la URL sea correcta
-              method: "POST",
-              credentials: "include",  // ✅ Permite enviar cookies de sesión
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                first_name: formData.name,  // Cambio aquí
-                last_name: formData.surname,  // Cambio aquí
-                email: formData.email,
-                password1: formData.password,
-                password2: formData.confirmation,
-            }),
+            const response = await fetch(`http://localhost:8000/editar-usuario/${trabajadores[editIndex].id}/`, {
+                method: "POST",  // También puede ser PATCH si no actualizas todos los campos
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    first_name: formData.name,
+                    last_name: formData.surname,
+                    email: formData.email,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Error al actualizar el trabajador");
+            }
+
+            // Actualizar la lista de trabajadores con los datos editados
+            const updatedTrabajadores = [...trabajadores];
+            updatedTrabajadores[editIndex] = data;
+            setTrabajadores(updatedTrabajadores);
+            alert("Trabajador actualizado con éxito");
+        } catch (error) {
+            console.error("Error al actualizar:", error);
+            alert(error.message);
+        }
+    } else {
+        // AÑADIR NUEVO USUARIO
+        try {
+            const response = await fetch("http://localhost:8000/api/agregar-usuario/", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    first_name: formData.name,
+                    last_name: formData.surname,
+                    email: formData.email,
+                    password1: formData.password,
+                    password2: formData.confirmation,
+                }),
+            });
+
+            const data = await response.json();
             
-          });
-
-          const data = await response.json(); // Obtener respuesta del backend
-
-          if (!response.ok) {
-              throw new Error(data.error || "Error al agregar el trabajador");
-          }
-
-          setTrabajadores([...trabajadores, data]); // Actualizar lista con el nuevo usuario
-          setIsFormVisible(false);
-          setFormData({ name: "", surname: "", email: "", password: "", confirmation: "" });
-
-      } catch (error) {
-          console.error("Error:", error);
-          alert(error.message);
-      }
-        newTrabajadores.push({
-          name: formData.name,
-          surname: formData.surname,
-          email: formData.email,
-          password: formData.password, // Añadimos la contraseña al nuevo trabajador
-        });
-      }
-
-      setTrabajadores(newTrabajadores);
-      setIsFormVisible(false);
-      setFormData({ name: "", surname: "", email: "", password: "", confirmation: "" });
-      setEditIndex(null); // Limpiamos el índice de edición
+            if (!response.ok) {
+                throw new Error(data.error || "Error al agregar el trabajador");
+            }
+            setTrabajadores([...trabajadores, data]); 
+            fetchTrabajadores(); // 🔥 Esto actualizará la lista 
+        } catch (error) {
+            console.error("Error:", error);
+            alert(error.message);
+        }
     }
+    
+    // Limpiar formulario y cerrar modal
+    setIsFormVisible(false);
+    setFormData({ name: "", surname: "", email: "", password: "", confirmation: "" });
+    setEditIndex(null);
+
   };
 
+}
+    
   const handleEdit = (index) => {
     setFormData({
-      name: trabajadores[index].name,
-      surname: trabajadores[index].surname,
+      name: trabajadores[index].first_name,  // Asegúrate de usar las claves correctas del objeto
+      surname: trabajadores[index].last_name,
       email: trabajadores[index].email,
-      password: "", // Limpiamos la contraseña y confirmación al editar
+      password: "",  // Limpiamos la contraseña para que no se vea
       confirmation: "",
     });
-    setEditIndex(index);
-    setIsFormVisible(true);
-  };
+    setEditIndex(index);  // Establecemos el índice del trabajador que estamos editando
+    setIsFormVisible(true);  // Mostramos el formulario
+};
   //fetch de delete
-  const handleDelete = (index) => {
+  const handleDelete = async (index, userId) => {
     if (window.confirm("¿Estás seguro de que quieres eliminar este trabajador?")) {
-      setTrabajadores(trabajadores.filter((_, i) => i !== index));
+      try {
+        const response = await fetch(`http://localhost:8000/eliminar-usuario/${userId}/`, {
+          method: 'DELETE',  // El backend está esperando un POST para la eliminación
+          credentials: "include",  // Asegúrate de enviar cookies de sesión si es necesario
+        });
+        const data = await response.json();
+  
+        if (response.ok) {
+          // Eliminar trabajador del estado si la eliminación fue exitosa
+          setTrabajadores(trabajadores.filter((_, i) => i !== index));
+          alert(data.message); // Puedes mostrar el mensaje de éxito
+        } else {
+          throw new Error(data.message || "Error al eliminar el trabajador");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert(error.message);
+      }
     }
   };
+  
+
+  
   const [showPasswords, setShowPasswords] = useState({ password: false, confirmation: false });
   const togglePasswordVisibility = (field) => {
     setShowPasswords((prev) => ({ ...prev, [field]: !prev[field] }));
@@ -216,7 +272,6 @@ const AgregarTrabajador = () => {
                     placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
                     value={formData[field]}
                     onChange={(e) => handleInputChange(field, e.target.value)} // Asegúrate de que el cambio se maneje
-                    disabled={editIndex !== null && field !== "name" && field !== "surname"} // Solo se deshabilita si estamos editando
                   />
                 </div>
               ))}
@@ -283,7 +338,7 @@ const AgregarTrabajador = () => {
                     <div className="card shadow-lg h-100 rounded-lg p-3 " style={{ backgroundColor: "#f5f5f5",minWidth:"200px"}}>
                       <div className="card-body">
                         <h5 className="card-title text-center" style={{color: "#4b2215"}}>
-                          {trabajador.name} {trabajador.surname}
+                            {trabajador.first_name} {trabajador.last_name}
                         </h5>
                         <p className="card-text text-muted text-center">{trabajador.email}</p>
                         <div className="d-flex justify-content-center gap-2"> {/* Espacio entre botones */}
@@ -292,7 +347,7 @@ const AgregarTrabajador = () => {
                                     fontFamily: "'Montserrat', sans-serif",}}>
                             Editar
                           </button>
-                          <button onClick={() => handleDelete(index)} className="btn fw-bold " 
+                          <button onClick={() => handleDelete(index, trabajador.id)} className="btn fw-bold " 
                             style={{backgroundColor:"#c65b4a", 
                                     fontFamily: "'Montserrat', sans-serif",}}>
                             Eliminar

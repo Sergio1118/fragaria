@@ -5,7 +5,9 @@ import esLocale from "@fullcalendar/core/locales/es"; // Idioma español
 import { Card, Button } from "react-bootstrap"; // Bootstrap para las tarjetas
 import "bootstrap/dist/css/bootstrap.min.css";
 import Navbaradmin from "../NavbarAdmin/Navadmin";
+import Navbaruser from "../Navbaruser/navbaruser"
 import Footer from "../Footer/footer";
+
 
 const styles={
   container: {
@@ -60,9 +62,13 @@ const Calendario = () => {
     return new Date(fecha).toLocaleDateString("es-ES", opciones);
   };
 
+  const esAdmin = localStorage.getItem("is_staff") === "true";
+
   return (
     <div className="container mt-4 d-flex justify-content-center" style={styles.container}>
-      <Navbaradmin/>
+          {/* Navbar según el rol */}
+      {esAdmin ? <Navbaradmin/> : <Navbaruser/>}
+
       <h2 className="text-center fw-bold mb-5 mt-5 d-flex justify-content-cente" style={{color: "#4b2215"}}>
         Calendario
       </h2>
