@@ -145,7 +145,6 @@ function Plantacion() {
     // Al finalizar, actualizamos el estado de las plantaciones
     if (editando) {
       const id = plantaciones[indiceEdicion].id
-      console.log(id)
       try {
         const response = await fetch(`http://localhost:8000/editar-plantacion/${id}/`, {
           method: "POST",

@@ -6,7 +6,7 @@ from django.contrib.auth.forms import SetPasswordForm
 from django import forms
 from .models import Plantacion
 from .models import Usuario  # Importa Usuario correctamente
-from .models import Actividad, EstadoActividad
+from .models import Actividad
 from django.contrib.auth import get_user_model
 
 
@@ -62,10 +62,6 @@ class ActividadForm(forms.ModelForm):
         model = Actividad
         fields = ['nombre_actividad', 'tiempo_estimado', 'clima_requerido', 'fecha_vencimiento', 'fecha']
 
-class EstadoActividadForm(forms.ModelForm):
-    class Meta:
-        model = EstadoActividad
-        fields = ['estado']
         
 User = get_user_model()
 

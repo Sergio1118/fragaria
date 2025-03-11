@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from usuarios import views as usuarios_views
 from django.contrib.auth import views as auth_views
-from usuarios.views import  obtener_csrf_token, password_reset_api, iniciar_sesion, agregar_usuario, registro,perfil,logout_view,reset_password, obtener_fechas_recomendadas, registrar_plantacion, plantacion, editar_plantacion,asignar_actividad,gestion_usuarios
+from usuarios.views import  obtener_csrf_token, password_reset_api, iniciar_sesion, agregar_usuario, registro,perfil,logout_view,reset_password, obtener_fechas_recomendadas, registrar_plantacion, plantacion, editar_plantacion,asignar_actividad,gestion_usuarios,actividades_de_usuario,marcar_completo
 
 
 urlpatterns = [
@@ -61,6 +61,8 @@ urlpatterns = [
     
     # Administrador envia actividades a usuarios
     path('asignar_actividad/', asignar_actividad, name='asignar_actividad'),
+    path('actividades_de_trabajador/', actividades_de_usuario, name='actividades_empleado'),
+     path('marca/', marcar_completo, name='marca'),
     path('perfil/', perfil, name='perfil'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 

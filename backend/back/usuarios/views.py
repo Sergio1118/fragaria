@@ -23,14 +23,16 @@ from django.middleware.csrf import get_token
 from .emails import notificar_actividad  # Importa la función que creamos antes
 from .models import (
     Usuario, FechasSiembra, Plantacion, Siembra, 
-    Actividad, EstadoActividad
+    Actividad
 )
 from .forms import (
     RegistroForm, LoginForm, SetPasswordForm, UsuarioForm, 
-    PlantacionForm, ActividadForm, EstadoActividadForm, EditarPerfilForm
+    PlantacionForm,  EditarPerfilForm
 )
+from django.utils import timezone
 import logging
 logger = logging.getLogger(__name__)
+
 
 @ensure_csrf_cookie
 def obtener_csrf_token(request):
@@ -140,8 +142,7 @@ def iniciar_sesion(request):
 #Vista que permite la gestion de usuarios via administrador
 
 # se debe hacer un metodo GET
-
-@csrf_exempt
+@login_required
 def gestion_usuarios(request):
     # Verificar autenticación y permisos
     if not request.user.is_authenticated or (not request.user.is_superuser and not request.user.is_staff):
@@ -717,19 +718,99 @@ def lista_actividades(request):
 
 
 # hay que hacer cambios por que se cambio la base de datos
-def cambiar_estado(request, actividad_id, nuevo_estado):
-    # Verificamos si el estado es válido
-    if nuevo_estado not in ['Pendiente', 'Completada', 'En Progreso']:
-        return HttpResponse("Estado inválido", status=400)
-
+@csrf_exempt
+def cambiar_estado(actividad_id, nuevo_estado):
+    
     # Obtenemos la actividad correspondiente
-    actividad = get_object_or_404(Actividad, id=actividad_id)
+    actividad = Actividad.objects.filter(id=actividad_id).first()
 
-    # Creamos un nuevo registro de estado para la actividad
-    EstadoActividad.objects.create(actividad=actividad, estado=nuevo_estado)
+    # Verificamos si la fecha de vencimiento ya pasó y el estado no es 'Completada'
+    if actividad.fecha_vencimiento < timezone.now().date() and nuevo_estado != 'completada':
+        nuevo_estado = 'incompleta'  # Si la fecha de vencimiento pasó, el estado será 'Incompleta' (equivalente a 'En Progreso')
+   
+
+    # Actualizamos el estado de la actividad
+    actividad.estado = nuevo_estado
+    actividad.save()  # Guardamos los cambios en la actividad
+
+    # Creamos un nuevo registro de estado para la actividad (si deseas guardar el historial de estados)
+    # EstadoActividad.objects.create(actividad=actividad, estado=nuevo_estado)
 
     # Redirigimos a la lista de actividades
-    return redirect('lista_actividades')
+    return nuevo_estado
+
+
+@csrf_exempt
+def actividades_de_usuario(request):
+    usuario_id = request.user.id
+
+    # Verificar que el método sea GET
+    if request.method != 'GET':
+        return JsonResponse({"status": "error", "message": "Método no permitido."}, status=405)
+    
+    # Obtener el usuario
+    usuario = Usuario.objects.filter(id=usuario_id).first()
+    if not usuario:
+        return JsonResponse({"status": "error", "message": "El usuario no existe."}, status=400)
+    
+    # Filtrar las actividades del usuario
+    actividades = Actividad.objects.filter(usuario_id=usuario_id)
+    if not actividades.exists():
+        return JsonResponse({"status": "success", "message": "No hay actividades asignadas."}, status=200)
+    
+    # Crear una lista de actividades con el estado actualizado
+    actividades_data = []
+    for actividad in actividades:
+        # Aquí se llamará a la función cambiar_estado para obtener el estado actualizado
+        nuevo_estado = cambiar_estado( actividad.id, actividad.estado)  # Llamada correcta a la función
+        
+        actividad_data = {
+            "id": actividad.id,
+            "nombre_actividad": actividad.nombre_actividad,
+            "descripcion": actividad.descripcion,
+            "tiempo_estimado": str(actividad.tiempo_estimado),
+            "fecha_vencimiento": actividad.fecha_vencimiento.strftime("%Y-%m-%d %H:%M:%S"),  # Formato de fecha
+            "fecha": actividad.fecha.strftime("%Y-%m-%d %H:%M:%S"),  # Formato de fecha
+            "estado": nuevo_estado
+        }
+        
+        actividades_data.append(actividad_data)
+
+    # Devolver la respuesta JSON con las actividades
+    return JsonResponse({"status": "success", "actividades": actividades_data}, status=200, safe=False)
+
+    
+   
+    
+  
+
+@csrf_exempt
+def marcar_completo(request):
+    # Cargar los datos enviados como JSON
+    data = json.loads(request.body)
+    actividad_id = data.get('id')
+    
+    # Asegurarse de que se pase un id válido
+    if not actividad_id:
+        return JsonResponse({"error": "ID de actividad no proporcionado"}, status=400)
+
+    # Obtener la actividad correspondiente
+    actividad = get_object_or_404(Actividad, id=actividad_id)
+
+    # Cambiar el estado de la actividad a 'Completada'
+    if actividad.estado != 'completada':  # Verificamos si ya está completada
+        actividad.estado = 'completada'
+        actividad.save() 
+
+        return JsonResponse({"mensaje": "Actividad marcada como completada correctamente."}, status=200)
+    
+    return JsonResponse({"mensaje": "La actividad ya está marcada como completada."}, status=200)
+    
+
+
+
+
+
 
 #Vista que autentica al usuario ver sus actividades
 
@@ -761,32 +842,6 @@ def mis_actividades(request):
     
     # Preguntarle a kenfer
 
-#estoy hay que cambiaro
-def registrar_estado_actividad(request, actividad_id):
-    actividad = get_object_or_404(Actividad, id=actividad_id)
-    if request.method == 'POST':
-        form = EstadoActividadForm(request.POST)
-        if form.is_valid():
-            estado = form.save(commit=False)
-            estado.actividad = actividad
-            estado.save()
-            return JsonResponse({
-                'status': 200,
-                'success': True,
-                'message': 'Estado de la actividad registrado correctamente.',
-                'redirect_url': 'lista_actividades'
-            })
-        else:
-            errors = form.errors.as_json()
-            return JsonResponse({
-                'status': 400,
-                'success': False,
-                'message': 'Formulario inválido.',
-                'errors': errors
-            }, status=400)
-    else:
-        form = EstadoActividadForm()
-        return render(request, 'actividades/registrar_estado_actividad.html', {'form': form, 'actividad': actividad})
 
 
 # Hacer un get de las actividades completas de dicho trabaja y det de los trabajadore
@@ -865,6 +920,7 @@ def eliminar_plantacion(request, id):
         
 @csrf_exempt
 def asignar_actividad(request):
+    
     if request.method != 'POST':
         return JsonResponse({"status": "error", "message": "Método no permitido."}, status=405)
 
@@ -882,6 +938,7 @@ def asignar_actividad(request):
     tiempo_estimado = data.get("tiempo_estimado")
     fecha_vencimiento = data.get("fecha_vencimiento")
     fecha = data.get("fecha")
+    nuevo_estado="pendiente"
 
     if not all([usuario_id, actividad, tiempo_estimado, fecha_vencimiento, fecha]):
         return JsonResponse({"status": "error", "message": "Todos los campos son obligatorios."}, status=400)
@@ -907,8 +964,6 @@ def asignar_actividad(request):
     if not usuario:
         return JsonResponse({"status": "error", "message": "El usuario no existe."}, status=400)
 
-    # Buscar o crear el estado 'Pendiente'
-    estado_actividad, _ = EstadoActividad.objects.get_or_create(estado='Pendiente')
 
     # Crear la actividad
     nueva_actividad = Actividad.objects.create(
@@ -918,7 +973,7 @@ def asignar_actividad(request):
         fecha=fecha,
         descripcion=descripcion,
         usuario_id=usuario.id,  # 🔹 Cambio aquí: usar ID en lugar del objeto
-        estado_id=estado_actividad.id,
+        estado =nuevo_estado,
     )
 
     # Intentar enviar notificación
@@ -939,7 +994,7 @@ def asignar_actividad(request):
             "tiempo_estimado": str(nueva_actividad.tiempo_estimado),
             "fecha_vencimiento": str(nueva_actividad.fecha_vencimiento),
             "fecha": str(nueva_actividad.fecha),
-            "estado": estado_actividad.estado
+            "estado":"pendiente"
         }
     }, status=201)
 

@@ -52,22 +52,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
 
 
-
-   
-
-# Modelo de Estado de Actividad
-class EstadoActividad(models.Model):
-    ESTADOS = [
-        ('Pendiente', 'Pendiente'),
-        ('Completada', 'Completada'),
-        ('En Progreso', 'En Progreso'),
-    ]
-    estado = models.CharField(max_length=20, choices=ESTADOS, default='Pendiente')
-
-    def __str__(self):
-        return f"Estado: {self.estado}"
-
-
    
 
 class Actividad(models.Model):
@@ -78,7 +62,7 @@ class Actividad(models.Model):
     fecha = models.DateField()
     descripcion = models.TextField()
     
-    estado = models.ForeignKey(EstadoActividad, on_delete=models.CASCADE)  # 🔥 Corrección aquí
+    estado = models.CharField(max_length=30, null = False)
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='actividades_asignadas')
 
     def __str__(self):
