@@ -707,7 +707,7 @@ def registrar_plantacion(request):
     #         'ubicacion': ubicacion,
     #     })           
 
-# hacer metodo GET  
+# se tine que hacer dos GET uno para el  usario normal y notro para el admitrador  
 def lista_actividades(request):
     # Obtenemos todas las actividades
     actividades = Actividad.objects.all()
@@ -716,7 +716,7 @@ def lista_actividades(request):
     return render(request, 'usuarios/lista_actividades.html', {'actividades': actividades})
 
 
-# hacer metodo POST  
+# hay que hacer cambios por que se cambio la base de datos
 def cambiar_estado(request, actividad_id, nuevo_estado):
     # Verificamos si el estado es válido
     if nuevo_estado not in ['Pendiente', 'Completada', 'En Progreso']:
@@ -734,7 +734,7 @@ def cambiar_estado(request, actividad_id, nuevo_estado):
 #Vista que autentica al usuario ver sus actividades
 
 # Preguntar a kenfer
-
+#esta puede sirvir para el trabajador?
 @login_required
 def mis_actividades(request):
     # Obtén las actividades asociadas al usuario autenticado
@@ -761,6 +761,7 @@ def mis_actividades(request):
     
     # Preguntarle a kenfer
 
+#estoy hay que cambiaro
 def registrar_estado_actividad(request, actividad_id):
     actividad = get_object_or_404(Actividad, id=actividad_id)
     if request.method == 'POST':
@@ -788,7 +789,7 @@ def registrar_estado_actividad(request, actividad_id):
         return render(request, 'actividades/registrar_estado_actividad.html', {'form': form, 'actividad': actividad})
 
 
-# Hacer metodo GET y metodo DELETE una vez kenfer termine con las actividades de usuario
+# Hacer un get de las actividades completas de dicho trabaja y det de los trabajadore
 
 @login_required
 def informes(request):
@@ -1004,6 +1005,8 @@ def logout_view(request):
         "status": 200,
         "message": "Logout exitoso"
     })
+    
+    #hay que hacer las vista de el aditarr actividad y borra
         
         
         
