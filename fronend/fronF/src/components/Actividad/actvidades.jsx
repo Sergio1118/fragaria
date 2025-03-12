@@ -3,10 +3,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Navbaradmin from "../NavbarAdmin/Navadmin";
 import Footer from "../Footer/footer";
 
-const styles={
+const styles = {
   container: {
     minHeight: "100vh",
-    minWidth: "100%", // <-- Aquí lo agregas
+    minWidth: "100%",
     display: "flex",
     flexDirection: "column",
     background: "linear-gradient(to bottom, rgb(252, 234, 208), rgb(255, 222, 199))",
@@ -14,189 +14,212 @@ const styles={
   footerContainer: {
     textAlign: "center",
     width: "100%",
-    marginTop: "auto", 
+    marginTop: "auto",
   },
-}
+};
 
 function Actividades() {
-  const [actividades, setActividades] = useState([
-    { id: 1, nameActividad: "Tarea 1", estado: "pendiente", fecha: "2024-02-10" },
-    { id: 2, nameActividad: "Tarea 2", estado: "pendiente", fecha: "2025-03-05" },
-    { id: 3, nameActividad: "Tarea 3", estado: "completada", fecha: "2025-02-10" },
-    { id: 4, nameActividad: "Tarea 4", estado: "pendiente", fecha: "2024-02-05" },
-  ]);
-
+  const [actividades, setActividades] = useState([]);
   const [editando, setEditando] = useState(null);
-  const [editData, setEditData] = useState({ fecha: "" });
+  const [editData, setEditData] = useState({ fecha: "", fecha_vencimiento: "" });
 
-  useEffect(() => {
-    const hoy = new Date().toISOString().split("T")[0];
+  
+    const actividadGet = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/actividadAdmin/", {
+          method: "GET",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+        });
 
-    setActividades((prev) =>
-      prev.map((act) =>
-        act.estado !== "completada"
-          ? { ...act, estado: act.fecha < hoy ? "incompleta" : "pendiente" }
-          : act
-      )
-    );
-  }, []);
+        if (!response.ok) throw new Error("Error en la petición");
+          actividadGet();
 
-  const marcarComoCompletada = (id) => {
-    setActividades((prev) =>
-      prev.map((act) => (act.id === id ? { ...act, estado: "completada" } : act))
-    );
-  };
+        const data = await response.json();
+
+        if (Array.isArray(data.actividades)) {
+          const actividadesTransformadas = data.actividades.map((act) => ({
+            ...act,
+            fecha: act.fecha.split(" ")[0], // Extraer solo la fecha (YYYY-MM-DD)
+            fecha_vencimiento: act.fecha_vencimiento.split(" ")[0] || "", // Extraer fecha de vencimiento si existe
+            usuario_nombre: act.usuario?.nombre || "Usuario desconocido", // Extraer el nombre del usuario
+          }));
+
+          setActividades(actividadesTransformadas);
+        } else {
+          console.error("Formato de respuesta incorrecto:", data);
+        }
+      } catch (error) {
+        console.error("Error en la petición:", error);
+      }
+    };
+
+    useEffect(() => {
+      actividadGet();
+    });
+    
+
+  
 
   const habilitarEdicion = (actividad) => {
     setEditando(actividad.id);
-    setEditData({ fecha: actividad.fecha });
+    setEditData({ fecha: actividad.fecha, fecha_vencimiento: actividad.fecha_vencimiento });
   };
 
   const guardarEdicion = (id) => {
-    const hoy = new Date().toISOString().split("T")[0];
-    setActividades((prev) =>
-      prev.map((act) =>
-        act.id === id
-          ? { ...act, fecha: editData.fecha, estado: editData.fecha >= hoy ? "pendiente" : "incompleta" }
-          : act
-      )
-    );
+    try {
+      const actividad = actividades.find((act) => act.id === id);
+      if (!actividad) {
+        console.error("No se encontró la actividad.");
+        return;
+      }
+  
+      const response =  fetch(`http://localhost:8000/editar/${id}/`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fecha_vencimiento: editData.fecha_vencimiento,
+          fecha: editData.fecha,
+          estado: "incompleta",
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorData = response.json();
+        actividadGet();
+        console.error("Error en la respuesta del servidor:", errorData.message || "Error desconocido.");
+        alert("Actividad guardada correctamente.");
+        return;
+      }
+
+  
+      setEditando(null);
+    } catch (error) {
+      console.error("Error al guardar la actividad:", error);
+    }
+
+    
     setEditando(null);
   };
 
+  const eliminarActividad = (id) => {
+    try {
+      const response =  fetch(`http://localhost:8000/eliminar/${id}/`, {
+        method: "POST",
+        credentials: "include", // Enviar cookies si es necesario
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      const data = response.json();
+  
+      if (response.ok) {
+        alert("Plantación eliminada correctamente.");
+        setActividades((prev) => prev.filter((act) => act.id !== id)); // Actualiza el estado eliminando la plantación
+      } else {
+        console.error("Error:", data.message || "Error al eliminar la plantación.");
+      }
+    } catch (error) {
+      console.error("Error al eliminar la plantación:", error);
+    }
+    
+  };
+
   return (
-  <div style={styles.container}>
-     <div className="container mt-5 mb-5">
-          <Navbaradmin/>
-      <h2 className="text-center fw-bold mb-5 mt-5 d-flex justify-content-cente" style={{color: "#4b2215"}}>
-        📌 Gestión de Actividades
-      </h2>
+    <div style={styles.container}>
+      <Navbaradmin />
+      <div className="container-fluid mt-5 mb-5">
+        <h2 className="text-center fw-bold mb-5 mt-5" style={{ color: "#4b2215" }}>
+          📌 Gestión de Actividades
+        </h2>
 
-      <div className="row g-4">
-        {/* Sección de actividades pendientes */}
-        <div className="col-md-4 ">
-          <section className="p-3 border rounded shadow-sm bg-light">
-            <h4 className="text-center mb-3" 
-                  style={{
-                    color:"#febd30"}}>📌 Pendientes</h4>
-            <div className="overflow-auto" style={{ maxHeight: "400px" }}>
-              {actividades
-                .filter((act) => act.estado === "pendiente")
-                .map((act) => (
-                  <div key={act.id} className="card shadow-sm mb-3  " style={{border:"2px solid #f7dc6f "}}>
-                    <div className="card-body text-center">
-                      <h6 className="fw-bold"style={{ color: "#8B0000" }}>{act.nameActividad}</h6>
-                      <p className="text-muted">📅 {act.fecha}</p>
-                      {editando === act.id ? (
-                        <>
-                          <input
-                            type="date"
-                            className="form-control mb-2"
-                            value={editData.fecha}
-                            onChange={(e) => setEditData({ ...editData, fecha: e.target.value })}
-                            min={new Date().toISOString().split("T")[0]} // Limitar a fechas futuras
-                          />
-                          <button
-                            className="btn btn-success btn-sm w-100"
-                            onClick={() => guardarEdicion(act.id)}
-                          >
-                            Guardar
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            className="btn btn-sm w-100 mb-2"
-                            style={{backgroundColor: "#28b463", fontFamily: "'Montserrat', sans-serif" }}
-                            onClick={() => marcarComoCompletada(act.id)} // Completar tarea
-                          >
-                            ✅ Completar
-                          </button>
-                          <button
-                            className="btn btn-sm w-100"
-                            style={{backgroundColor: "#fad885", fontFamily: "'Montserrat', sans-serif"}}
-                            onClick={() => habilitarEdicion(act)} // Editar fecha
-                          >
-                            ✏️ Editar Fecha
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </section>
-        </div>
+        <div className="row g-4">
+          {["pendiente", "incompleta", "completada"].map((estado, index) => {
+            const estadoInfo = {
+              pendiente: { titulo: "📌 Pendientes", color: "#febd30", borde: "#f7dc6f" },
+              incompleta: { titulo: "❌ Incompletas", color: "#c65b4a", borde: "#c65b4a" },
+              completada: { titulo: "✅ Completadas", color: "#28b463", borde: "#1e8449" },
+            };
 
-        {/* Sección de actividades incompletas */}
-        <div className="col-md-4 ">
-          <section className="p-3 border rounded shadow-sm bg-light">
-            <h4 className="text-center mb-3" style={{color: "#c65b4a"}}>❌ Incompletas</h4>
-            <div className="overflow-auto" style={{ maxHeight: "400px" }}>
-              {actividades
-                .filter((act) => act.estado === "incompleta")
-                .map((act) => (
-                  <div key={act.id} className="card shadow-sm mb-3" style={{border:" 2px solid #c65b4a"}}>
-                    <div className="card-body text-center">
-                      <h6 className="fw-bold" style={{ color: "#8B0000" }}>{act.nameActividad}</h6>
-                      <p className="text-muted">📅 {act.fecha}</p>
-                      {editando === act.id ? (
-                        <>
-                          <input
-                            type="date"
-                            className="form-control mb-2"
-                            value={editData.fecha}
-                            onChange={(e) => setEditData({ ...editData, fecha: e.target.value })}
-                            min={new Date().toISOString().split("T")[0]} // Limitar a fechas futuras
-                          />
-                          <button
-                            className="btn btn-success btn-sm w-100"
-                            onClick={() => guardarEdicion(act.id)}
-                          >
-                            Guardar
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          className="btn btn-sm w-100"
-                          style={{backgroundColor: "#fad885", fontFamily: "'Montserrat', sans-serif"}}
-                          onClick={() => habilitarEdicion(act)}
-                        >
-                          ✏️ Editar Fecha
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </section>
-        </div>
+            return (
+              <div className="col-md-4" key={index}>
+                <section className="p-3 border rounded shadow bg-light">
+                  <h4 className="text-center mb-3" style={{ color: estadoInfo[estado].color }}>
+                    {estadoInfo[estado].titulo}
+                  </h4>
+                  <div className="overflow-auto" style={{ maxHeight: "400px" }}>
+                    {actividades
+                      .filter((act) => act.estado === estado)
+                      .map((act) => (
+                        <div key={act.id} className="card shadow-sm mb-3" style={{ border: `2px solid ${estadoInfo[estado].borde}` }}>
+                          <div className="card-body text-center">
+                            <h6 className="fw-bold text-dark">{act.nombre_actividad}</h6>
+                            
+                            <p className="text-muted">👤 Usuario: {act.first_name}</p>
 
-        {/* Sección de actividades completadas */}
-        <div className="col-md-4">
-          <section className="p-3 border rounded shadow-sm bg-light">
-            <h4 className="text-success text-center mb-3" >✅ Completadas</h4>
-            <div className="overflow-auto" style={{ maxHeight: "400px",   }}>
-              {actividades
-                .filter((act) => act.estado === "completada")
-                .map((act) => (
-                  <div key={act.id} className="card shadow-sm mb-3" style={{border:"2px solid #1e8449 "}}>
-                    <div className="card-body text-center">
-                      <h6 className="fw-bold" style={{ color: "#8B0000" }}>{act.nameActividad}</h6>
-                      <p className="text-muted">📅 {act.fecha}</p>
-                      <span className="badge" style={{backgroundColor:" #28b463", color:"rgb(0, 0, 0) " }}>Completada</span>
-                    </div>
+                            {editando === act.id ? (
+                              <>
+                                <label className="form-label">📅 Fecha de actividad:</label>
+                                <input
+                                  type="date"
+                                  className="form-control mb-2"
+                                  value={editData.fecha}
+                                  onChange={(e) => setEditData({ ...editData, fecha: e.target.value })}
+                                />
+                                <label className="form-label">⏳ Fecha de vencimiento:</label>
+                                <input
+                                  type="date"
+                                  className="form-control mb-2"
+                                  value={editData.fecha_vencimiento}
+                                  onChange={(e) => setEditData({ ...editData, fecha_vencimiento: e.target.value })}
+                                />
+                              </>
+                            ) : (
+                              <>
+                                <p className="text-muted">📅 Fecha: {act.fecha}</p>
+                                <p className="text-muted">⏳ Vence: {act.fecha_vencimiento || "No definida"}</p>
+                              </>
+                            )}
+
+                            {estado !== "completada" && (
+                              <>
+                                {editando === act.id ? (
+                                  <button className="btn btn-sm w-100 mb-2 btn-primary" onClick={() => guardarEdicion(act.id)}>
+                                    💾 Guardar
+                                  </button>
+                                ) : (
+                                  <>
+                                    <button className="btn btn-sm w-100 btn-warning mb-2" onClick={() => habilitarEdicion(act)}>
+                                      ✏️ Editar Fechas
+                                    </button>
+                                  </>
+                                )}
+                                <button className="btn btn-sm w-100 btn-danger" onClick={() => eliminarActividad(act.id)}>
+                                  🗑️ Eliminar
+                                </button>
+                              </>
+                            )}
+
+                          {estado === "completada" && (
+                            <>
+                              <span className="badge bg-success text-dark">Completada</span>
+                              <button className="btn btn-sm w-100 btn-danger mt-2" onClick={() => eliminarActividad(act.id)}>
+                                🗑️ Eliminar
+                              </button>
+                            </>
+                          )}
+                          </div>
+                        </div>
+                      ))}
                   </div>
-                ))}
-            </div>
-          </section>
+                </section>
+              </div>
+            );
+          })}
         </div>
       </div>
+      <Footer />
     </div>
-      <div style={styles.footerContainer}>
-          <Footer/>
-      </div>
-  </div>
   );
 }
 

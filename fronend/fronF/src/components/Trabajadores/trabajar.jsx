@@ -231,7 +231,7 @@ const AgregarTrabajador = () => {
 
     if (window.confirm("¿Estás seguro de que quieres eliminar este trabajador?")) {
       try {
-        const response = await fetch(`http://localhost:8000/eliminar_usuario/${userId}/`, {
+        const response = await fetch(`http://localhost:8000/eliminar-usuario/${userId}/`, {
           method: 'DELETE',  // Método de eliminación, ya que el backend lo espera
           credentials: "include",  // Asegúrate de enviar las cookies de sesión si es necesario
           headers: { "Content-Type": "application/json" },  // Asegúrate de enviar la cabecera correcta

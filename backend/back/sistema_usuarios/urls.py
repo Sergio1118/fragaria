@@ -18,8 +18,8 @@ from django.contrib import admin
 from django.urls import path
 from usuarios import views as usuarios_views
 from django.contrib.auth import views as auth_views
-from usuarios.views import  obtener_csrf_token, password_reset_api, iniciar_sesion, agregar_usuario, registro,perfil,logout_view,reset_password, obtener_fechas_recomendadas, registrar_plantacion, plantacion, editar_plantacion,asignar_actividad,gestion_usuarios,actividades_de_usuario,marcar_completo
-
+from usuarios.views import  obtener_csrf_token, password_reset_api, iniciar_sesion, agregar_usuario, registro,perfil,logout_view,reset_password, obtener_fechas_recomendadas, registrar_plantacion, plantacion, editar_plantacion,asignar_actividad,gestion_usuarios,actividades_de_usuario,marcar_completo,actividades_admin
+from usuarios.views import editar_actividad,eliminar_actividad
 
 urlpatterns = [
     # url del token
@@ -55,15 +55,16 @@ urlpatterns = [
     # path('registrar-plantacion/', usuarios_views.registrar_plantacion, name='registrar_plantacion'),  # Formulario de registro de plantación
     path('obtener_fechas_recomendadas/', obtener_fechas_recomendadas, name='obtener_fechas_recomendadas'),
     path('registrar_plantacion/', registrar_plantacion, name='registrar_plantacion'),
-    path('actividades/', usuarios_views.lista_actividades, name='lista_actividades'),
     path('actividades/<int:actividad_id>/estado/<str:nuevo_estado>/', usuarios_views.cambiar_estado, name='cambiar_estado'),
-    path('mis_actividades/', usuarios_views.mis_actividades, name='mis_actividades'),
     
     # Administrador envia actividades a usuarios
     path('asignar_actividad/', asignar_actividad, name='asignar_actividad'),
     path('actividades_de_trabajador/', actividades_de_usuario, name='actividades_empleado'),
-     path('marca/', marcar_completo, name='marca'),
+    path('marca/', marcar_completo, name='marca'),
     path('perfil/', perfil, name='perfil'),
+    path('actividadAdmin/', actividades_admin, name='actividadAdmin'), 
+    path('editar/<int:id>/', editar_actividad, name='editar_actividad'),
+    path('eliminar/<int:id>/', eliminar_actividad, name='eliminar_actividad'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 
     # URL para informes (si es necesaria)

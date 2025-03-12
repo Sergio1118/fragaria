@@ -103,6 +103,7 @@ function ActividadesT() {
                             {act.nombre_actividad}
                           </h6>
                           <p className="text-muted">📅 {act.fecha}</p>
+                          <p className="text-muted">⏳ {act.fecha_vencimiento}</p>
 
                           <button
                             className="btn btn-sm w-100 mb-2"
@@ -138,6 +139,7 @@ function ActividadesT() {
                             {act.nombre_actividad}
                           </h6>
                           <p className="text-muted">📅 {act.fecha}</p>
+                          <p className="text-muted">⏳ {act.fecha_vencimiento}</p>
                         </div>
                       </div>
                     ))
@@ -162,7 +164,8 @@ function ActividadesT() {
                           <h6 className="fw-bold" style={{ color: "#8B0000" }}>
                             {act.nombre_actividad}
                           </h6>
-                          <p className="text-muted">📅 {act.fecha}</p>
+                          <p className="text-muted">📅{act.fecha}</p>
+                          <p className="text-muted">⏳{act.fecha_vencimiento}</p>
                           <span className="badge" style={{ backgroundColor: " #28b463", color: "rgb(0, 0, 0) " }}>
                             Completada
                           </span>

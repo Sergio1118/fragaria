@@ -202,7 +202,7 @@ def editar_usuario(request, user_id):
 
     usuario = get_object_or_404(Usuario, id=user_id)
 
-    if request.method == 'POST':
+    if request.method == 'PUT':
         try:
             # Cargar los datos del cuerpo de la solicitud (JSON)
             data = json.loads(request.body)
@@ -617,104 +617,7 @@ def registrar_plantacion(request):
     return render(request, 'usuarios/registrar_plantacion.html', {'form': PlantacionForm()})
 
 
-# necesita cambios con status
-# Vista para registrar una nueva plantación
-# @login_required
-# def registrar_plantacion(request):
-#     # Configuración de la API del clima
-#     API_KEY = 'b38f3f8558d7bee2759f548984ae5505'  # Reemplaza con tu clave API
-#     ubicacion = 'Pereira,CO'
-#     url = f"http://api.openweathermap.org/data/2.5/forecast?q={ubicacion}&appid={API_KEY}&units=metric"
 
-#     # Obtener datos del clima
-#     response = requests.get(url)
-#     if response.status_code != 200:
-#         messages.error(request, 'No se pudo obtener el clima. Inténtalo de nuevo más tarde.')
-#         return render(request, 'usuarios/registrar_plantacion.html', {'form': PlantacionForm()})
-
-#     clima_data = response.json()
-#     fechas_recomendadas = []
-
-#     # Filtrar fechas con clima templado
-#     for pronostico in clima_data['list']:
-#         fecha = pronostico['dt_txt']  # Fecha en formato 'año-mes-dia h:min:seg'
-#         temperatura = pronostico['main']['temp']
-#         if 15 <= temperatura <= 25:  # Rango de clima templado
-#             fecha_formateada = datetime.strptime(fecha, '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%d')
-#             if fecha_formateada not in fechas_recomendadas:  # Evitar duplicados
-#                 fechas_recomendadas.append(fecha_formateada)
-
-#     # Obtener el clima actual
-#     clima_actual_url = f"http://api.openweathermap.org/data/2.5/weather?q={ubicacion}&appid={API_KEY}&units=metric"
-#     clima_actual_response = requests.get(clima_actual_url)
-#     if clima_actual_response.status_code == 200:
-#         clima_actual_data = clima_actual_response.json()
-#         temperatura_actual = clima_actual_data['main']['temp']
-#         descripcion_ingles = clima_actual_data['weather'][0]['description']
-#         descripcion_actual = TRADUCCION_CLIMA.get(descripcion_ingles, descripcion_ingles)
-#         humedad_actual = clima_actual_data['main']['humidity']
-#         presion_actual = clima_actual_data['main']['pressure']
-#         velocidad_viento_actual = clima_actual_data['wind']['speed']
-#     else:
-#         temperatura_actual = descripcion_actual = humedad_actual = presion_actual = velocidad_viento_actual = None
-
-#     # solicitudes POST estoy cansadoooooo jaja erdaa con tanta cosa por hacer y nos las estoy haciendo bien por estar pensando si estás bien.
-#     if request.method == 'POST':
-#         form = PlantacionForm(request.POST)
-#         if form.is_valid():
-#             plantacion = form.save(commit=False)
-#             plantacion.usuario = request.user
-#             fecha_recomendada = request.POST.get('fecha_recomendada')
-#             fecha_personalizada = request.POST.get('fecha_personalizada')
-
-#             if fecha_personalizada:
-#                 plantacion.fecha_siembra = fecha_personalizada
-#             elif fecha_recomendada:
-#                 plantacion.fecha_siembra = fecha_recomendada
-#             else:
-#                 return JsonResponse({
-#                     'status': 400,
-#                     'success': False,
-#                     'message': 'Debes seleccionar una fecha de siembra.'
-#                 }, status=400)
-
-#             plantacion.save()
-#             return JsonResponse({
-#                 'status': 200,
-#                 'success': True,
-#                 'message': 'Plantación registrada correctamente.',
-#                 'redirect_url': 'plantaciones'
-#             })
-#         else:
-#             errors = form.errors.as_json()
-#             return JsonResponse({
-#                 'status': 400,
-#                 'success': False,
-#                 'message': 'Formulario inválido.',
-#                 'errors': errors
-#             }, status=400)
-
-    # solicitudes GET
-    # else:
-    #     form = PlantacionForm()
-    #     return render(request, 'usuarios/registrar_plantacion.html', {
-    #         'form': form,
-    #         'fechas_recomendadas': fechas_recomendadas,
-    #         'temperatura': temperatura_actual,
-    #         'descripcion': descripcion_actual,
-    #         'humedad': humedad_actual,
-    #         'presion': presion_actual,
-    #         'velocidad_viento': velocidad_viento_actual,
-    #         'ubicacion': ubicacion,
-    #     })           
-
-# se tine que hacer dos GET uno para el  usario normal y notro para el admitrador  
-def lista_actividades(request):
-    # Obtenemos todas las actividades
-    actividades = Actividad.objects.all()
-
-    # Pasamos las actividades al contexto para mostrarlas en la plantilla
-    return render(request, 'usuarios/lista_actividades.html', {'actividades': actividades})
 
 
 # hay que hacer cambios por que se cambio la base de datos
@@ -812,34 +715,6 @@ def marcar_completo(request):
 
 
 
-#Vista que autentica al usuario ver sus actividades
-
-# Preguntar a kenfer
-#esta puede sirvir para el trabajador?
-@login_required
-def mis_actividades(request):
-    # Obtén las actividades asociadas al usuario autenticado
-    usuario = request.user
-    actividades = Actividad.objects.filter(usuario=usuario)
-    
-    if request.method == 'POST':
-        # Marcar el estado de una actividad (en base al formulario enviado)
-        actividad_id = request.POST.get('actividad_id')
-        estado = request.POST.get('estado')
-        actividad = Actividad.objects.get(id=actividad_id)
-
-        # Crear o actualizar el estado de la actividad
-        estado_actividad = EstadoActividad.objects.create(
-            actividad=actividad, estado=estado
-        )
-        # Redirigir de nuevo a la lista de actividades
-        return redirect('mis_actividades')
-
-    return render(request, 'mis_actividades.html', {
-        'usuario': usuario,
-        'actividades': actividades,
-    })
-    
     # Preguntarle a kenfer
 
 
@@ -1052,6 +927,76 @@ def perfil(request):
             'usuario': datos_usuario,
             'es_administrador': es_administrador,
         })
+
+@csrf_exempt
+@login_required
+def actividades_admin(request):
+    if request.method == "GET":
+        usuarios = Usuario.objects.filter(admin_creator=request.user).values("id", "first_name")
+
+        actividades_resultado = []
+
+        for user in usuarios:
+            actividades = Actividad.objects.filter(usuario_id=user["id"])
+
+            for actividad in actividades:
+                nuevo_estado = cambiar_estado(actividad.id, actividad.estado)
+
+                actividad_data = {
+                    "id": actividad.id,
+                    "first_name": user["first_name"],  
+                    "nombre_actividad": actividad.nombre_actividad,
+                    "descripcion": actividad.descripcion,
+                    "tiempo_estimado": str(actividad.tiempo_estimado),
+                    "fecha_vencimiento": actividad.fecha_vencimiento.strftime("%Y-%m-%d %H:%M:%S"),
+                    "fecha": actividad.fecha.strftime("%Y-%m-%d"),
+                    "estado": nuevo_estado
+                }
+
+                actividades_resultado.append(actividad_data)
+
+        return JsonResponse({"actividades": actividades_resultado}, safe=False)
+    
+    
+@csrf_exempt
+def editar_actividad(request, id):
+    actividad = get_object_or_404(Actividad, id=id)
+
+    if request.method == 'POST':
+        try:
+            # Cargar los datos correctamente si se envían en formato JSON
+            data = json.loads(request.body.decode('utf-8'))
+
+            # Obtener datos con valores por defecto si no están en la petición
+            fecha_vencimiento = data.get('fecha_vencimiento')
+            fecha = data.get('fecha')
+            estado = data.get('estado')
+
+            # Ajustar el estado si es necesario
+            if estado in ["incompleta", "pendiente"]:
+                estado = "pendiente"
+
+            # Actualizar la actividad
+            actividad.fecha_vencimiento = fecha_vencimiento
+            actividad.fecha = fecha
+            actividad.estado = estado
+            actividad.save()
+
+            return JsonResponse({"status": "success", "message": "Actividad actualizada correctamente."}, status=200)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"status": "error", "message": "Error al decodificar JSON."}, status=400)
+
+    return JsonResponse({"status": "error", "message": "Método no permitido."}, status=405)
+
+@csrf_exempt
+def eliminar_actividad(request, id):
+    if request.method == 'POST':
+        actividad = get_object_or_404(Actividad, id=id)
+        actividad.delete()
+        return JsonResponse({"status": "success", "message": "Actividad eliminada correctamente."},status=200)
+
+    return JsonResponse({"status": "error", "message": "Método no permitido."}, status=405)
 
 @csrf_exempt
 def logout_view(request):
