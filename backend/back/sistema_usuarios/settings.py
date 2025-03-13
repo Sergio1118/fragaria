@@ -152,6 +152,7 @@ EMAIL_HOST_USER = 'canomoreno78@gmail.com'  # Tu correo de Gmail
 EMAIL_HOST_PASSWORD = 'ucou mhjv hzkq wgwf'  # Tu contraseña o contraseña de aplicación     #ucou mhjv hzkq wgwf   contraseña de google
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Correo desde el cual se enviarán los emails
 
+
 CSRF_COOKIE_SECURE = True  # Solo usa True si estás trabajando con HTTPS
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = 'Lax'  # O 'Strict' para mayor seguridad
