@@ -90,9 +90,6 @@ const AgregarTrabajador = () => {
     }, []);
 
 
- 
-
-
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -106,16 +103,10 @@ const AgregarTrabajador = () => {
   };
 
 
- 
-
-
   const validateEmail = (email) => {
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     return emailRegex.test(email);
   };
-
-
- 
 
 
   const handleSubmit = async (e) => {
@@ -169,6 +160,7 @@ const AgregarTrabajador = () => {
             alert("Trabajador actualizado con éxito");
            
 
+
         } catch (error) {
             console.error("Error al actualizar:", error);
             alert(error.message);
@@ -208,9 +200,7 @@ const AgregarTrabajador = () => {
     setFormData({ name: "", surname: "", email: "", password: "", confirmation: "" });
     setEditIndex(null);
 
-
   };
-
 
 }
   const handleEdit = (index) => {
@@ -237,9 +227,7 @@ const AgregarTrabajador = () => {
           headers: { "Content-Type": "application/json" },  // Asegúrate de enviar la cabecera correcta
         });
 
-
         const data = await response.json();  // Obtener los datos de la respuesta
-
 
         if (response.ok) {
           // Si la respuesta es exitosa, elimina al trabajador del estado
@@ -270,9 +258,7 @@ const AgregarTrabajador = () => {
               href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
             />
 
-
       <div className="d-flex justify-content-center align-items-center" >
-
 
           <Navbaradmin/>
        

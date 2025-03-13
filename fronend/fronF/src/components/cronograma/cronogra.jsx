@@ -4,25 +4,11 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import esLocale from "@fullcalendar/core/locales/es"; // Idioma español
 import { Card, Button } from "react-bootstrap"; // Bootstrap para las tarjetas
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./cronograma.css"; 
 import Navbaradmin from "../NavbarAdmin/Navadmin";
 import Navbaruser from "../Navbaruser/navbaruser"
 import Footer from "../Footer/footer";
 
-
-const styles={
-  container: {
-    minHeight: "100vh",
-    minWidth: "100%", // <-- Aquí lo agregas
-    display: "flex",
-    flexDirection: "column",
-    background: "linear-gradient(to bottom, rgb(252, 234, 208), rgb(255, 222, 199))",
-  },
-  footerContainer: {
-    textAlign: "center",
-    marginTop: "auto", 
-    height:'100%'
-  },
-}
 
 const Calendario = () => {
   const [mostrarCompletadas, setMostrarCompletadas] = useState(false);
@@ -65,129 +51,130 @@ const Calendario = () => {
   const esAdmin = localStorage.getItem("is_staff") === "true";
 
   return (
-    <div className="container mt-4 d-flex justify-content-center" style={styles.container}>
-          {/* Navbar según el rol */}
-      {esAdmin ? <Navbaradmin/> : <Navbaruser/>}
+    <div className="container_body">
+      <div className="container mt-5 d-flex justify-content-center">
+            {/* Navbar según el rol */}
+        {esAdmin ? <Navbaradmin/> : <Navbaruser/>}
 
-      <h2 className="text-center fw-bold mb-5 mt-5 d-flex justify-content-cente" style={{color: "#4b2215"}}>
-        Calendario
-      </h2>
-      <div className="row w-100">
-        {/* Calendario */}
-        <div className="col-md-8">
-          <Card className="shadow-sm p-3">
-            <Card.Body>
-              <Card.Title className="text-center fw-bold mb-3">📅 Calendario de Actividades</Card.Title>
-              <div style={{ border: "1px solid #ddd", borderRadius: "10px", overflow: "hidden" }}>
-                <FullCalendar
-                  plugins={[dayGridPlugin]}
-                  initialView="dayGridMonth"
-                  locale={esLocale}
-                  height="600px"
-                  contentHeight="auto"
-                  events={eventosConColor} // Eventos con colores por estado
-                />
-              </div>
-            </Card.Body>
-          </Card>
-        </div>
+        <h2 className="text-center fw-bold mb-5 mt-5 d-flex justify-content-cente " style={{color: "#4b2215"}}>
+          Calendario
+        </h2>
+        <div className="row w-100">
+          {/* Calendario */}
+          <div className="col-md-8 mb-5">
+            <Card className="shadow-sm p-3">
+              <Card.Body>
+                <Card.Title className="text-center fw-bold mb-3">📅 Calendario de Actividades</Card.Title>
+                <div style={{ border: "1px solid #ddd", borderRadius: "10px", overflow: "hidden" }}>
+                  <FullCalendar
+                    plugins={[dayGridPlugin]}
+                    initialView="dayGridMonth"
+                    locale={esLocale}
+                    height="600px"
+                    contentHeight="auto"
+                    events={eventosConColor} // Eventos con colores por estado
+                  />
+                </div>
+              </Card.Body>
+            </Card>
+          </div>
 
-        {/* Tarjetas de Actividades */}
-        <div className="col-md-4">
-          {/* Tarjeta de Actividades Completadas */}
-          <Card className="mb-3 shadow-sm border-0">
-            <Card.Body>
-              <div className="d-flex justify-content-between align-items-center">
-                <Card.Title className="fw-bold text-success">✅ Completadas</Card.Title>
-                <Button variant="outline-success" size="sm" onClick={() => setMostrarCompletadas(!mostrarCompletadas)}>
-                  {mostrarCompletadas ? "▲" : "▼"}
-                </Button>
-              </div>
-              {mostrarCompletadas && (
-                <ul className="mt-2">
-                  {eventos.filter((e) => e.estado === "completa").map((act, index) => (
-                    <li key={index}>
-                      <strong>{act.title}</strong> <br />
-                      📅 {formatearFecha(act.start)} - {formatearFecha(act.end)}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Card.Body>
-          </Card>
+          {/* Tarjetas de Actividades */}
+          <div className="col-md-4">
+            {/* Tarjeta de Actividades Completadas */}
+            <Card className="mb-3 shadow-sm border-0">
+              <Card.Body>
+                <div className="d-flex justify-content-between align-items-center">
+                  <Card.Title className="fw-bold text-success">✅ Completadas</Card.Title>
+                  <Button variant="outline-success" size="sm" onClick={() => setMostrarCompletadas(!mostrarCompletadas)}>
+                    {mostrarCompletadas ? "▲" : "▼"}
+                  </Button>
+                </div>
+                {mostrarCompletadas && (
+                  <ul className="mt-2">
+                    {eventos.filter((e) => e.estado === "completa").map((act, index) => (
+                      <li key={index}>
+                        <strong>{act.title}</strong> <br />
+                        📅 {formatearFecha(act.start)} - {formatearFecha(act.end)}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </Card.Body>
+            </Card>
 
-          {/* Tarjeta de Actividades Pendientes */}
-          <Card className="mb-3 shadow-sm border-0">
-            <Card.Body>
-              <div className="d-flex justify-content-between align-items-center">
-                <Card.Title className="fw-bold text-warning">🟠 Pendientes</Card.Title>
-                <Button variant="outline-warning" size="sm" onClick={() => setMostrarPendientes(!mostrarPendientes)}>
-                  {mostrarPendientes ? "▲" : "▼"}
-                </Button>
-              </div>
-              {mostrarPendientes && (
-                <ul className="mt-2">
-                  {eventos.filter((e) => e.estado === "pendiente").map((act, index) => (
-                    <li key={index}>
-                      <strong>{act.title}</strong> <br />
-                      📅 {formatearFecha(act.start)} - {formatearFecha(act.end)}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Card.Body>
-          </Card>
+            {/* Tarjeta de Actividades Pendientes */}
+            <Card className="mb-3 shadow-sm border-0">
+              <Card.Body>
+                <div className="d-flex justify-content-between align-items-center">
+                  <Card.Title className="fw-bold text-warning">🟠 Pendientes</Card.Title>
+                  <Button variant="outline-warning" size="sm" onClick={() => setMostrarPendientes(!mostrarPendientes)}>
+                    {mostrarPendientes ? "▲" : "▼"}
+                  </Button>
+                </div>
+                {mostrarPendientes && (
+                  <ul className="mt-2">
+                    {eventos.filter((e) => e.estado === "pendiente").map((act, index) => (
+                      <li key={index}>
+                        <strong>{act.title}</strong> <br />
+                        📅 {formatearFecha(act.start)} - {formatearFecha(act.end)}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </Card.Body>
+            </Card>
 
-          {/* Tarjeta de Actividades Incompletas */}
-          <Card className="mb-3 shadow-sm border-0">
-            <Card.Body>
-              <div className="d-flex justify-content-between align-items-center">
-                <Card.Title className="fw-bold text-danger">❌ Incompletas</Card.Title>
-                <Button variant="outline-danger" size="sm" onClick={() => setMostrarIncompletas(!mostrarIncompletas)}>
-                  {mostrarIncompletas ? "▲" : "▼"}
-                </Button>
-              </div>
-              {mostrarIncompletas && (
-                <ul className="mt-2">
-                  {eventos.filter((e) => e.estado === "incompleta").map((act, index) => (
-                    <li key={index}>
-                      <strong>{act.title}</strong> <br />
-                      📅 {formatearFecha(act.start)} - {formatearFecha(act.end)}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Card.Body>
-          </Card>
+            {/* Tarjeta de Actividades Incompletas */}
+            <Card className="mb-3 shadow-sm border-0">
+              <Card.Body>
+                <div className="d-flex justify-content-between align-items-center">
+                  <Card.Title className="fw-bold text-danger">❌ Incompletas</Card.Title>
+                  <Button variant="outline-danger" size="sm" onClick={() => setMostrarIncompletas(!mostrarIncompletas)}>
+                    {mostrarIncompletas ? "▲" : "▼"}
+                  </Button>
+                </div>
+                {mostrarIncompletas && (
+                  <ul className="mt-2">
+                    {eventos.filter((e) => e.estado === "incompleta").map((act, index) => (
+                      <li key={index}>
+                        <strong>{act.title}</strong> <br />
+                        📅 {formatearFecha(act.start)} - {formatearFecha(act.end)}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </Card.Body>
+            </Card>
 
-          {/* Tarjeta de Plantaciones */}
-          <Card className="shadow-sm border-0">
-            <Card.Body>
-              <div className="d-flex justify-content-between align-items-center">
-                <Card.Title className="fw-bold text-primary">🌱 Plantaciones</Card.Title>
-                <Button variant="outline-primary" size="sm" onClick={() => setMostrarPlantaciones(!mostrarPlantaciones)}>
-                  {mostrarPlantaciones ? "▲" : "▼"}
-                </Button>
-              </div>
-              {mostrarPlantaciones && (
-                <ul className="mt-2">
-                  {plantaciones.map((plant, index) => (
-                    <li key={index}>
-                      <strong>{plant.title}</strong> <br />
-                      📅 Inicio: {formatearFecha(plant.start)}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Card.Body>
-          </Card>
+            {/* Tarjeta de Plantaciones */}
+            <Card className="shadow-sm border-0">
+              <Card.Body>
+                <div className="d-flex justify-content-between align-items-center">
+                  <Card.Title className="fw-bold text-primary">🌱 Plantaciones</Card.Title>
+                  <Button variant="outline-primary" size="sm" onClick={() => setMostrarPlantaciones(!mostrarPlantaciones)}>
+                    {mostrarPlantaciones ? "▲" : "▼"}
+                  </Button>
+                </div>
+                {mostrarPlantaciones && (
+                  <ul className="mt-2">
+                    {plantaciones.map((plant, index) => (
+                      <li key={index}>
+                        <strong>{plant.title}</strong> <br />
+                        📅 Inicio: {formatearFecha(plant.start)}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </Card.Body>
+            </Card>
+          </div>
         </div>
       </div>
-      <div style={styles.footerContainer}>
-          <Footer/>
-      </div>
+        <div className="footerContainer">
+            <Footer/>
+        </div>
     </div>
-    
   );
 };
 

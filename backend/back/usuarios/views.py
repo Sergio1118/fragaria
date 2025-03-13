@@ -1,7 +1,6 @@
 import json
 import requests
 from datetime import datetime
-
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import (
@@ -19,7 +18,6 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.middleware.csrf import get_token
-
 from .emails import notificar_actividad  # Importa la función que creamos antes
 from .models import (
     Usuario, FechasSiembra, Plantacion, Siembra, 
@@ -31,8 +29,8 @@ from .forms import (
 )
 from django.utils import timezone
 import logging
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
 
 @ensure_csrf_cookie
 def obtener_csrf_token(request):
@@ -40,14 +38,9 @@ def obtener_csrf_token(request):
     return JsonResponse({"csrfToken": csrf_token})  # Enviar el token en la respuesta JSON
 
 
-
-
-
 def mi_vista(request):
     messages.success(request, "¡Operación completada correctamente!")
     return redirect('nombre_de_la_url')
-
-
 
 
 @login_required
@@ -406,8 +399,6 @@ def reset_password(request, uidb64, token):
         }, status=400)
 
 
-
-
 # Función para obtener las fechas de siembra recomendadas desde una API
 
 def obtener_clima(ubicacion):
@@ -709,30 +700,9 @@ def marcar_completo(request):
     
     return JsonResponse({"mensaje": "La actividad ya está marcada como completada."}, status=200)
     
-
-
-
-
-
-
+    
     # Preguntarle a kenfer
-
-
-
 # Hacer un get de las actividades completas de dicho trabaja y det de los trabajadore
-
-@login_required
-def informes(request):
-    """
-    Vista para mostrar los informes.
-    Solo usuarios autenticados pueden acceder.
-    """
-    context = {
-        'user': request.user,
-        'message': 'Aquí puedes ver los informes generados.',
-    }
-    return render(request, 'usuarios/informes.html', context)
-
 
 
 @login_required
@@ -1009,6 +979,24 @@ def logout_view(request):
     #hay que hacer las vista de el aditarr actividad y borra
         
         
-        
+@login_required
+def informes(request):
+    if request.method != "GET":
+        return JsonResponse({"status": "error", "message": "Método no permitido."}, status=405)
+
+    actividad_id = request.GET.get("id")
+   
+    if actividad_id:
+        actividades = Actividad.objects.filter(id=actividad_id, estado="completada")
+    else:
+        actividades = Actividad.objects.filter(estado="completada")
+
+
+    actividades = actividades.values(
+        "id", "nombre_actividad", "descripcion", "usuario_id", "usuario__first_name", "fecha", "fecha_vencimiento"
+    )
+    
+    return JsonResponse({"status": "success", "actividades": list(actividades)}, status=200)
+
         
         

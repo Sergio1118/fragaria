@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Navbaradmin from "../NavbarAdmin/Navadmin";
 import Footer from "../Footer/footer";
+import RegistroActividades from "../Registrar_actividad/registrar_actividad";
 
 const styles = {
   container: {
@@ -58,9 +59,6 @@ function Actividades() {
       actividadGet();
     });
     
-
-  
-
   const habilitarEdicion = (actividad) => {
     setEditando(actividad.id);
     setEditData({ fecha: actividad.fecha, fecha_vencimiento: actividad.fecha_vencimiento });
@@ -87,19 +85,15 @@ function Actividades() {
   
       if (!response.ok) {
         const errorData = response.json();
-        actividadGet();
         console.error("Error en la respuesta del servidor:", errorData.message || "Error desconocido.");
         alert("Actividad guardada correctamente.");
+        actividadGet();
         return;
       }
-
-  
       setEditando(null);
     } catch (error) {
       console.error("Error al guardar la actividad:", error);
     }
-
-    
     setEditando(null);
   };
 
@@ -128,11 +122,11 @@ function Actividades() {
   return (
     <div style={styles.container}>
       <Navbaradmin />
-      <div className="container-fluid mt-5 mb-5">
-        <h2 className="text-center fw-bold mb-5 mt-5" style={{ color: "#4b2215" }}>
+      <div className="container-fluid mt-5">
+        <h2 className="text-center fw-bold mt-5" style={{ color: "#4b2215", }}>
           📌 Gestión de Actividades
         </h2>
-
+        <RegistroActividades/>
         <div className="row g-4">
           {["pendiente", "incompleta", "completada"].map((estado, index) => {
             const estadoInfo = {
@@ -142,8 +136,8 @@ function Actividades() {
             };
 
             return (
-              <div className="col-md-4" key={index}>
-                <section className="p-3 border rounded shadow bg-light">
+              <div className="col-md-4 " key={index}>
+                <section className="p-3 border rounded shadow bg-light mb-5">
                   <h4 className="text-center mb-3" style={{ color: estadoInfo[estado].color }}>
                     {estadoInfo[estado].titulo}
                   </h4>
@@ -217,8 +211,10 @@ function Actividades() {
             );
           })}
         </div>
-      </div>
-      <Footer />
+      </div >
+        <div  style={styles.footerContainer}>
+            <Footer/>
+        </div>
     </div>
   );
 }

@@ -1,20 +1,19 @@
 import { useState, useEffect } from "react";
-import Navbaradmin from "../NavbarAdmin/Navadmin";
-import Footer from "../Footer/footer";
+
 
 const styles = {
-  container: {
-    minHeight: "100vh",
-    minWidth: "100%",
-    display: "flex",
-    flexDirection: "column",
-    background: "linear-gradient(to bottom, rgb(252, 234, 208), rgb(255, 222, 199))",
+  btn:{
+    backgroundColor: "#d17c53",
+    color: "#ffff",
+    border: "2px solid rgb(255, 185, 153)",
+    padding: "10px 10px",
+    borderRadius: "25px",
+    fontWeight: "bold",
+    transition: "background-color 0.3s ease",
+    minWidth: "250px", // Aumenta el ancho mínimo del botón
+    maxWidth: "300px", // Aumenta el ancho máximo
   },
-  footerContainer: {
-    textAlign: "center",
-    width: "100%",
-    marginTop: "auto",
-  },
+  
 };
 
 const RegistroActividades = () => {
@@ -22,6 +21,7 @@ const RegistroActividades = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false); // Estado para el modal
   const [actividad, setActividad] = useState({
     usuario: "",
     nombre: "",
@@ -112,8 +112,9 @@ const RegistroActividades = () => {
             fechaEstimada: "",
             fechaVencimiento: "",
           });
+          setModalVisible(false); // Cerrar el modal después de enviar
         } 
-      } catch (error) {
+      }catch (error) {
         setError(`Error en el servidor: ${responseText}`);
       }
     } catch (error) {
@@ -123,68 +124,78 @@ const RegistroActividades = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <div className="container mt-5">
-        <Navbaradmin />
-        <div className="card p-4 mx-auto" style={{ maxWidth: "500px" }}>
-          <div className="card-body">
-            <h2 className="card-title text-center mb-4">Registrar Actividad</h2>
-
-            {error && <div className="alert alert-danger">{error}</div>}
-            {success && <div className="alert alert-success">{success}</div>}
-
-            <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label className="form-label">Seleccionar Usuario</label>
-                <select className="form-select" name="usuario" onChange={handleChange} value={actividad.usuario} required>
-                  <option value="">Seleccione un usuario</option>
-                  {usuarios.length > 0 ? (
-                    usuarios.map((user, index) => (
-                      <option key={index} value={user.id}>
-                        {user.first_name}
-                      </option>
-                    ))
-                  ) : (
-                    <option value="">No hay usuarios disponibles</option>
-                  )}
-                </select>
+    <div>
+      <div className="container mb-4 text-center">
+        {/* Botón para abrir el formulario */}
+        <button style={styles.btn} className="mt-3" onClick={() => setModalVisible(true)}> 
+          Registrar Actividad
+        </button>
+      </div>  
+        {/* MODAL */}
+      {modalVisible && (
+        <div className="modal fade show" style={{ display: "block", background: "rgba(0, 0, 0, 0.5)" }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Registrar Actividad</h5>
+                <button type="button" className="btn-close" onClick={() => setModalVisible(false)}></button>
               </div>
+              <div className="modal-body">
+                {error && <div className="alert alert-danger">{error}</div>}
+                {success && <div className="alert alert-success">{success}</div>}
 
-              <div className="mb-3">
-                <label className="form-label">Nombre de la Actividad</label>
-                <input className="form-control" name="nombre" value={actividad.nombre} onChange={handleChange} required />
+                <form onSubmit={handleSubmit}>
+                  <div className="mb-3">
+                    <label className="form-label">Seleccionar Usuario</label>
+                    <select className="form-select" name="usuario" onChange={handleChange} value={actividad.usuario} required>
+                      <option value="">Seleccione un usuario</option>
+                      {usuarios.length > 0 ? (
+                        usuarios.map((user, index) => (
+                          <option key={index} value={user.id}>
+                            {user.first_name}
+                          </option>
+                        ))
+                      ) : (
+                        <option value="">No hay usuarios disponibles</option>
+                      )}
+                    </select>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Nombre de la Actividad</label>
+                    <input className="form-control" name="nombre" value={actividad.nombre} onChange={handleChange} required />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Descripción</label>
+                    <textarea className="form-control" name="descripcion" value={actividad.descripcion} onChange={handleChange} required />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Tiempo Estimado (Horas)</label>
+                    <input type="time" className="form-control" name="tiempoEstimado" value={actividad.tiempoEstimado} onChange={handleChange} required />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Fecha Estimada</label>
+                    <input type="date" className="form-control" name="fechaEstimada" value={actividad.fechaEstimada} onChange={handleChange} required />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Fecha de Vencimiento</label>
+                    <input type="date" className="form-control" name="fechaVencimiento" value={actividad.fechaVencimiento} onChange={handleChange} required />
+                  </div>
+
+                  <button type="submit" className="btn w-100" style={{backgroundColor: "#d17c53"}}>
+                    Guardar
+                  </button>
+                </form>
               </div>
-
-              <div className="mb-3">
-                <label className="form-label">Descripción</label>
-                <textarea className="form-control" name="descripcion" value={actividad.descripcion} onChange={handleChange} required />
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label">Tiempo Estimado (Horas)</label>
-                <input type="time" className="form-control" name="tiempoEstimado" value={actividad.tiempoEstimado} onChange={handleChange} required />
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label">Fecha Estimada</label>
-                <input type="date" className="form-control" name="fechaEstimada" value={actividad.fechaEstimada} onChange={handleChange} required />
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label">Fecha de Vencimiento</label>
-                <input type="date" className="form-control" name="fechaVencimiento" value={actividad.fechaVencimiento} onChange={handleChange} required />
-              </div>
-
-              <button type="submit" className="btn btn-primary w-100" disabled={!usuarios.length}>
-                Guardar
-              </button>
-            </form>
+            </div>
           </div>
         </div>
-      </div>
-      <div style={styles.footerContainer}>
-        <Footer />
-      </div>
+      )}        
+      
     </div>
   );
 };

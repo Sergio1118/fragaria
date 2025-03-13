@@ -67,7 +67,7 @@ function Plantacion() {
   const [indiceEdicion, setIndiceEdicion] = useState(null);
   const [errores, setErrores] = useState({});
 
-  useEffect(() => {
+
     const plantacionGet = async () => {
       try {
         const response = await fetch("http://localhost:8000/plantacion/", {
@@ -81,16 +81,17 @@ function Plantacion() {
         if (response.ok) {
           setPlantaciones(data.plantaciones);
         } else {
-          setError(data.message || "Error fetching profile data");
+          console.error("Error al obtener datos:", data.message);
         }
       } catch (error) {
-        console.error("Error fetching profile:", error);
-        setError("Error fetching profile.");
+        console.error("Error al obtener plantaciones:", error);
       }
-    };
-    plantacionGet();
-  }, []);
-
+    }; 
+    useEffect(() => {
+      plantacionGet();
+    },[plantaciones]);
+  
+  
 
   useEffect(() => {
     const fecharecomrdat = async () => {
@@ -188,6 +189,7 @@ function Plantacion() {
     
         if (response.ok) {
           alert("Plantación guardada correctamente.");
+          plantacionGet();
         } else {
           console.error("Error:", data.message || "Error al guardar la plantación.");
         }
@@ -235,6 +237,7 @@ function Plantacion() {
   
       if (response.ok) {
         alert("Plantación eliminada correctamente.");
+        plantacionGet(); 
         setPlantaciones(plantaciones.filter((_, i) => i !== index)); // Actualiza el estado eliminando la plantación
       } else {
         console.error("Error:", data.message || "Error al eliminar la plantación.");

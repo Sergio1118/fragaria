@@ -68,7 +68,8 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 
     # URL para informes (si es necesaria)
-    path('informes/', usuarios_views.informes, name='informes'),
+   
+    path('informe/', usuarios_views.informes, name='informes'),
     path('editar-plantacion/<int:id>/', editar_plantacion, name='editar_plantacion'),
     path('eliminar-plantacion/<int:id>/', usuarios_views.eliminar_plantacion, name='eliminar_plantacion')
     
