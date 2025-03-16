@@ -1,11 +1,10 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FaEye, FaEyeSlash, FaCheckCircle, FaCalendarAlt } from "react-icons/fa";
 import Navbaradmin from "../NavbarAdmin/Navadmin";
 import Footer from "../Footer/footer";
 
-
-const styles ={
+const styles = {
   container: {
     minHeight: "100vh",
     minWidth: "100%", // <-- Aquí lo agregas
@@ -13,70 +12,154 @@ const styles ={
     flexDirection: "column",
     background: "linear-gradient(to bottom, rgb(252, 234, 208), rgb(255, 222, 199))",
   },
-  card:{
+  card: {
     borderRadius: "10px",
     border: "2px solid rgba(83, 83, 83, 0.2)",
   },
   footerContainer: {
     textAlign: "center",
     width: "100%",
-    marginTop: "auto", 
+    marginTop: "auto",
   },
-}
+};
 
 function Informes() {
   const [trabajadores, setTrabajadores] = useState([]);
-  const [trabajadorSeleccionado, setTrabajadorSeleccionado] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:8000/informe/", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    })
-      .then((response) => response.json())
-      .then((data) => {
+    const fetchTrabajadores = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/informe/", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+
+        if (!response.ok) throw new Error("Error en la respuesta del servidor");
+
+        const data = await response.json();
         console.log("Datos recibidos:", data);
-        if (data && data.usuarios && Array.isArray(data.usuarios)) {
-          setTrabajadores(data.usuarios); // Solo si es un array
+
+        if (data?.actividades && Array.isArray(data.actividades)) {
+          setTrabajadores(data.actividades);
         } else {
-          console.error("La respuesta no tiene la estructura esperada:", data);
-          setTrabajadores([]); // Asegura que el estado sea un array vacío si hay error
+          console.error("La estructura de la respuesta no es válida:", data);
+          setTrabajadores([]);
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error al obtener los informes:", error);
-        setTrabajadores([]); // Evita que trabajadores quede undefined en caso de error
-      });
+        setTrabajadores([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTrabajadores();
   }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("¿Seguro que quieres eliminar esta actividad?")) return;
+  
+    try {
+      const response = await fetch(`http://localhost:8000/eliminar_informe/${id}/`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+  
+      if (!response.ok) throw new Error("Error al eliminar la actividad");
+  
+      setTrabajadores(trabajadores.filter((actividad) => actividad.id !== id));
+    } catch (error) {
+      console.error("Error al eliminar:", error);
+    }
+  };
   
 
+  // Filtrar trabajadores según la búsqueda
+  const trabajadoresFiltrados = trabajadores.filter((actividad) =>
+    actividad.usuario__first_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div style={styles.container}>
-           <Navbaradmin/>
-        
-          <h2 className="text-center fw-bold mb-5" style={{ marginTop: "80px", color: "#4b2215", }}>📊 Actividades de Trabajadores</h2>
-          {Array.isArray(trabajadores) && trabajadores.length > 0 ? (
-              trabajadores.map((trabajador) => (
-                <div key={trabajador.id} className="col-md-6 col-lg-4 mb-4">
-                  <div className="card shadow-lg rounded-4 p-3 bg-white" style={styles.card}>
-                    <div className="card-body text-center">
-                      <h5 className="fw-bold" style={{ color: "#4b2215" }}>{trabajador.nombre}</h5>
-                      <p className="text-muted small">{trabajador.email}</p>
+
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      />
+      <Navbaradmin />
+
+      <h2 className="text-center fw-bold mb-4 mt-5 pt-5" style={{color: "#4b2215" }}>
+        📊 Actividades de Trabajadores
+      </h2>
+
+      {/* Barra de búsqueda (sin botón de lupa) */}
+      <div className="container mb-5">
+        <div className="input-group mx-auto" style={{ maxWidth: "400px" }}>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Buscar trabajador..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="container">
+        {isLoading ? (
+          <p className="text-center">Cargando trabajadores...</p>
+        ) : trabajadoresFiltrados.length > 0 ? (
+          <div className="row justify-content-center">
+            {trabajadoresFiltrados.map((actividad) => (
+              <div key={actividad.id} className="col-md-6 col-lg-4 mb-5">
+                <div className="card shadow-lg rounded-4 p-3 bg-white" style={styles.card}>
+                  <div className="card-body text-center">
+                    <h5 className="fw-bold" style={{ color: "#4b2215" }}>
+                      {actividad.usuario__first_name}
+                    </h5>
+                    <p className="text-muted small">Actividad: {actividad.nombre_actividad}</p>
+
+                    <div className="d-flex justify-content-center mt-3">
+                      {/* Botón de Ver Más con ícono de ojito */}
+                      <button
+                        type="button"
+                        className="btn btn-outline-success mb-2"
+                        onClick={() => setExpandedId(expandedId === actividad.id ? null : actividad.id)}
+                      >
+                        <i className={`fa ${expandedId === actividad.id ? "fa-eye-slash" : "fa-eye"}`} />
+                      </button>
+
+                      {/* Botón de Eliminar con ícono de papelera */}
+                      <button className="btn btn-outline-danger" onClick={() => handleDelete(actividad.id)}>
+                        <i className="fas fa-trash"></i>
+                      </button>
                     </div>
+
+                    {/* Información adicional cuando se expande la tarjeta */}
+                    {expandedId === actividad.id && (
+                      <div className="mt-3 p-2 border-top">
+                        <p className="text-muted small"><strong>Descripción:</strong> {actividad.descripcion}</p>
+                        <p className="text-muted small"><strong>Fecha:</strong> {actividad.fecha}</p>
+                        <p className="text-muted small"><strong>Estado:</strong> {actividad.estado}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
-              ))
-            ) : (
-              <p className="text-center">No hay trabajadores disponibles</p> // Mensaje si la lista está vacía
-            )}                      
-        <div style={styles.footerContainer}>
-          <Footer/>
-        </div>
-      
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center">No hay actividades completadas registradas.</p>
+        )}
+      </div>
+
+      <div style={styles.footerContainer}>
+        <Footer />
+      </div>
     </div>
   );
 }

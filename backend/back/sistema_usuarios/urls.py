@@ -70,6 +70,7 @@ urlpatterns = [
     # URL para informes (si es necesaria)
    
     path('informe/', usuarios_views.informes, name='informes'),
+    path('eliminar_informe/<int:id>/', usuarios_views.eliminar_informe, name='eliminar_informe'),
     path('editar-plantacion/<int:id>/', editar_plantacion, name='editar_plantacion'),
     path('eliminar-plantacion/<int:id>/', usuarios_views.eliminar_plantacion, name='eliminar_plantacion')
     

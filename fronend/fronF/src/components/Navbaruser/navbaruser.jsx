@@ -48,7 +48,7 @@ function Navbaruser() {
   return (
     <nav className="navbar navbar-expand-lg navbar-light" style={styles.navbar}>
       <div className="container-fluid">
-        <a className="navbar-brand" href="/dashuser" style={styles.brand}>
+        <a className="navbar-brand" href="/dash_rolr" style={styles.brand}>
           <img
             src="imagenes/iconoFragaria.png"
             alt="Fragaria Logo"
@@ -85,7 +85,7 @@ function Navbaruser() {
             </NavLink>
             <NavLink
               className="nav-link mx-2"
-              to="/cronograma"
+              to="/cronograma_trabajador"
               style={styles.link}
             >
               <img

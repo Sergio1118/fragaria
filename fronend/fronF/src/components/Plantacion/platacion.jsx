@@ -26,7 +26,7 @@ const styles = {
   },
   cardStyle: {
     margin: "0 auto",
-    marginBottom: "60px",
+    marginBottom: "20px",
     minWidth: "250px",
     maxWidth: "100px",
     padding: "20px",
@@ -89,7 +89,7 @@ function Plantacion() {
     }; 
     useEffect(() => {
       plantacionGet();
-    },[plantaciones]);
+    },[]);
   
   
 
@@ -148,7 +148,7 @@ function Plantacion() {
       const id = plantaciones[indiceEdicion].id
       try {
         const response = await fetch(`http://localhost:8000/editar-plantacion/${id}/`, {
-          method: "POST",
+          method: "PUT",
           credentials: "include", // enviar cookies
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -329,7 +329,7 @@ function Plantacion() {
       <div className="row">
         {plantaciones.map((plantacion, index) => (
           <div className="col-sm-12 col-md-6 col-lg-4 mb-4" key={index}>
-            <div className="card p-3 gap-2" style={styles.cardStyle}>
+            <div className="card p-3" style={{ ...styles.cardStyle,  gap: "5px"  }}>
               <img
                 src={plantacion.imagen || "imagenes/fresa2.jpg"}
                 alt="Imagen de la Plantación"

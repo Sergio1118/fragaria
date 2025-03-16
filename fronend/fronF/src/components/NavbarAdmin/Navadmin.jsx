@@ -48,7 +48,7 @@ function Navbaradmin() {
   return (
     <nav className="navbar navbar-expand-lg navbar-light" style={styles.navbar}>
       <div className="container-fluid">
-        <a className="navbar-brand" href="/dashadmin" style={styles.brand}>
+        <a className="navbar-brand" href="/dash_rol" style={styles.brand}>
           <img
             src="imagenes/iconoFragaria.png"
             alt="Fragaria Logo"
@@ -85,7 +85,7 @@ function Navbaradmin() {
             </NavLink>
             <NavLink
               className="nav-link mx-2"
-              to="/cronograma"
+              to="/cronograma_admin"
               style={styles.link}
             >
               <img

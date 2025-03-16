@@ -7,15 +7,15 @@ import PasswordRecuper from "./components/Password/passwordRecovery.jsx";
 import Actividades from"./components/Actividad/actvidades.jsx";
 import Password from"./components/Password/password.jsx";
 import AgregarTrabajador from "./components/Trabajadores/trabajar.jsx"
-import DashboardAdmin from "./components/Dash_admin/dash_admin.jsx";
-import Dashuser from "./components/Dash_user/dash_user.jsx";
+import Dash_rol from "./components/Dash_rol/dash_rol.jsx";
 import Plantacion from "./components/Plantacion/platacion.jsx";
 import Informes from"./components/informe/info.jsx";
 import Perfil from "./components/Perfil/perfil.jsx";
 import RegistroActividades from "./components/Registrar_actividad/registrar_actividad.jsx";
 import ActividadesT from "./components/actvidadesTrabajador/actvidadesT.jsx";
 import Perfiluser from "./components/Perfiluser/perfiluser.jsx";
-import Calendario from "./components/cronograma/cronogra.jsx";
+import Calendario_admin from "./components/cronograma/cronogra.jsx";
+import Calendario_trabajador from "./components/CronogramaTrabajador/cronograma.jsx";
 
 
 function App() {
@@ -52,7 +52,6 @@ function App() {
           path="/perfiladmin"
           element={
             <>
-              
               <Perfil/>
             </>
           }
@@ -61,13 +60,10 @@ function App() {
           path="/perfiluser"
           element={
             <>
-              
               <Perfiluser/>
             </>
           }
         />
-
-
         <Route
           path="/"
           element={
@@ -76,7 +72,6 @@ function App() {
             </>
           }
         />
-
         <Route
           path="/dashprincipal"
           element={
@@ -85,23 +80,11 @@ function App() {
             </>
           }
         />
-
-
         <Route
-          path="/dashadmin"
+          path="/dash_rol"
           element={
             <>
-              <DashboardAdmin />
-            </>
-          }
-        />
-
-        
-        <Route
-          path="/dashuser"
-          element={
-            <>
-              <Dashuser />
+              <Dash_rol/>
             </>
           }
         />
@@ -164,11 +147,19 @@ function App() {
           }
         />
          <Route
-          path="/cronograma"
+          path="/cronograma_admin"
           element={
             <>
               
-              <Calendario/>
+              <Calendario_admin/>
+            </>
+          }
+        />
+        <Route
+          path="/cronograma_trabajador"
+          element={
+            <>
+              <Calendario_trabajador/>
             </>
           }
         />

@@ -51,9 +51,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
    
 
 
-
-   
-
 class Actividad(models.Model):
     nombre_actividad = models.CharField(max_length=50)
     tiempo_estimado = models.TimeField()

@@ -73,10 +73,10 @@ function LoginForm() {
 
           if (data.is_staff) {
             // Redirige a la página de administrador
-            navigate("/dashadmin");
+            navigate("/dash_rol");
           } else {
             // Redirige a la página de trabajador
-            navigate("/dashuser");
+            navigate("/dash_rol");
           }
         } else {
           alert(data.message || "Error al iniciar sesión.");

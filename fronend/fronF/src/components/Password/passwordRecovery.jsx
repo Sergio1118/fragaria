@@ -71,7 +71,7 @@ function PasswordRecuper() {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      {/* Navbar */}
+     
       <nav style={{ background: "linear-gradient(to right, #f4b183, #f8d8a8)", color: "white", padding: "10px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <button style={{ background: "none", border: "none", fontSize: "18px", cursor: "pointer", color: "#dc3545", marginLeft: "10px" }} onClick={() => window.history.back()}>
           <i className="fas fa-arrow-left"></i>

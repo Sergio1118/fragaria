@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom"; // Mejora la obtención de parámetros
+import Footer from "../Footer/footer";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function Password() {
@@ -11,12 +12,12 @@ function Password() {
   const [message, setMessage] = useState("");
   const [token, setToken] = useState("");
   const [uidb64, setUid] = useState("");
+  const [isTypingPassword, setIsTypingPassword] = useState(false);
+  const [isTypingConfirmation, setIsTypingConfirmation] = useState(false);
 
   useEffect(() => {
     const uid = searchParams.get("uid64");
     const tk = searchParams.get("token");
-    console.log("UID:", uid);
-    console.log("Token:", tk);
 
     if (!uid || !tk) {
       setMessage("❌ Error: URL inválida. Falta el token o el identificador.");
@@ -28,6 +29,12 @@ function Password() {
 
   const handleInputChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
+
+    if (field === "password") {
+      setIsTypingPassword(value.length > 0);
+    } else if (field === "confirmation") {
+      setIsTypingConfirmation(value.length > 0);
+    }
   };
 
   const handlePasswordFormSubmit = async (e) => {
@@ -79,8 +86,17 @@ function Password() {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "linear-gradient(to bottom, rgb(252, 234, 208), rgb(255, 222, 199))" }}>
-      <div className="d-flex justify-content-center align-items-center flex-grow-1">
-        <div className="card p-4 shadow-lg rounded-4" style={{ width: "400px", maxWidth: "85%" }}>
+
+      <nav style={{ background: "linear-gradient(to right, #f4b183, #f8d8a8)", color: "white", padding: "10px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <button style={{ background: "none", border: "none", fontSize: "18px", cursor: "pointer", color: "#dc3545", marginLeft: "10px" }} onClick={() => window.history.back()}>
+          <i className="fas fa-arrow-left"></i>
+        </button>
+        <span style={{ flexGrow: 1.5, textAlign: "center", fontSize: "30px", fontWeight: "bold", fontFamily: "'Montserrat', sans-serif", color: "#dc3545", justifyContent: "center" }}>
+          Fragaria
+        </span>
+      </nav>
+      <div className="d-flex justify-content-center align-items-center flex-grow-1 mt-5 mb-5">
+        <div className="card p-4 shadow-lg rounded-4" style={{ width: "400px", maxWidth: "85%", background: "linear-gradient(to right, #f4b183, #f8d8a8)"}}>
           <h2 className="text-center mb-4 fw-bold" style={{ color: "#dc3545" }}>
             Nueva contraseña
           </h2>
@@ -94,14 +110,16 @@ function Password() {
                 value={formData.password}
                 onChange={(e) => handleInputChange("password", e.target.value)}
               />
-              <button
-                type="button"
-                className="btn position-absolute end-0 translate-middle-y me-3 rounded-circle border-dark"
-                style={{ top: "50%", transform: "translateY(-50%)", border: "none", color: "#7d3c2a" }}
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                👁
-              </button>
+              {isTypingPassword && (
+                <button
+                  type="button"
+                  className="btn position-absolute end-0 translate-middle-y me-3"
+                  style={{ top: "50%", transform: "translateY(-50%)", border: "none", color: "#7d3c2a" }}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                </button>
+              )}
               {errors.password && <div className="invalid-feedback">{errors.password}</div>}
             </div>
 
@@ -113,14 +131,16 @@ function Password() {
                 value={formData.confirmation}
                 onChange={(e) => handleInputChange("confirmation", e.target.value)}
               />
-              <button
-                type="button"
-                className="btn position-absolute end-0 translate-middle-y me-3 rounded-circle border-dark"
-                style={{ top: "50%", transform: "translateY(-50%)", border: "none", color: "#7d3c2a" }}
-                onClick={() => setShowConfirmation(!showConfirmation)}
-              >
-                👁
-              </button>
+              {isTypingConfirmation && (
+                <button
+                  type="button"
+                  className="btn position-absolute end-0 translate-middle-y me-3"
+                  style={{ top: "50%", transform: "translateY(-50%)", border: "none", color: "#7d3c2a" }}
+                  onClick={() => setShowConfirmation(!showConfirmation)}
+                >
+                  <i className={`fas ${showConfirmation ? "fa-eye-slash" : "fa-eye"}`}></i>
+                </button>
+              )}
               {errors.confirmation && <div className="invalid-feedback">{errors.confirmation}</div>}
             </div>
 
@@ -136,9 +156,11 @@ function Password() {
           </form>
         </div>
       </div>
+      <div className="mt-auto">
+        <Footer />
+      </div>
     </div>
   );
 }
 
 export default Password;
-

@@ -55,15 +55,12 @@ const AgregarTrabajador = () => {
     password: "",
     confirmation: "",
   });
-
-
+ 
   const [errors, setErrors] = useState({});
   const [trabajadores, setTrabajadores] = useState([]);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
 
-
- 
     // Fetch para obtener los trabajadores
     const fetchTrabajadores = async () => {
       try {
@@ -242,8 +239,6 @@ const AgregarTrabajador = () => {
       }
     }
   };
-
-
  
   const [showPasswords, setShowPasswords] = useState({ password: false, confirmation: false });
   const togglePasswordVisibility = (field) => {
@@ -259,9 +254,7 @@ const AgregarTrabajador = () => {
             />
 
       <div className="d-flex justify-content-center align-items-center" >
-
           <Navbaradmin/>
-       
         <div className="d-flex justify-content-center">
           <button
             onClick={() => {
@@ -348,8 +341,6 @@ const AgregarTrabajador = () => {
           </div>
         )}
 
-
-               
           <div className="container mt-3 mb-5"> {/* Contenedor para evitar que las tarjetas queden pegadas a los márgenes */}
             <h3 className="mb-4 text-center text-gradient" style={{ color: "#4b2215", marginTop: "10px"}}>
               Trabajadores Registrados

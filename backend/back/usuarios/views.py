@@ -674,9 +674,6 @@ def actividades_de_usuario(request):
     return JsonResponse({"status": "success", "actividades": actividades_data}, status=200, safe=False)
 
     
-   
-    
-  
 
 @csrf_exempt
 def marcar_completo(request):
@@ -735,9 +732,7 @@ def editar_plantacion(request, id):
     else:
         form = PlantacionForm(instance=plantacion)
         
-
-
-
+        
 @csrf_exempt
 def eliminar_plantacion(request, id):
     plantacion = get_object_or_404(Plantacion, id=id)
@@ -844,13 +839,10 @@ def asignar_actividad(request):
     }, status=201)
 
     
-    # Si la solicitud no es POST, renderizar la página de asignación de actividades
-
-
-
+# Si la solicitud no es POST, renderizar la página de asignación de actividades
+    
 
 # Hacer metodo GET 
-
 
 @csrf_exempt
 def perfil(request):
@@ -998,5 +990,15 @@ def informes(request):
     
     return JsonResponse({"status": "success", "actividades": list(actividades)}, status=200)
 
-        
-        
+
+@login_required
+@csrf_exempt
+def eliminar_informe(request, id):  # Recibe el ID desde la URL
+    if request.method != "DELETE":
+        return JsonResponse({"status": "error", "message": "Método no permitido."}, status=405)
+
+    actividad = get_object_or_404(Actividad, id=id, estado="completada")
+
+    actividad.delete()
+
+    return JsonResponse({"status": "success", "message": "Informe eliminado correctamente."}, status=200)
