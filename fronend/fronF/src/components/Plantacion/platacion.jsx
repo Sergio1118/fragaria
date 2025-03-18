@@ -66,6 +66,9 @@ function Plantacion() {
   const [editando, setEditando] = useState(false);
   const [indiceEdicion, setIndiceEdicion] = useState(null);
   const [errores, setErrores] = useState({});
+  const [clima, setClima] = useState(null);
+  const [mostrarClima, setMostrarClima] = useState(false);
+  
 
 
     const plantacionGet = async () => {
@@ -80,6 +83,7 @@ function Plantacion() {
         const data = await response.json();
         if (response.ok) {
           setPlantaciones(data.plantaciones);
+          setClima(data.clima);
         } else {
           console.error("Error al obtener datos:", data.message);
         }
@@ -359,6 +363,41 @@ function Plantacion() {
           </div>
         ))}
       </div>
+        {/* Botón flotante en la esquina inferior derecha */}
+        <button
+        className="btn btn-warning rounded-circle position-fixed"
+        style={{
+          width: "60px",
+          height: "60px",
+          fontSize: "24px",
+          bottom: "20px",
+          right: "20px",
+          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+        }}
+        onClick={() => setMostrarClima(!mostrarClima)}
+      >
+        🌞
+      </button>
+
+      {/* Tarjeta del clima flotante */}
+      {mostrarClima && clima && (
+        <div
+          className="position-fixed bg-light p-3 rounded shadow border"
+          style={{
+            bottom: "90px",
+            right: "20px",
+            maxWidth: "250px",
+          }}
+        >
+          <h4>Datos del Clima</h4>
+          <p><strong>Temperatura:</strong> {clima.temperatura}°C</p>
+          <p><strong>Descripción:</strong> {clima.descripcion}</p>
+          <p><strong>Humedad:</strong> {clima.humedad}%</p>
+          <p><strong>Presión:</strong> {clima.presion} hPa</p>
+          <p><strong>Velocidad del Viento:</strong> {clima.velocidad_viento} m/s</p>
+        </div>
+      )}
+
       <div style={styles.footerContainer}>
         <Footer />
       </div>

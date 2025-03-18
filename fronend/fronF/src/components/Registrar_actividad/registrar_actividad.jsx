@@ -16,7 +16,7 @@ const styles = {
   
 };
 
-const RegistroActividades = () => {
+const RegistroActividades = ({ onActividadAgregada }) => {
   const [usuarios, setUsuarios] = useState([]);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -112,6 +112,7 @@ const RegistroActividades = () => {
             fechaEstimada: "",
             fechaVencimiento: "",
           });
+          onActividadAgregada()
           setModalVisible(false); // Cerrar el modal después de enviar
         } 
       }catch (error) {

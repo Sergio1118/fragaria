@@ -54,10 +54,12 @@ function Actividades() {
     }
   }, []);
 
+  
+
   // Llamada a la API solo una vez cuando el componente se monta
   useEffect(() => {
     actividadGet();
-  }, []); // Dependencia de la función actividadGet
+  }, [actividadGet]); // Dependencia de la función actividadGet
 
 
   // Habilitar edición
@@ -126,6 +128,7 @@ function Actividades() {
       completada: actividades.filter((act) => act.estado === "completada"),
     };
   }, [actividades]); // Solo se recalcula cuando las actividades cambian
+  
 
   return (
     <div style={styles.container}>
@@ -134,7 +137,7 @@ function Actividades() {
         <h2 className="text-center fw-bold mt-5" style={{ color: "#4b2215" }}>
           📌 Gestión de Actividades
         </h2>
-        <RegistroActividades />
+        <RegistroActividades onActividadAgregada={actividadGet} />
         <div className="row g-4">
           {["pendiente", "incompleta", "completada"].map((estado) => {
             const estadoInfo = {
@@ -221,5 +224,6 @@ function Actividades() {
     </div>
   );
 }
+
 
 export default Actividades;
