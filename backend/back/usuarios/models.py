@@ -66,16 +66,6 @@ class Actividad(models.Model):
         return self.nombre_actividad
 
 
-# Modelo de Fechas de Siembra
-class FechasSiembra(models.Model):
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-    tipo_fresa = models.CharField(max_length=50)
-    fecha = models.DateField()
-
-    def __str__(self):
-        return f"{self.tipo_fresa} - {self.fecha}"
-
-
 # Modelo de Plantación
 class Plantacion(models.Model):
     nombre = models.CharField(max_length=100)
@@ -97,34 +87,4 @@ class Siembra(models.Model):
     def __str__(self):
         return self.nombre
 
-
-# Modelo de Rol
-class Rol(models.Model):
-    nombre_rol = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.nombre_rol
-
-
-# Modelo de Cronograma
-class Cronograma(models.Model):
-    nombre = models.CharField(max_length=100)
-    descripcion = models.TextField(default="Descripción no disponible")
-    fecha = models.DateField()
-
-    def __str__(self):
-        return self.nombre
-
-
-# Modelo intermedio Usuario-Cronograma
-class UsuarioCronograma(models.Model):
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-    cronograma = models.ForeignKey(Cronograma, on_delete=models.CASCADE)
-    fecha = models.DateField()
-
-    class Meta:
-        db_table = 'usuarios_usuario_cronograma'  # Nombre personalizado para la tabla
-
-    def __str__(self):
-        return f"{self.usuario.first_name} - {self.cronograma.nombre}"
 

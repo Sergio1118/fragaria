@@ -20,7 +20,7 @@ from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.middleware.csrf import get_token
 from .emails import notificar_actividad  # Importa la función que creamos antes
 from .models import (
-    Usuario, FechasSiembra, Plantacion, Siembra, 
+    Usuario, Plantacion, Siembra, 
     Actividad
 )
 from .forms import (
