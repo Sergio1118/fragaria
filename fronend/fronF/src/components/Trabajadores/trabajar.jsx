@@ -60,6 +60,8 @@ const AgregarTrabajador = () => {
   const [trabajadores, setTrabajadores] = useState([]);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
+  const [message, setMessage] = useState({ type: "", text: "" });
+  
 
     // Fetch para obtener los trabajadores
     const fetchTrabajadores = async () => {
@@ -106,6 +108,13 @@ const AgregarTrabajador = () => {
   };
 
 
+  useEffect(() => {
+    if (message.text) {
+      const timer = setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+      return () => clearTimeout(timer); // Limpiar el temporizador al desmontar
+    }
+  }, [message]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
@@ -116,14 +125,18 @@ const AgregarTrabajador = () => {
     if (!formData.surname) newErrors.surname = "El apellido es obligatorio";
     if (!formData.email) newErrors.email = "El correo es obligatorio";
     if (!validateEmail(formData.email)) newErrors.email = "El correo no es válido";
-    if (!formData.password) newErrors.password = "La contraseña es obligatoria";
-    if (formData.password !== formData.confirmation) {
-        newErrors.confirmation = "Las contraseñas no coinciden";
+  
+
+    // Si estamos editando, no se validan las contraseñas
+    if (editIndex === null) {
+        if (!formData.password) newErrors.password = "La contraseña es obligatoria";
+        if (formData.password !== formData.confirmation) {
+            newErrors.confirmation = "Las contraseñas no coinciden";
+        }
     }
 
 
     setErrors(newErrors);
-
 
     // Si no hay errores, actualizamos o añadimos el trabajador
     if (Object.keys(newErrors).length === 0) {
@@ -138,12 +151,11 @@ const AgregarTrabajador = () => {
                     first_name: formData.name,
                     last_name: formData.surname,
                     email: formData.email,
+                
                 }),
             });
 
-
             const data = await response.json();
-
 
             if (!response.ok) {
                 throw new Error(data.error || "Error al actualizar el trabajador");
@@ -154,13 +166,13 @@ const AgregarTrabajador = () => {
             setTrabajadores(updatedTrabajadores);
             //setTrabajadores([...trabajadores, data]);
             fetchTrabajadores();
-            alert("Trabajador actualizado con éxito");
+            setMessage({ type: "success", text: "Trabajador actualizado con éxito" });
            
-
 
         } catch (error) {
             console.error("Error al actualizar:", error);
-            alert(error.message);
+            setMessage(error.message);
+            
         }
     } else {
         // AÑADIR NUEVO USUARIO
@@ -178,45 +190,44 @@ const AgregarTrabajador = () => {
                 }),
             });
 
-
             const data = await response.json();
            
             if (!response.ok) {
                 throw new Error(data.error || "Error al agregar el trabajador");
             }
+            
             setTrabajadores([...trabajadores, data]);
-            fetchTrabajadores(); // 🔥 Esto actualizará la lista
+            fetchTrabajadores(); 
+            setMessage({ type: "success", text: "Trabajador registrado con éxito" });
         } catch (error) {
             console.error("Error:", error);
-            alert(error.message);
+            setMessage({ type: "danger", text: error.message });
         }
-    }
-   
+        
+    } 
+  
     // Limpiar formulario y cerrar modal
     setIsFormVisible(false);
     setFormData({ name: "", surname: "", email: "", password: "", confirmation: "" });
     setEditIndex(null);
 
   };
-
+  
 }
   const handleEdit = (index) => {
     setFormData({
       name: trabajadores[index].first_name,  // Asegúrate de usar las claves correctas del objeto
       surname: trabajadores[index].last_name,
       email: trabajadores[index].email,
-      password: "",  // Limpiamos la contraseña para que no se vea
-      confirmation: "",
+
     });
     setEditIndex(index);  // Establecemos el índice del trabajador que estamos editando
     setIsFormVisible(true);  // Mostramos el formulario
 };
-  const handleDelete = async (index) => {
-    const userId = trabajadores[index].id;  // Usar el índice para obtener el ID del trabajador
-    console.log("User ID:", userId);
+    const handleDelete = async (index) => {
+      const userId = trabajadores[index].id;  // Usar el índice para obtener el ID del trabajador
+      console.log("User ID:", userId);
 
-
-    if (window.confirm("¿Estás seguro de que quieres eliminar este trabajador?")) {
       try {
         const response = await fetch(`http://localhost:8000/eliminar-usuario/${userId}/`, {
           method: 'DELETE',  // Método de eliminación, ya que el backend lo espera
@@ -229,15 +240,15 @@ const AgregarTrabajador = () => {
         if (response.ok) {
           // Si la respuesta es exitosa, elimina al trabajador del estado
           setTrabajadores(trabajadores.filter((_, i) => i !== index));
-          alert("Trabajador eliminado correctamente.");
+          setMessage({ type: "success", text: "Trabajador eliminado correctamente" });
         } else {
           throw new Error(data.message || "Error al eliminar el trabajador");
         }
       } catch (error) {
         console.error("Error al eliminar el trabajador:", error);
-        alert(error.message);  // Mostrar el mensaje de error
+        setMessage({ type: "danger", text: error.message });
       }
-    }
+   
   };
  
   const [showPasswords, setShowPasswords] = useState({ password: false, confirmation: false });
@@ -267,6 +278,12 @@ const AgregarTrabajador = () => {
             {isFormVisible ? "Cancelar" : "Agregar trabajador"}
           </button>
         </div>
+            
+      {message.text && (
+        <div className={`alert alert-${message.type} text-center`} role="alert">
+          {message.text}
+        </div>
+      )}
 
 
         {isFormVisible && (
@@ -311,6 +328,7 @@ const AgregarTrabajador = () => {
                     placeholder={field === "confirmation" ? "Confirmar contraseña" : "Contraseña"}
                     value={formData[field]}
                     onChange={(e) => handleInputChange(field, e.target.value)}
+                    disabled={editIndex !== null} 
                   />
                   {/* Mostrar el icono solo si hay texto en el campo y no hay error */}
                   {formData[field] && !errors[field] && (
@@ -326,8 +344,7 @@ const AgregarTrabajador = () => {
                   {errors[field] && <div className="invalid-feedback">{errors[field]}</div>}
                 </div>
               ))}
-
-
+              
               <button type="submit" className="btn btn-gradient w-100 mt-3 py-2 fw-bold btn-sm"
                       style={{
                       color: "#ffff",
@@ -340,7 +357,7 @@ const AgregarTrabajador = () => {
             </form>
           </div>
         )}
-
+        
           <div className="container mt-3 mb-5"> {/* Contenedor para evitar que las tarjetas queden pegadas a los márgenes */}
             <h3 className="mb-4 text-center text-gradient" style={{ color: "#4b2215", marginTop: "10px"}}>
               Trabajadores Registrados

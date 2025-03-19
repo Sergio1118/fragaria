@@ -47,7 +47,7 @@ const Calendario_trabajador = () => {
     actividadGet();
   }, []);
 
-  const actividadesCompletas = actividades.filter(act => act.estado === "completa");
+  const actividadesCompletas = actividades.filter(act => act.estado === "completada");
   const actividadesPendientes = actividades.filter(act => act.estado === "pendiente");
   const actividadesIncompletas = actividades.filter(act => act.estado === "incompleta");
 
@@ -56,7 +56,7 @@ const Calendario_trabajador = () => {
     title: evento.nombre_actividad,
     start: evento.fecha,
     end: evento.fecha_vencimiento,
-    color: evento.estado === "completa" ? "#28a745" : evento.estado === "pendiente" ? "#ffc107" : "#dc3545",
+    color: evento.estado === "completada" ? "#28a745" : evento.estado === "pendiente" ? "#ffc107" : "#dc3545",
   }));
 
 //   const formatearFecha = (fecha) => {

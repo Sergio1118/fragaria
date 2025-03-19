@@ -144,7 +144,7 @@ function Password() {
               {errors.confirmation && <div className="invalid-feedback">{errors.confirmation}</div>}
             </div>
 
-            {message && <div className="alert alert-info text-center">{message}</div>}
+            {message && <div className="alert alert-danger text-center">{message}</div>}
 
             <button
               type="submit"

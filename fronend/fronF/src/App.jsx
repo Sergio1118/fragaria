@@ -49,6 +49,14 @@ function App() {
           }
         />
         <Route
+          path="/password"
+          element={
+            <>
+              <Password />
+            </>
+          }
+        />
+        <Route
           path="/perfiladmin"
           element={
             <>
@@ -88,22 +96,7 @@ function App() {
             </>
           }
         />
-         <Route
-          path="/actividad"
-          element={
-            <>
-              <Actividades />
-            </>
-          }
-        />
-        <Route
-          path="/password"
-          element={
-            <>
-              <Password />
-            </>
-          }
-        />
+       
          <Route
           path="/trabajador"
           element={
@@ -132,16 +125,22 @@ function App() {
           path="/registraractividad"
           element={
             <>
-              
               <RegistroActividades/>
             </>
           }
         />
-          <Route
-          path="/ActividadesT"
+         <Route
+          path="/actividad_admin"
           element={
             <>
-              
+              <Actividades/>
+            </>
+          }
+        />
+          <Route
+          path="/actividades_trabajador"
+          element={
+            <>
               <ActividadesT/>
             </>
           }

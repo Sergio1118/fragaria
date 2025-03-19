@@ -31,6 +31,15 @@ const RegistroActividades = ({ onActividadAgregada }) => {
     fechaVencimiento: "",
   });
 
+  useEffect(() => {
+    if (error || success) {
+      const timer = setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, success]);
   // Cargar usuarios desde la API
   useEffect(() => {
     const fetchUsuarios = async () => {
@@ -63,6 +72,7 @@ const RegistroActividades = ({ onActividadAgregada }) => {
     setActividad({ ...actividad, [e.target.name]: e.target.value });
   };
 
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(actividad)

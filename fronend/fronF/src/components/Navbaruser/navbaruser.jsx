@@ -99,7 +99,7 @@ function Navbaruser() {
             </NavLink>
             
           
-            <NavLink className="nav-link mx-2" to="/ActividadesT" style={styles.link}>
+            <NavLink className="nav-link mx-2" to="/actividades_trabajador" style={styles.link}>
               <img
                 src="imagenes/actividad.png"
                 alt="Actividad"

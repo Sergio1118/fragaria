@@ -10,6 +10,7 @@ function LoginForm() {
   });
 
   const [errors, setErrors] = useState({});
+  const [message, setMessage] = useState(null); // Estado para los mensajes
   const [showPassword, setShowPassword] = useState(false); // Estado para la visibilidad de la contraseña
   const navigate = useNavigate();
 
@@ -46,7 +47,7 @@ function LoginForm() {
         const data = await response.json();
 
         if (response.ok && data.success) {
-          alert("Inicio de sesión exitoso.");
+          setMessage({ type: "success", text: "Inicio de sesión exitoso." });
           setFormData({ email: "", password: "" });
           
           const getCsrfToken = async () => {
@@ -55,7 +56,7 @@ function LoginForm() {
             });
 
             if (!response.ok) {
-                console.error("No se pudo obtener el token CSRF");
+              setMessage({ type: "error", text: "No se pudo obtener el token CSRF." });
                 return null;
             }
 
@@ -79,11 +80,10 @@ function LoginForm() {
             navigate("/dash_rol");
           }
         } else {
-          alert(data.message || "Error al iniciar sesión.");
+          setMessage({ type: "error", text: data.message || "Error al iniciar sesión." });
         }
       } catch (error) {
-        console.error("Error al realizar la solicitud:", error);
-        alert("Error al realizar la solicitud. Intenta de nuevo.");
+         setMessage({ type: error, text: "Error al realizar la solicitud. Intenta de nuevo." });
       }
     }
   };
@@ -126,6 +126,14 @@ function LoginForm() {
           />
           <h1 className="mt-2 fragaria-text">Fragaria</h1>
         </div>
+
+        {/* Mensaje de error o éxito */}
+        {message && (
+          <div className={`alert ${message.type === "success" ? "alert-success" : "alert-danger"}`} role="alert">
+            {message.text}
+          </div>
+        )}
+
 
         {/* Correo electrónico */}
         <div className="form-group">

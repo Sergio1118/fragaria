@@ -39,6 +39,7 @@ const Calendario_admin = () => {
           estado: act.estado,
           nombre_actividad: act.nombre_actividad || "Sin nombre", // Prevención de undefined
         }));
+        console.log("Datos de la API:", data.actividades); 
         setActividades(actividadesTransformadas);
       } else {
         console.error("Formato de respuesta incorrecto:", data);
@@ -88,7 +89,7 @@ const Calendario_admin = () => {
     obtenerSiembras();
   }, []);
 
-  const actividadesCompletas = actividades.filter(act => act.estado === "completa");
+  const actividadesCompletas = actividades.filter(act => act.estado === "completada");
   const actividadesPendientes = actividades.filter(act => act.estado === "pendiente");
   const actividadesIncompletas = actividades.filter(act => act.estado === "incompleta");
 
@@ -98,7 +99,7 @@ const Calendario_admin = () => {
       title: evento.nombre_actividad,
       start: evento.fecha,
       end: evento.fecha_vencimiento,
-      color: evento.estado === "completa" ? "#28a745" : evento.estado === "pendiente" ? "#ffc107" : "#dc3545",
+      color: evento.estado === "completada" ? "#28a745" : evento.estado === "pendiente" ? "#ffc107" : "#dc3545",
     })),
     ...plantaciones,
   ];

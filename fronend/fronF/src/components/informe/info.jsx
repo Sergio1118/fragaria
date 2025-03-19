@@ -28,6 +28,8 @@ function Informes() {
   const [isLoading, setIsLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [mensaje, setMensaje] = useState(null);
+
 
   useEffect(() => {
     const fetchTrabajadores = async () => {
@@ -44,6 +46,7 @@ function Informes() {
         console.log("Datos recibidos:", data);
 
         if (data?.actividades && Array.isArray(data.actividades)) {
+          console.log("Estructura de actividades:", data.actividades); // <-- 🔍 Verifica la estructura
           setTrabajadores(data.actividades);
         } else {
           console.error("La estructura de la respuesta no es válida:", data);
@@ -61,8 +64,7 @@ function Informes() {
   }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("¿Seguro que quieres eliminar esta actividad?")) return;
-  
+    
     try {
       const response = await fetch(`http://localhost:8000/eliminar_informe/${id}/`, {
         method: "DELETE",
@@ -72,9 +74,12 @@ function Informes() {
       if (!response.ok) throw new Error("Error al eliminar la actividad");
   
       setTrabajadores(trabajadores.filter((actividad) => actividad.id !== id));
+      setMensaje({ text: "Actividad eliminada con éxito", type: "success" });
     } catch (error) {
       console.error("Error al eliminar:", error);
+      setMensaje({ text: "Error al eliminar la actividad", type: "danger" });
     }
+    setTimeout(() => setMensaje(null), 3000);
   };
   
 
@@ -108,6 +113,12 @@ function Informes() {
           />
         </div>
       </div>
+
+      {mensaje?.text && (
+        <div className={`alert alert-${mensaje.type} text-center mx-auto`} role="alert" style={{ maxWidth: '500px' }}>
+          {mensaje.text}
+        </div>
+      )}
 
       <div className="container">
         {isLoading ? (

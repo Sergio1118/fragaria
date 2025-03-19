@@ -23,6 +23,7 @@ function Actividades() {
   const [actividades, setActividades] = useState([]);
   const [editando, setEditando] = useState(null);
   const [editData, setEditData] = useState({ fecha: "", fecha_vencimiento: "" });
+  const [message, setMessage] = useState({ type: "", text: "" });
 
   // Fetch de las actividades
   const actividadGet = useCallback(async () => {
@@ -67,6 +68,13 @@ function Actividades() {
     setEditando(actividad.id);
     setEditData({ fecha: actividad.fecha, fecha_vencimiento: actividad.fecha_vencimiento });
   };
+  
+  useEffect(() => {
+    if (message.text) {
+      const timer = setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+      return () => clearTimeout(timer); // Limpiar el temporizador al desmontar
+    }
+  }, [message]);
 
   // Guardar edición de actividad
   const guardarEdicion = async (id) => {
@@ -77,8 +85,10 @@ function Actividades() {
         return;
       }
 
+      setEditando(null);
+
       const response = await fetch(`http://localhost:8000/editar/${id}/`, {
-        method: "POST",
+        method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -87,36 +97,38 @@ function Actividades() {
           estado: "incompleta",
         }),
       });
-
+      
       if (response.ok) {
-        alert("Actividad guardada correctamente.");
+        setMessage({ type: "success", text: "Actividad actualizado con éxito" });
         actividadGet();
         return;
       }
-      setEditando(null);
+    
     } catch (error) {
       console.error("Error al guardar la actividad:", error);
+      setMessage({ type: "success", text: "Error al actualizado" });
     }
-    setEditando(null);
   };
 
   // Eliminar actividad
   const eliminarActividad = async (id) => {
     try {
       const response = await fetch(`http://localhost:8000/eliminar/${id}/`, {
-        method: "POST",
+        method: "DELETE",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
       });
 
       if (response.ok) {
-        alert("Actividad eliminada correctamente.");
+        setMessage({ type: "success", text: "Actividad eliminada correctamente" });
         setActividades((prev) => prev.filter((act) => act.id !== id));
       } else {
         console.error("Error:", await response.json());
+        setMessage({ text: "Error al eliminar la plantación.", type: "danger" });
       }
     } catch (error) {
       console.error("Error al eliminar la actividad:", error);
+      setMessage({ type: "danger", text: error.message });
     }
   };
 
@@ -137,6 +149,14 @@ function Actividades() {
         <h2 className="text-center fw-bold mt-5" style={{ color: "#4b2215" }}>
           📌 Gestión de Actividades
         </h2>
+
+              
+        {message.text && (
+          <div className={`alert alert-${message.type} text-center mx-auto`} role="alert" style={{ maxWidth: '500px' }}>
+            {message.text}
+          </div>
+        )}
+
         <RegistroActividades onActividadAgregada={actividadGet} />
         <div className="row g-4">
           {["pendiente", "incompleta", "completada"].map((estado) => {

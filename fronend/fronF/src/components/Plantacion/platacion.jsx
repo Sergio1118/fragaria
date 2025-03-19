@@ -68,6 +68,7 @@ function Plantacion() {
   const [errores, setErrores] = useState({});
   const [clima, setClima] = useState(null);
   const [mostrarClima, setMostrarClima] = useState(false);
+  const [mensaje, setMensaje] = useState({ text: "", type: "" });
   
 
 
@@ -85,10 +86,10 @@ function Plantacion() {
           setPlantaciones(data.plantaciones);
           setClima(data.clima);
         } else {
-          console.error("Error al obtener datos:", data.message);
+          console.log("error al obtener datos")
         }
       } catch (error) {
-        console.error("Error al obtener plantaciones:", error);
+        console.error("Error en la solicitud:", error);
       }
     }; 
     useEffect(() => {
@@ -135,6 +136,14 @@ function Plantacion() {
     return Object.keys(erroresTemp).length === 0;
   };
 
+  
+  useEffect(() => {
+    if (mensaje.text) {
+      const timer = setTimeout(() => setMensaje({ type: "", text: "" }), 3000);
+      return () => clearTimeout(timer); // Limpiar el temporizador al desmontar
+    }
+  }, [mensaje]);
+
   const guardarPlantacion = async () => {
     if (!validarFormulario()) return;
   
@@ -144,9 +153,6 @@ function Plantacion() {
       ? { ...plantaciones[indiceEdicion], nombre, descripcion, fecha: fechaFinal }
       : { nombre, descripcion, fecha: fechaFinal };
    
-  
-  
-  
     // Al finalizar, actualizamos el estado de las plantaciones
     if (editando) {
       const id = plantaciones[indiceEdicion].id
@@ -164,12 +170,12 @@ function Plantacion() {
         const data = await response.json();
     
         if (response.ok) {
-          alert("Plantación guardada correctamente.");
+          setMensaje({ text: "Plantación actualizada correctamente.", type: "success" });
         } else {
-          console.error("Error:", data.message || "Error al guardar la plantación.");
+          setMensaje({ text: data.message || "Error al actualizar la plantación.", type: "danger" })
         }
-      } catch (error) {
-        console.error("Error al guardar la plantación:");
+      } catch{
+        setMensaje({ text: "Error al actualizar la plantación.", type: "danger" });
       }
       const nuevasPlantaciones = [...plantaciones];
       nuevasPlantaciones[indiceEdicion] = nuevaPlantacion;
@@ -192,13 +198,13 @@ function Plantacion() {
         const data = await response.json();
     
         if (response.ok) {
-          alert("Plantación guardada correctamente.");
+          setMensaje({ text: "Plantación guardada correctamente.", type: "success" });
           plantacionGet();
         } else {
-          console.error("Error:", data.message || "Error al guardar la plantación.");
+          setMensaje({ text: data.message || "Error al guardar la plantación.", type: "danger" });
         }
-      } catch (error) {
-        console.error("Error al guardar la plantación:");
+      } catch{
+        setMensaje({ text: "Error al guardar la plantación.", type: "danger" });
       }
       setPlantaciones([...plantaciones, nuevaPlantacion]);
     }
@@ -232,7 +238,7 @@ function Plantacion() {
     const id = plantaciones[index].id;  // Usar index para obtener el id correcto
     try {
       const response = await fetch(`http://localhost:8000/eliminar-plantacion/${id}/`, {
-        method: "POST",
+        method: "DELETE",
         credentials: "include", // Enviar cookies si es necesario
         headers: { "Content-Type": "application/json" },
       });
@@ -240,20 +246,21 @@ function Plantacion() {
       const data = await response.json();
   
       if (response.ok) {
-        alert("Plantación eliminada correctamente.");
+        setMensaje({ text: "Plantación eliminada correctamente.", type: "success" });
         plantacionGet(); 
         setPlantaciones(plantaciones.filter((_, i) => i !== index)); // Actualiza el estado eliminando la plantación
       } else {
-        console.error("Error:", data.message || "Error al eliminar la plantación.");
+        setMensaje({ text: data.message || "Error al eliminar la plantación.", type: "danger" });
       }
-    } catch (error) {
-      console.error("Error al eliminar la plantación:", error);
+    } catch {
+      setMensaje({ text: "Error al eliminar la plantación.", type: "danger" });
     }
   };
 
   return (
     <div style={styles.plantacionContainer}>
       <Navbaradmin />
+     
       <div className="text-center" style={{ marginBottom: "30px", marginTop: "30px", color: "#4b2215" }}>
         <h2 className="text-center" style={{ marginBottom: "10px", marginTop: "90px", color: "#4b2215" }}>
           Gestión de Plantaciones
@@ -266,6 +273,13 @@ function Plantacion() {
           {mostrandoFormulario ? "Cerrar" : "Crear Nueva Plantación"}
         </button>
       </div>
+
+        {mensaje.text && (
+          <div className={`alert alert-${mensaje.type} text-center mx-auto`} role="alert" style={{ maxWidth: '500px' }}>
+            {mensaje.text}
+          </div>
+        )}
+
       {mostrandoFormulario && (
         <div className="card p-3 mb-5" style={styles.formContainer}>
           <div className="mb-3">

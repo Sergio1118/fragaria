@@ -27,6 +27,7 @@ function Perfil() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const [message, setMessage] = useState(""); // Estado para mensajes de éxito
 
   // Fetch user data on component mount
   useEffect(() => {
@@ -57,6 +58,7 @@ function Perfil() {
 
     fetchProfile();
   }, []);
+
   const handleLogout = async () => {
     try {
       const response = await fetch("http://localhost:8000/logout/", {
@@ -77,10 +79,16 @@ function Perfil() {
     }
   };
 
+  useEffect(() => {
+    if (message.text) { 
+      const timer = setTimeout(() => setMessage(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
   // Handle form submission to update user profile
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
 
     // Prepare the data to send
     const updatedData = {
@@ -91,7 +99,7 @@ function Perfil() {
 
     try {
       const response = await fetch("http://localhost:8000/perfil/", {
-        method: "POST",
+        method: "PUT",
         credentials: "include", // send cookies
         headers: { "Content-Type": "application/json"},
           body: JSON.stringify({
@@ -104,9 +112,9 @@ function Perfil() {
       const data = await response.json();
 
       if (response.ok) {
-        alert("Perfil actualizado correctamente.");
+        setMessage("Perfil actualizado correctamente.");
       } else {
-        setError(data.message || "Error updating profile.");
+        setError(data.message || "Error en la actualización.");
       }
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -126,7 +134,12 @@ function Perfil() {
               <h2 className="h4 mb-3 text-center fw-bold" style={{ color: "#4b2215" }}>
                 Editar Perfil
               </h2>
+
+                {/* Mensaje de éxito */}
+              {message && <div className="alert alert-success">{message}</div>}
+              {/* Mensaje de error */}
               {error && <div className="alert alert-danger">{error}</div>}
+              
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <input

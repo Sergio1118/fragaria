@@ -7,13 +7,13 @@ function FromSigul() {
     first_name: "", last_name: "", email: "", password1: "", password2: ""
   });
 
-  const [errors, setErrors] = useState({
-    first_name: "", last_name: "", email: "", password1: "", password2: ""
-  });
-
+  
   const [showPasswords, setShowPasswords] = useState({
     password1: false, password2: false
   });
+
+  const [message, setMessage] = useState({ text: "", type: "" });
+  const [errors, setErrors] = useState({});
 
   const handleInputChange = (key, value) => {
     setFormData(prevData => ({ ...prevData, [key]: value }));
@@ -63,16 +63,13 @@ function FromSigul() {
       const data = await response.json();
   
       if (response.ok) {
-        console.log("Registro exitoso:", data);
-        alert("Registro exitoso. Ahora puedes iniciar sesión.");
-        window.location.href = "/";
+        setMessage({ text: "Registro exitoso. Ahora puedes iniciar sesión.", type: "success" });
+        setTimeout(() => window.location.href = "/", 3000); // Redirigir después de 3 segundos
       } else {
-        console.error("Errores del backend:", data.errors);
-        alert("Error: " + JSON.stringify(data.errors));
+        setMessage({ text: data.errors ? Object.values(data.errors).join(", ") : "Error en el registro.", type: "danger" });
       }
-    } catch (error) {
-      console.error("Error al enviar la solicitud:", error);
-      alert("Error al enviar la solicitud. Revisa la consola.");
+    } catch {
+      setMessage({ text: "Error en la solicitud. Intenta nuevamente.", type: "danger" });
     }
   };
   
@@ -157,6 +154,14 @@ function FromSigul() {
             className="logo-fragaria d-block mx-auto"
           />
           <h2 className="text-center mb-4 fw-bold" style={{ color: "#dc3545" }}>Registro</h2>
+
+              {/* Mostrar mensajes de éxito o error */}
+              {message.text && (
+                <div className={`alert alert-${message.type} text-center`} role="alert">
+                  {message.text}
+                </div>
+              )}
+
           <form>
               {["first_name", "last_name", "email"].map(field => (
                 <div key={field} className="mb-3">
@@ -179,7 +184,7 @@ function FromSigul() {
                   placeholder={field === "password2" ? "Confirmar contraseña" : "Contraseña"}
                   onChange={(e) => handleInputChange(field, e.target.value)}
                 />
-                {(formData[field] || formData.email) && (
+                {formData[field] && (
                   <button
                     type="button"
                     className="btn position-absolute end-0 translate-middle-y me-3 rounded-circle"
