@@ -11,39 +11,8 @@ function Footer() {
           &copy; 2025 Fragaria. Todos los derechos reservados.
         </p>
         <div className="social-icons my-3">
-          <p className="footer-brand">Síguenos en:</p>
-          <a
-            href="https://www.instagram.com/FragariaApp"
-            rel="noopener noreferrer"
-            className="mx-2"
-          >
-            Instagram
-          </a>{" "}
-          |
-          <a
-            href="https://www.twitter.com/FragariaApp"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mx-2"
-          >
-            Twitter
-          </a>{" "}
-          |
-          <a
-            href="https://www.facebook.com/FragariaApp"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mx-2"
-          >
-            Facebook
-          </a>
+          <p className="footer-brand"> Fragaria: Tecnología y naturaleza al servicio de los agricultores.</p>
         </div>
-        <p className="footer-brand">
-          Contáctanos:{" "}
-          <a href="mailto:soporte@fragaria.com" >
-            soporte@fragaria.com
-          </a>
-        </p>
       </footer>
     </div>
   );

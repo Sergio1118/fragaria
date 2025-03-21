@@ -49,8 +49,8 @@ const styles ={
 
 const AgregarTrabajador = () => {
   const [formData, setFormData] = useState({
-    name: "",
-    surname: "",
+    nombre: "",
+    apellido: "",
     email: "",
     password: "",
     confirmation: "",
@@ -121,8 +121,8 @@ const AgregarTrabajador = () => {
 
 
     // Validaciones
-    if (!formData.name) newErrors.name = "El nombre es obligatorio";
-    if (!formData.surname) newErrors.surname = "El apellido es obligatorio";
+    if (!formData.nombre) newErrors.nombre = "El nombre es obligatorio";
+    if (!formData.apellido) newErrors.apellido = "El apellido es obligatorio";
     if (!formData.email) newErrors.email = "El correo es obligatorio";
     if (!validateEmail(formData.email)) newErrors.email = "El correo no es válido";
   
@@ -148,8 +148,8 @@ const AgregarTrabajador = () => {
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    first_name: formData.name,
-                    last_name: formData.surname,
+                    first_name: formData.nombre,
+                    last_name: formData.apellido,
                     email: formData.email,
                 
                 }),
@@ -182,8 +182,8 @@ const AgregarTrabajador = () => {
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    first_name: formData.name,
-                    last_name: formData.surname,
+                    first_name: formData.nombre,
+                    last_name: formData.apellido,
                     email: formData.email,
                     password1: formData.password,
                     password2: formData.confirmation,
@@ -208,7 +208,7 @@ const AgregarTrabajador = () => {
   
     // Limpiar formulario y cerrar modal
     setIsFormVisible(false);
-    setFormData({ name: "", surname: "", email: "", password: "", confirmation: "" });
+    setFormData({ nombre: "", apellido: "", email: "", password: "", confirmation: "" });
     setEditIndex(null);
 
   };
@@ -216,8 +216,8 @@ const AgregarTrabajador = () => {
 }
   const handleEdit = (index) => {
     setFormData({
-      name: trabajadores[index].first_name,  // Asegúrate de usar las claves correctas del objeto
-      surname: trabajadores[index].last_name,
+      nombre: trabajadores[index].first_name,  // Asegúrate de usar las claves correctas del objeto
+      apellido: trabajadores[index].last_name,
       email: trabajadores[index].email,
 
     });
@@ -271,7 +271,7 @@ const AgregarTrabajador = () => {
             onClick={() => {
               setIsFormVisible(!isFormVisible);
               setEditIndex(null);
-              setFormData({ name: "", surname: "", email: "", password: "", confirmation: "" });
+              setFormData({ nombre: "", apellido: "", email: "", password: "", confirmation: "" });
             }}
             className="d-flex justify-content-center mb-2" style={styles.btnCustom}
           >
@@ -292,7 +292,7 @@ const AgregarTrabajador = () => {
               {editIndex !== null ? "Editar Trabajador" : "Registrar Trabajador"}
             </h3>
             <form onSubmit={handleSubmit}>
-              {["name", "surname"].map((field) => (
+              {["nombre", "apellido"].map((field) => (
                 <div key={field} className="mb-4">
                   <input
                     type="text"

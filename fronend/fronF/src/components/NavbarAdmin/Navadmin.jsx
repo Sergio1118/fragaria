@@ -117,7 +117,7 @@ function Navbaradmin() {
               />
               Informes
             </NavLink>
-            <NavLink className="nav-link mx-2" to="/" style={styles.link}>
+            <NavLink className="nav-link mx-2" to="/actividad_admin" style={styles.link}>
               <img
                 src="imagenes/actividad.png"
                 alt="Actividad"

@@ -88,13 +88,14 @@ function Password() {
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "linear-gradient(to bottom, rgb(252, 234, 208), rgb(255, 222, 199))" }}>
 
       <nav style={{ background: "linear-gradient(to right, #f4b183, #f8d8a8)", color: "white", padding: "10px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <button style={{ background: "none", border: "none", fontSize: "18px", cursor: "pointer", color: "#dc3545", marginLeft: "10px" }} onClick={() => window.history.back()}>
+        <button style={{ background: "none", border: "none", fontSize: "18px", cursor: "pointer", color: "#dc3545", marginLeft: "10px" }} onClick={() =>window.location.href ="/dashprincipal"}>
           <i className="fas fa-arrow-left"></i>
         </button>
         <span style={{ flexGrow: 1.5, textAlign: "center", fontSize: "30px", fontWeight: "bold", fontFamily: "'Montserrat', sans-serif", color: "#dc3545", justifyContent: "center" }}>
           Fragaria
         </span>
       </nav>
+
       <div className="d-flex justify-content-center align-items-center flex-grow-1 mt-5 mb-5">
         <div className="card p-4 shadow-lg rounded-4" style={{ width: "400px", maxWidth: "85%", background: "linear-gradient(to right, #f4b183, #f8d8a8)"}}>
           <h2 className="text-center mb-4 fw-bold" style={{ color: "#dc3545" }}>

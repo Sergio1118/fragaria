@@ -57,7 +57,7 @@ function Dash_rol() {
            {/* Navbar según el rol */}
         {esAdmin ? <Navbaradmin/> : <Navbaruser/>}
         <div className="container text-center mt-5 my-5">
-          <h2 className="fw-bold mt-5" style={{ color: "#4b2215"}}>¡Te damos la bienvenida, {name}!</h2>
+          <h2 className="fw-bold mt-5" style={{ color: "#4b2215"}}>¡ Hola, {name} !</h2>
           <p className="fs-4 fw-bold fst-italic mt-5" style={{ color: "#4b2215"}}>
             Fragaria: Tecnología y naturaleza al servicio de los agricultores.
           </p>

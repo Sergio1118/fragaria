@@ -19,13 +19,14 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.middleware.csrf import get_token
 from .emails import notificar_actividad  # Importa la función que creamos antes
+from django.template.loader import render_to_string
 from .models import (
     Usuario, Plantacion, Siembra, 
     Actividad
 )
 from .forms import (
     RegistroForm, LoginForm, SetPasswordForm, UsuarioForm, 
-    PlantacionForm,  EditarPerfilForm
+    PlantacionForm,  EditarPerfilForm, EditarPlantacionForm
 )
 from django.utils import timezone
 import logging
@@ -160,9 +161,6 @@ def logout_view(request):
     })
     
     #hay que hacer las vista de el aditarr actividad y borra
-     
-
-
 
 @csrf_exempt
 def password_reset_api(request):
@@ -185,10 +183,20 @@ def password_reset_api(request):
                 # Crear enlace de restablecimiento
                 reset_url = f'http://localhost:5173/password/?uid64={uid}&token={token}'
 
-                # Enviar el correo
+                # Renderizar el template del correo
                 subject = "Restablecimiento de contraseña"
-                message = f"Hola {user.username},\n\nPara restablecer tu contraseña, haz clic en este enlace:\n\n{reset_url}\n\nSi no solicitaste este cambio, ignora este mensaje."
-                send_mail(subject, message, 'tu_correo@gmail.com', [email])
+                context = {"user": user.first_name, "reset_link": reset_url}
+                html_message = render_to_string("email/email.html", context)
+
+                # Enviar el correo con el template                                                                                                                                                                                            
+                send_mail(                                                                                                                                          
+                    subject,
+                    message="Para ver este correo, usa un cliente compatible con HTML.",
+                    from_email="canomoreno78@gmail.com",
+                    recipient_list=[email],
+                    fail_silently=False,
+                    html_message=html_message
+                )
 
                 return JsonResponse({"message": "Se ha enviado un enlace de recuperación a tu correo."}, status=200)
             except User.DoesNotExist:
@@ -198,9 +206,6 @@ def password_reset_api(request):
             return JsonResponse({"error": "Datos inválidos."}, status=400)
 
     return JsonResponse({"error": "Método no permitido."}, status=405)
-
-
-
 
 
 @csrf_exempt
@@ -477,7 +482,7 @@ def editar_plantacion(request, id):
     plantacion = get_object_or_404(Plantacion, id=id)
     if request.method == 'PUT':
         data = json.loads(request.body)
-        form = PlantacionForm(data, instance=plantacion)
+        form = EditarPlantacionForm(data, instance=plantacion)
         if form.is_valid():
             form.save()
             return JsonResponse({
@@ -495,7 +500,7 @@ def editar_plantacion(request, id):
                 'errors': errors
             }, status=400)
     else:
-        form = PlantacionForm(instance=plantacion)
+        form = EditarPlantacionForm(instance=plantacion)
       
 
 
