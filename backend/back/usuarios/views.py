@@ -782,19 +782,19 @@ def informes(request):
         return JsonResponse({"status": "error", "message": "Método no permitido."}, status=405)
 
     actividad_id = request.GET.get("id")
-   
-    if actividad_id:
-        actividades = Actividad.objects.filter(id=actividad_id, estado="completada")
-    else:
-        actividades = Actividad.objects.filter(estado="completada")
 
+    empleados_ids = Usuario.objects.filter(admin_creator=request.user).values_list("id", flat=True)
+
+    actividades = Actividad.objects.filter(usuario_id__in=empleados_ids, estado="completada")
+
+    if actividad_id:
+        actividades = actividades.filter(id=actividad_id)
 
     actividades = actividades.values(
         "id", "nombre_actividad", "descripcion", "usuario_id", "usuario__first_name", "fecha", "fecha_vencimiento", "estado"
     )
-    
-    return JsonResponse({"status": "success", "actividades": list(actividades)}, status=200)
 
+    return JsonResponse({"status": "success", "actividades": list(actividades)}, status=200)
 
 
 @login_required
@@ -828,7 +828,7 @@ def obtener_clima(ubicacion):
             temperatura = data['main']['temp']
             descripcion_ingles = data['weather'][0]['description']
             # Traducir la descripción al español
-            descripcion = TRADUCCION_CLIMA.get(descripcion_ingles, descripcion_ingles)  # Fallback en caso de que no se encuentre
+            descripcion = TRADUCCION_CLIMA.get(descripcion_ingles, descripcion_ingles) 
             humedad = data['main']['humidity']
             presion = data['main']['pressure']
             velocidad_viento = data['wind']['speed']
