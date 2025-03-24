@@ -178,6 +178,7 @@ function Actividades() {
                         <div className="card-body text-center">
                           <h6 className="fw-bold text-dark">{act.nombre_actividad}</h6>
                           <p className="text-muted">👤 Usuario: {act.first_name}</p>
+                          <p className="text-muted">🌱  plantacion: {act.nombre_plantacion}</p>
 
                           {editando === act.id ? (
                             <>

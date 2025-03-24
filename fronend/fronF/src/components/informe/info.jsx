@@ -156,6 +156,8 @@ function Informes() {
                         <p className="text-muted small"><strong>Descripción:</strong> {actividad.descripcion}</p>
                         <p className="text-muted small"><strong>Fecha:</strong> {actividad.fecha}</p>
                         <p className="text-muted small"><strong>Estado:</strong> {actividad.estado}</p>
+                        <p className="text-muted small"><strong>Plantación:</strong> {actividad.plantacion__nombre}</p>
+
                       </div>
                     )}
                   </div>

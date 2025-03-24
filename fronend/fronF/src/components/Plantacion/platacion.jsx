@@ -84,7 +84,7 @@ function Plantacion() {
         const data = await response.json();
         if (response.ok) {
           setPlantaciones(data.plantaciones);
-          setClima(data.clima);
+          
         } else {
           console.log("error al obtener datos")
         }
@@ -94,6 +94,29 @@ function Plantacion() {
     }; 
     useEffect(() => {
       plantacionGet();
+    },[]);
+
+    const climaGet = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/clima/", {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setClima(data.clima);
+        } else {
+          console.log("error al obtener datos")
+        }
+      } catch (error) {
+        console.error("Error en la solicitud:", error);
+      }
+    }; 
+    useEffect(() => {
+      climaGet();
     },[]);
   
   

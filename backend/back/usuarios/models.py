@@ -51,21 +51,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
    
 
 
-class Actividad(models.Model):
-    nombre_actividad = models.CharField(max_length=50)
-    tiempo_estimado = models.TimeField()
-    clima_requerido = models.CharField(max_length=50, blank=True, null=True)
-    fecha_vencimiento = models.DateField()
-    fecha = models.DateField()
-    descripcion = models.TextField()
-    
-    estado = models.CharField(max_length=30, null = False)
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='actividades_asignadas')
-
-    def __str__(self):
-        return self.nombre_actividad
-
-
 # Modelo de Plantación
 class Plantacion(models.Model):
     nombre = models.CharField(max_length=100)
@@ -75,6 +60,21 @@ class Plantacion(models.Model):
 
     def __str__(self):
         return self.nombre
+
+class Actividad(models.Model):
+    nombre_actividad = models.CharField(max_length=50)
+    tiempo_estimado = models.TimeField()
+    clima_requerido = models.CharField(max_length=50, blank=True, null=True)
+    fecha_vencimiento = models.DateField()
+    fecha = models.DateField()
+    descripcion = models.TextField()
+    estado = models.CharField(max_length=30, null=False)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='actividades_asignadas')
+    plantacion = models.ForeignKey(Plantacion, on_delete=models.CASCADE, related_name='actividades', null=False)
+
+    def __str__(self):
+        return f"{self.nombre_actividad} - {self.plantacion.nombre}"
+
 
 
 # Modelo de Siembra

@@ -19,7 +19,7 @@ from django.urls import path
 from usuarios import views as usuarios_views
 from django.contrib.auth import views as auth_views
 from usuarios.views import  obtener_csrf_token, password_reset_api, iniciar_sesion, agregar_usuario, registro,perfil,logout_view,reset_password, obtener_fechas_recomendadas, registrar_plantacion, plantacion, editar_plantacion,asignar_actividad,gestion_usuarios,actividades_de_usuario,marcar_completo,actividades_admin
-from usuarios.views import editar_actividad,eliminar_actividad, obtener_clima
+from usuarios.views import editar_actividad,eliminar_actividad, vista_clima
 
 urlpatterns = [
     # url del token
@@ -50,7 +50,7 @@ urlpatterns = [
     # Actividades de fragaria
     path('plantacion/', plantacion, name='plantacion'),  # Mostrar las plantaciones
     path('obtener_fechas_recomendadas/', obtener_fechas_recomendadas, name='obtener_fechas_recomendadas'),
-    path("clima/", obtener_clima, name="obtener_clima"),
+    path("clima/", vista_clima, name="obtener_clima"),
     path('registrar_plantacion/', registrar_plantacion, name='registrar_plantacion'),
     path('actividades/<int:actividad_id>/estado/<str:nuevo_estado>/', usuarios_views.cambiar_estado, name='cambiar_estado'),
     path('editar-plantacion/<int:id>/', editar_plantacion, name='editar_plantacion'),

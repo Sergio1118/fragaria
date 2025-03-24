@@ -24,12 +24,14 @@ const RegistroActividades = ({ onActividadAgregada }) => {
   const [modalVisible, setModalVisible] = useState(false); // Estado para el modal
   const [actividad, setActividad] = useState({
     usuario: "",
+    plantacion:"",
     nombre: "",
     descripcion: "",
     tiempoEstimado: "",
     fechaEstimada: "",
     fechaVencimiento: "",
   });
+  const [plantaciones, setPlantaciones] = useState([]);
 
   useEffect(() => {
     if (error || success) {
@@ -68,6 +70,30 @@ const RegistroActividades = ({ onActividadAgregada }) => {
     fetchUsuarios();
   }, []);
 
+  const plantacionGet = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/plantacion/", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setPlantaciones(data.plantaciones);
+        
+      } else {
+        console.log("error al obtener datos")
+      }
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+    }
+  }; 
+  useEffect(() => {
+    plantacionGet();
+  },[]);
+
   const handleChange = (e) => {
     setActividad({ ...actividad, [e.target.name]: e.target.value });
   };
@@ -78,10 +104,11 @@ const RegistroActividades = ({ onActividadAgregada }) => {
     console.log(actividad)
 
     // Validaciones antes de enviar
-    if (!actividad.usuario || !actividad.nombre || !actividad.descripcion || !actividad.tiempoEstimado || !actividad.fechaEstimada || !actividad.fechaVencimiento) {
+    if (!actividad.usuario || !actividad.plantacion || !actividad.nombre || !actividad.descripcion || !actividad.tiempoEstimado || !actividad.fechaEstimada || !actividad.fechaVencimiento) {
       setError("Todos los campos son obligatorios.");
       return;
     }
+    
 
     let tiempoEstimado = actividad.tiempoEstimado;
 
@@ -97,8 +124,10 @@ const RegistroActividades = ({ onActividadAgregada }) => {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
+
         body: JSON.stringify({
           usuario_id: actividad.usuario,
+          plantacion_id:actividad.plantacion,
           actividad: actividad.nombre,
           descripcion: actividad.descripcion,
           tiempo_estimado: tiempoEstimado,
@@ -114,14 +143,19 @@ const RegistroActividades = ({ onActividadAgregada }) => {
 
         if (data) {
           setSuccess("Actividad registrada con éxito.");
+          
+
           setActividad({
             usuario: "",
+            plantacion:"",
             nombre: "",
             descripcion: "",
             tiempoEstimado: "",
             fechaEstimada: "",
             fechaVencimiento: "",
           });
+          
+
           onActividadAgregada()
           setModalVisible(false); // Cerrar el modal después de enviar
         } 
@@ -168,6 +202,22 @@ const RegistroActividades = ({ onActividadAgregada }) => {
                         ))
                       ) : (
                         <option value="">No hay usuarios disponibles</option>
+                      )}
+                    </select>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Seleccionar plantacion</label>
+                    <select className="form-select" name="plantacion" onChange={handleChange} value={actividad.plantacion} required>
+                      <option value="">Seleccione una plantación</option>
+                      {plantaciones.length > 0 ? (
+                        plantaciones.map((plan, index) => (
+                          <option key={index} value={plan.id}>
+                            {plan.nombre}
+                          </option>
+                        ))
+                      ) : (
+                        <option value="">No hay plantaciones disponibles</option>
                       )}
                     </select>
                   </div>

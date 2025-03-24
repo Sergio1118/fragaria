@@ -16,6 +16,8 @@ const Calendario_admin = () => {
   const [mostrarPlantaciones, setMostrarPlantaciones] = useState(false);
   const [plantaciones, setPlantaciones] = useState([]);
   const [actividades, setActividades] = useState([]);
+  const [clima, setClima] = useState(null);
+  const [mostrarClima, setMostrarClima] = useState(false);
 
   const actividadGet = useCallback(async () => {
     try {
@@ -38,6 +40,7 @@ const Calendario_admin = () => {
           fecha: act.fecha.split(" ")[0], // Fecha sin hora
           estado: act.estado,
           nombre_actividad: act.nombre_actividad || "Sin nombre", // Prevención de undefined
+          nombre_plantacion: act.nombre_plantacion || "Sin plantación" // Agregado
         }));
         console.log("Datos de la API:", data.actividades); 
         setActividades(actividadesTransformadas);
@@ -88,6 +91,31 @@ const Calendario_admin = () => {
     };
     obtenerSiembras();
   }, []);
+
+  const climaGet = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/clima/", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log(data)
+        setClima(data.clima);
+        
+      } else {
+        console.log("error al obtener datos")
+      }
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+    }
+  }; 
+  useEffect(() => {
+    climaGet();
+  },[]);
 
   const actividadesCompletas = actividades.filter(act => act.estado === "completada");
   const actividadesPendientes = actividades.filter(act => act.estado === "pendiente");
@@ -146,7 +174,8 @@ const Calendario_admin = () => {
                       {lista.map((item, i) => (
                         <li key={i}><strong>{esPlantacion ? item.title : item.nombre_actividad }</strong> <br />
                         {!esPlantacion && <span>👷 Trabajador: <strong>{item.first_name}</strong></span>} <br />
-                        📅 Fecha:{esPlantacion ? item.start : item.fecha}</li>
+                        📅 Fecha :{esPlantacion ? item.start : item.fecha} <br />
+                        🌱 Plantación: <strong>{item.nombre_plantacion}</strong> {/* Agregado */}</li>
                   
                             
                       ))}
@@ -157,6 +186,41 @@ const Calendario_admin = () => {
             ))}
           </div>
         </div>
+         {/* Botón flotante en la esquina inferior derecha */}
+         <button
+        className="btn btn-warning rounded-circle position-fixed"
+        style={{
+          width: "60px",
+          height: "60px",
+          fontSize: "24px",
+          bottom: "20px",
+          right: "20px",
+          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+        }}
+        onClick={() => setMostrarClima(!mostrarClima)}
+      >
+        🌞
+      </button>
+
+      {/* Tarjeta del clima flotante */}
+      {mostrarClima && clima && (
+        <div
+          className="position-fixed bg-light p-3 rounded shadow border"
+          style={{
+            bottom: "90px",
+            right: "20px",
+            maxWidth: "250px",
+          }}
+        >
+          <h4>Datos del Clima</h4>
+          <p><strong>Temperatura:</strong> {clima.temperatura}°C</p>
+          <p><strong>Descripción:</strong> {clima.descripcion}</p>
+          <p><strong>Humedad:</strong> {clima.humedad}%</p>
+          <p><strong>Presión:</strong> {clima.presion} hPa</p>
+          <p><strong>Velocidad del Viento:</strong> {clima.velocidad_viento} m/s</p>
+        </div>
+      )}
+
       </div>
       <div className="footerContainer">
         <Footer/>

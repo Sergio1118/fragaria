@@ -405,16 +405,7 @@ def plantacion(request):
             # Filtrar las plantaciones del usuario actual
             plantaciones = Plantacion.objects.filter(usuario=request.user)
             
-            # Obtener los datos del clima (supongo que esta función está correctamente implementada)
-            ubicacion = 'Pereira'
-            clima_data = obtener_clima(ubicacion)
-
-            # Simplificar la asignación de variables relacionadas con el clima
-            temperatura = clima_data.get('temperatura') if clima_data else None
-            descripcion = clima_data.get('descripcion') if clima_data else None
-            humedad = clima_data.get('humedad') if clima_data else None
-            presion = clima_data.get('presion') if clima_data else None
-            velocidad_viento = clima_data.get('velocidad_viento') if clima_data else None
+           
 
             # Crear la respuesta JSON con los datos
             plantaciones_data = list(plantaciones.values('id', 'nombre', 'descripcion', 'fecha_siembra'))
@@ -425,13 +416,6 @@ def plantacion(request):
 
             response_data = {
                 'plantaciones': plantaciones_data,
-                'clima': {
-                    'temperatura': temperatura,
-                    'descripcion': TRADUCCION_CLIMA.get(descripcion, descripcion),
-                    'humedad': humedad,
-                    'presion': presion,
-                    'velocidad_viento': velocidad_viento,
-                }
             }
 
             return JsonResponse(response_data, status=200)
@@ -560,69 +544,70 @@ def eliminar_plantacion(request, id):
 
 @csrf_exempt
 def asignar_actividad(request):
-    
     if request.method != 'POST':
         return JsonResponse({"status": "error", "message": "Método no permitido."}, status=405)
-
+    
     if not request.body:
         return JsonResponse({"status": "error", "message": "No se recibió ninguna información."}, status=400)
-
+    print("Raw request body:", request.body)
     try:
         data = json.loads(request.body)
+        print("Parsed data:", data)
     except json.JSONDecodeError:
-        return JsonResponse({"status": "error", "message": "El formato del JSON es inválido."}, status=400)
+        print("Error: JSON inválido")
 
+        return JsonResponse({"status": "error", "message": "El formato del JSON es inválido."}, status=400)
+    
     usuario_id = data.get("usuario_id")
     actividad = data.get("actividad")
     descripcion = data.get("descripcion")
     tiempo_estimado = data.get("tiempo_estimado")
     fecha_vencimiento = data.get("fecha_vencimiento")
     fecha = data.get("fecha")
-    nuevo_estado="pendiente"
-
-    if not all([usuario_id, actividad, tiempo_estimado, fecha_vencimiento, fecha]):
+    plantacion_id = data.get("plantacion_id")
+    nuevo_estado = "pendiente"
+    
+    if not all([usuario_id, actividad, tiempo_estimado, fecha_vencimiento, fecha, plantacion_id]):
         return JsonResponse({"status": "error", "message": "Todos los campos son obligatorios."}, status=400)
-
-    # Normalizar formato de tiempo
+    
     if ":" not in tiempo_estimado or tiempo_estimado.count(":") < 2:
         tiempo_estimado += ":00"
-
+    
     try:
         tiempo_estimado = datetime.strptime(tiempo_estimado, '%H:%M:%S').time()
     except ValueError:
         return JsonResponse({"status": "error", "message": "El tiempo estimado debe tener el formato HH:MM:SS."}, status=400)
-
-    # Conversión de fechas
+    
     try:
         fecha_vencimiento = datetime.strptime(fecha_vencimiento, '%Y-%m-%d').date()
         fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
     except ValueError:
         return JsonResponse({"status": "error", "message": "Formato de fecha incorrecto. Usa el formato yyyy-mm-dd."}, status=400)
-
-    # Verificar existencia del usuario
+    
     usuario = Usuario.objects.filter(id=usuario_id).first()
     if not usuario:
         return JsonResponse({"status": "error", "message": "El usuario no existe."}, status=400)
-
-
-    # Crear la actividad
+    
+    plantacion = Plantacion.objects.filter(id=plantacion_id).first()
+    if not plantacion:
+        return JsonResponse({"status": "error", "message": "La plantación especificada no existe."}, status=400)
+    
     nueva_actividad = Actividad.objects.create(
         nombre_actividad=actividad,
         tiempo_estimado=tiempo_estimado,
         fecha_vencimiento=fecha_vencimiento,
         fecha=fecha,
         descripcion=descripcion,
-        usuario_id=usuario.id,  # 🔹 Cambio aquí: usar ID en lugar del objeto
-        estado =nuevo_estado,
+        usuario_id=usuario.id,
+        estado=nuevo_estado,
+        plantacion=plantacion
     )
-
-    # Intentar enviar notificación
+    
     try:
         notificar_actividad(usuario, nueva_actividad)
     except Exception as e:
         return JsonResponse({"status": "error", "message": f"Error al enviar notificación: {str(e)}"}, status=500)
-
-    # Respuesta de éxito
+    
     return JsonResponse({
         "status": "success",
         "message": "Actividad creada correctamente",
@@ -634,7 +619,8 @@ def asignar_actividad(request):
             "tiempo_estimado": str(nueva_actividad.tiempo_estimado),
             "fecha_vencimiento": str(nueva_actividad.fecha_vencimiento),
             "fecha": str(nueva_actividad.fecha),
-            "estado":"pendiente"
+            "estado": "pendiente",
+            "plantacion": plantacion.nombre
         }
     }, status=201)
 
@@ -648,7 +634,7 @@ def actividades_admin(request):
         actividades_resultado = []
 
         for user in usuarios:
-            actividades = Actividad.objects.filter(usuario_id=user["id"])
+            actividades = Actividad.objects.filter(usuario_id=user["id"]).select_related("plantacion")
 
             for actividad in actividades:
                 nuevo_estado = cambiar_estado(actividad.id, actividad.estado)
@@ -661,7 +647,8 @@ def actividades_admin(request):
                     "tiempo_estimado": str(actividad.tiempo_estimado),
                     "fecha_vencimiento": actividad.fecha_vencimiento.strftime("%Y-%m-%d %H:%M:%S"),
                     "fecha": actividad.fecha.strftime("%Y-%m-%d"),
-                    "estado": nuevo_estado
+                    "estado": nuevo_estado,
+                    "nombre_plantacion": actividad.plantacion.nombre if actividad.plantacion else "Sin asignar"
                 }
 
                 actividades_resultado.append(actividad_data)
@@ -727,7 +714,7 @@ def actividades_de_usuario(request):
         return JsonResponse({"status": "error", "message": "El usuario no existe."}, status=400)
     
     # Filtrar las actividades del usuario
-    actividades = Actividad.objects.filter(usuario_id=usuario_id)
+    actividades = Actividad.objects.filter(usuario_id=usuario_id).select_related("plantacion")
     if not actividades.exists():
         return JsonResponse({"status": "success", "message": "No hay actividades asignadas."}, status=200)
     
@@ -744,7 +731,8 @@ def actividades_de_usuario(request):
             "tiempo_estimado": str(actividad.tiempo_estimado),
             "fecha_vencimiento": actividad.fecha_vencimiento.strftime("%Y-%m-%d %H:%M:%S"),  # Formato de fecha
             "fecha": actividad.fecha.strftime("%Y-%m-%d %H:%M:%S"),  # Formato de fecha
-            "estado": nuevo_estado
+            "estado": nuevo_estado,
+            "nombre_plantacion": actividad.plantacion.nombre if actividad.plantacion else "Sin asignar"
         }
         
         actividades_data.append(actividad_data)
@@ -785,16 +773,17 @@ def informes(request):
 
     empleados_ids = Usuario.objects.filter(admin_creator=request.user).values_list("id", flat=True)
 
-    actividades = Actividad.objects.filter(usuario_id__in=empleados_ids, estado="completada")
+    actividades = Actividad.objects.filter(usuario_id__in=empleados_ids, estado="completada").select_related("plantacion")
+
 
     if actividad_id:
         actividades = actividades.filter(id=actividad_id)
 
     actividades = actividades.values(
-        "id", "nombre_actividad", "descripcion", "usuario_id", "usuario__first_name", "fecha", "fecha_vencimiento", "estado"
+        "id", "nombre_actividad", "descripcion", "usuario_id", "usuario__first_name", "fecha", "fecha_vencimiento", "estado", "plantacion__nombre"
     )
-
-    return JsonResponse({"status": "success", "actividades": list(actividades)}, status=200)
+    print("Empleados encontrados:", list(empleados_ids))
+    return JsonResponse ({"status": "success", "actividades": list(actividades)}, status=200)
 
 
 @login_required
@@ -903,5 +892,16 @@ def cambiar_estado(actividad_id, nuevo_estado):
 
     # Redirigimos a la lista de actividades
     return nuevo_estado
+    
+@csrf_exempt
+def vista_clima(request):
+    if request.method == "GET":
+        ubicacion = "Pereira,CO"
+        resultado = obtener_clima(ubicacion)
+
+        if resultado is None:
+            return JsonResponse({"error": "No se pudo obtener el clima"}, status=500)
+
+        return JsonResponse({"clima": resultado}, status=200)
 
 

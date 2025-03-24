@@ -24,6 +24,9 @@ const styles = {
 function Dash_rol() {
   const [name, setName] = useState("Usuario");
   const [setError] = useState("");
+  const [clima, setClima] = useState(null);
+  const [mostrarClima, setMostrarClima] = useState(false);
+ 
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -48,6 +51,31 @@ function Dash_rol() {
 
     fetchProfile();
   }, []);
+
+  const climaGet = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/clima/", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setClima(data.clima);
+      } else {
+        console.log("error al obtener datos")
+      }
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+    }
+  }; 
+  useEffect(() => {
+    climaGet();
+  },[]);
+
+
 
   const esAdmin = localStorage.getItem("is_staff") === "true";
 
@@ -105,7 +133,45 @@ function Dash_rol() {
               </button>
             </div>
           </div>
+          
         </div>
+        {/* Botón flotante en la esquina inferior derecha */}
+        <button
+        className="btn btn-warning rounded-circle position-fixed"
+        style={{
+          width: "60px",
+          height: "60px",
+          fontSize: "24px",
+          bottom: "calc(80px + 15px)", // Asegura que el botón esté encima del footer
+          right: "15px",
+          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+          zIndex: 1050, // Asegura que esté sobre otros elementos
+        }}
+        onClick={() => setMostrarClima(!mostrarClima)}
+      >
+        🌞
+      </button>
+
+      {/* Tarjeta del clima flotante */}
+      {mostrarClima && clima && (
+        <div
+          className="position-fixed bg-light p-3 rounded shadow border"
+          style={{
+            bottom: "90px",
+            right: "20px",
+            maxWidth: "250px",
+          }}
+        >
+          <h4>Datos del Clima</h4>
+          <p><strong>Temperatura:</strong> {clima.temperatura}°C</p>
+          <p><strong>Descripción:</strong> {clima.descripcion}</p>
+          <p><strong>Humedad:</strong> {clima.humedad}%</p>
+          <p><strong>Presión:</strong> {clima.presion} hPa</p>
+          <p><strong>Velocidad del Viento:</strong> {clima.velocidad_viento} m/s</p>
+        </div>
+      )}
+
+
       </div>
         <div style={styles.footerContainer}>
           <Footer />
