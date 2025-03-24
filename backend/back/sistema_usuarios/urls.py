@@ -19,7 +19,7 @@ from django.urls import path
 from usuarios import views as usuarios_views
 from django.contrib.auth import views as auth_views
 from usuarios.views import  obtener_csrf_token, password_reset_api, iniciar_sesion, agregar_usuario, registro,perfil,logout_view,reset_password, obtener_fechas_recomendadas, registrar_plantacion, plantacion, editar_plantacion,asignar_actividad,gestion_usuarios,actividades_de_usuario,marcar_completo,actividades_admin
-from usuarios.views import editar_actividad,eliminar_actividad, vista_clima
+from usuarios.views import editar_actividad,eliminar_actividad, vista_clima,descargar_informes_pdf
 
 urlpatterns = [
     # url del token
@@ -69,6 +69,7 @@ urlpatterns = [
     # URL para informes (si es necesaria)
    
     path('informe/', usuarios_views.informes, name='informes'),
+    path("descargar_informes_pdf/", descargar_informes_pdf, name="descargar_informes_pdf"),
     path('eliminar_informe/<int:id>/', usuarios_views.eliminar_informe, name='eliminar_informe'),
     
 

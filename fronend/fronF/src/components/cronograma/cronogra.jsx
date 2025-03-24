@@ -172,19 +172,41 @@ const Calendario_admin = () => {
                   {estado && (
                     <ul className="mt-2">
                       {lista.map((item, i) => (
-                        <li key={i}><strong>{esPlantacion ? item.title : item.nombre_actividad }</strong> <br />
-                        {!esPlantacion && <span>👷 Trabajador: <strong>{item.first_name}</strong></span>} <br />
-                        📅 Fecha :{esPlantacion ? item.start : item.fecha} <br />
-                        🌱 Plantación: <strong>{item.nombre_plantacion}</strong> {/* Agregado */}</li>
-                  
-                            
+                        <li key={i}>
+                          {!esPlantacion && (
+                            <>
+                              <strong>{item.nombre_actividad}</strong> <br />
+                            </>
+                          )}
+                           {esPlantacion && (
+                            <>
+                              <br />
+                              🌱 Plantación: <strong>{item.title}</strong> <br />
+                              📅 Fecha: {item.start}
+                            </>
+                          )}
+                          
+                          {!esPlantacion && (
+                            <>
+                              <br />
+                              📅 Fecha :{esPlantacion ? item.start : item.fecha} <br />
+                              🌱 Plantación: <strong>{item.nombre_plantacion}</strong><br />
+                              <span>👷 Trabajador: <strong>{item.first_name}</strong></span> <br />
+                            </>
+                          )}
+                          <hr className="my-3 border-dark" />
+                        </li>
                       ))}
                     </ul>
+                    
                   )}
                 </Card.Body>
+                
               </Card>
+               
             ))}
           </div>
+          
         </div>
          {/* Botón flotante en la esquina inferior derecha */}
          <button

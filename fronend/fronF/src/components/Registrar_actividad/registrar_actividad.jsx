@@ -147,7 +147,7 @@ const RegistroActividades = ({ onActividadAgregada }) => {
 
           setActividad({
             usuario: "",
-            plantacion:"",
+            plantacion: "",
             nombre: "",
             descripcion: "",
             tiempoEstimado: "",

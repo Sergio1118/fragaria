@@ -100,6 +100,7 @@ function Informes() {
       <h2 className="text-center fw-bold mb-4 mt-5 pt-5" style={{color: "#4b2215" }}>
         📊 Actividades de Trabajadores
       </h2>
+      
 
       {/* Barra de búsqueda (sin botón de lupa) */}
       <div className="container mb-5">
@@ -113,6 +114,12 @@ function Informes() {
           />
         </div>
       </div>
+      {/* Botón para descargar el informe en PDF */}
+      <div className="text-center mb-4">
+          <a href="http://localhost:8000/descargar_informes_pdf/" className="btn btn-primary">
+            <i className="fas fa-file-pdf"></i> Descargar PDF
+          </a>
+        </div>
 
       {mensaje?.text && (
         <div className={`alert alert-${mensaje.type} text-center mx-auto`} role="alert" style={{ maxWidth: '500px' }}>

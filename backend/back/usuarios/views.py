@@ -28,8 +28,18 @@ from .forms import (
     RegistroForm, LoginForm, SetPasswordForm, UsuarioForm, 
     PlantacionForm,  EditarPerfilForm, EditarPlantacionForm
 )
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 import logging
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.utils import simpleSplit
+from reportlab.platypus import Table, TableStyle
+from django.contrib.auth.decorators import login_required
+from django.utils.timezone import now, timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -784,6 +794,86 @@ def informes(request):
     )
     print("Empleados encontrados:", list(empleados_ids))
     return JsonResponse ({"status": "success", "actividades": list(actividades)}, status=200)
+
+
+
+from django.utils.timezone import now
+from django.contrib import messages
+
+@login_required
+def descargar_informes_pdf(request):
+    # Obtener el mes y año actual
+    fecha_actual = now()
+    mes_actual = fecha_actual.month
+    año_actual = fecha_actual.year
+
+    # Filtrar actividades completadas del mes actual
+    empleados_ids = Usuario.objects.filter(admin_creator=request.user).values_list("id", flat=True)
+    actividades = Actividad.objects.filter(
+        usuario_id__in=empleados_ids,
+        estado="completada",
+        fecha__year=año_actual,
+        fecha__month=mes_actual
+    ).select_related("plantacion").values(
+        "id", "nombre_actividad", "descripcion", 
+        "usuario__first_name", "fecha", "estado", 
+        "plantacion__nombre"
+    )
+
+    if not actividades:
+        messages.warning(request, "No hay actividades completadas este mes.")
+        return redirect("nombre_de_la_vista")  # Reemplaza con la vista adecuada
+
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="informes_trabajadores.pdf"'
+
+    p = canvas.Canvas(response, pagesize=letter)
+    width, height = letter
+
+    # 🎨 Fondo del PDF
+    p.setFillColorRGB(0.95, 0.9, 0.85)  # Color beige claro
+    p.rect(0, 0, width, height, fill=True, stroke=False)
+
+    # 🏆 Título centrado
+    p.setFont("Helvetica-Bold", 18)
+    p.setFillColor(colors.darkblue)
+    p.drawCentredString(width / 2, height - 60, f"📊 Informe de Actividades - {fecha_actual.strftime('%B %Y')}")
+
+    # 📋 Definir columnas de la tabla
+    data = [["👤 Trabajador", "📌 Actividad", "📅 Fecha", "✅ Estado", "🌱 Plantación"]]
+    
+    for actividad in actividades:
+        data.append([
+            actividad["usuario__first_name"],
+            actividad["nombre_actividad"],
+            actividad["fecha"].strftime("%d-%m-%Y"),  # Formato de fecha
+            actividad["estado"],
+            actividad["plantacion__nombre"]
+        ])
+
+    # 🎨 Estilizar la tabla
+    table = Table(data, colWidths=[120, 130, 80, 80, 100])
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.darkblue),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, 0), 12),
+        ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+        ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
+        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+    ]))
+
+    # 📍 Posicionar la tabla
+    table.wrapOn(p, width, height)
+    table.drawOn(p, 50, height - 200)
+
+    p.save()
+    return response
+
+
+
+
 
 
 @login_required

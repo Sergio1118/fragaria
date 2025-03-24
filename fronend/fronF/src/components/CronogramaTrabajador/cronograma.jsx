@@ -125,7 +125,7 @@ const Calendario_trabajador = () => {
                         <li key={i}>
                         <strong>{item.nombre_actividad}</strong><br />
                         📅 {item.fecha}<br />
-                        🌱 Plantación: <strong>{item.nombre_plantacion}</strong> {/* Agregado */}
+                        🌱 Plantación: <strong>{item.nombre_plantacion}</strong> {/* Agregado */} <hr className="my-3 border-dark" />
                       </li>
                       ))}
                     </ul>
@@ -139,12 +139,13 @@ const Calendario_trabajador = () => {
          <button
         className="btn btn-warning rounded-circle position-fixed"
         style={{
-          width: "60px",
+         width: "60px",
           height: "60px",
           fontSize: "24px",
-          bottom: "20px",
-          right: "20px",
+          bottom: "calc(80px + 15px)", // Asegura que el botón esté encima del footer
+          right: "15px",
           boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+          zIndex: 1050, // Asegura que esté sobre otros elementos
         }}
         onClick={() => setMostrarClima(!mostrarClima)}
       >
