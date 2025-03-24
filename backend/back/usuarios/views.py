@@ -40,6 +40,7 @@ from reportlab.lib.utils import simpleSplit
 from reportlab.platypus import Table, TableStyle
 from django.contrib.auth.decorators import login_required
 from django.utils.timezone import now, timedelta
+import locale
 
 logger = logging.getLogger(__name__)
 
@@ -756,7 +757,7 @@ def marcar_completo(request):
     # Cargar los datos enviados como JSON
     data = json.loads(request.body)
     actividad_id = data.get('id')
-    
+
     # Asegurarse de que se pase un id válido
     if not actividad_id:
         return JsonResponse({"error": "ID de actividad no proporcionado"}, status=400)
@@ -764,14 +765,17 @@ def marcar_completo(request):
     # Obtener la actividad correspondiente
     actividad = get_object_or_404(Actividad, id=actividad_id)
 
-    # Cambiar el estado de la actividad a 'Completada'
-    if actividad.estado != 'completada':  # Verificamos si ya está completada
-        actividad.estado = 'completada'
-        actividad.save() 
+    # Verificar si la fecha de la actividad ya pasó o es hoy
+    if actividad.fecha <= now().date():
+        # Cambiar el estado de la actividad a 'completada'
+        if actividad.estado != 'completada':  # Verificamos si ya está completada
+            actividad.estado = 'completada'
+            actividad.save()
+            return JsonResponse({"mensaje": "Actividad marcada como completada correctamente."}, status=200)
 
-        return JsonResponse({"mensaje": "Actividad marcada como completada correctamente."}, status=200)
-    
-    return JsonResponse({"mensaje": "La actividad ya está marcada como completada."}, status=200)
+        return JsonResponse({"mensaje": "La actividad ya está marcada como completada."}, status=200)
+
+    return JsonResponse({"error": "No se puede completar la actividad antes de la fecha programada."}, status=400)
     
     
 @login_required
@@ -802,18 +806,23 @@ from django.contrib import messages
 
 @login_required
 def descargar_informes_pdf(request):
-    # Obtener el mes y año actual
+    # 🌍 Establecer idioma en español
+    try:
+        locale.setlocale(locale.LC_TIME, "es_ES.utf8")  # Linux/Mac
+    except:
+        locale.setlocale(locale.LC_TIME, "Spanish_Spain.1252")  # Windows
+
     fecha_actual = now()
-    mes_actual = fecha_actual.month
+    mes_actual = fecha_actual.strftime("%B").capitalize()
     año_actual = fecha_actual.year
 
-    # Filtrar actividades completadas del mes actual
+    # 📌 Filtrar actividades completadas del mes actual
     empleados_ids = Usuario.objects.filter(admin_creator=request.user).values_list("id", flat=True)
     actividades = Actividad.objects.filter(
         usuario_id__in=empleados_ids,
         estado="completada",
         fecha__year=año_actual,
-        fecha__month=mes_actual
+        fecha__month=fecha_actual.month
     ).select_related("plantacion").values(
         "id", "nombre_actividad", "descripcion", 
         "usuario__first_name", "fecha", "estado", 
@@ -821,56 +830,57 @@ def descargar_informes_pdf(request):
     )
 
     if not actividades:
-        messages.warning(request, "No hay actividades completadas este mes.")
-        return redirect("nombre_de_la_vista")  # Reemplaza con la vista adecuada
+        return JsonResponse({"error": "No hay informes de este mes."}, status=400)
 
+    # 📄 Generar PDF
     response = HttpResponse(content_type="application/pdf")
     response["Content-Disposition"] = 'attachment; filename="informes_trabajadores.pdf"'
 
     p = canvas.Canvas(response, pagesize=letter)
     width, height = letter
 
-    # 🎨 Fondo del PDF
-    p.setFillColorRGB(0.95, 0.9, 0.85)  # Color beige claro
+    # 🎨 Fondo minimalista
+    p.setFillColor(colors.HexColor("#FAF3E0"))  # Color crema suave
     p.rect(0, 0, width, height, fill=True, stroke=False)
 
-    # 🏆 Título centrado
+    # 🏆 Encabezado estilizado
+    titulo = f"📊 Informe de Actividades - {mes_actual} {año_actual}"
     p.setFont("Helvetica-Bold", 18)
-    p.setFillColor(colors.darkblue)
-    p.drawCentredString(width / 2, height - 60, f"📊 Informe de Actividades - {fecha_actual.strftime('%B %Y')}")
+    p.setFillColor(colors.HexColor("#6D4C41"))  # Marrón oscuro
+    p.drawCentredString(width / 2, height - 70, titulo)
 
-    # 📋 Definir columnas de la tabla
+    # Línea decorativa
+    p.setStrokeColor(colors.HexColor("#D7A86E"))
+    p.setLineWidth(2)
+    p.line(50, height - 75, width - 50, height - 75)
+
+    # 📋 Tabla de datos
     data = [["👤 Trabajador", "📌 Actividad", "📅 Fecha", "✅ Estado", "🌱 Plantación"]]
-    
     for actividad in actividades:
         data.append([
             actividad["usuario__first_name"],
             actividad["nombre_actividad"],
-            actividad["fecha"].strftime("%d-%m-%Y"),  # Formato de fecha
+            actividad["fecha"].strftime("%d-%m-%Y"),
             actividad["estado"],
             actividad["plantacion__nombre"]
         ])
 
-    # 🎨 Estilizar la tabla
-    table = Table(data, colWidths=[120, 130, 80, 80, 100])
+    table = Table(data, colWidths=[120, 140, 80, 80, 110])
     table.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.darkblue),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#FFD6B3")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#6D4C41")),
         ("ALIGN", (0, 0), (-1, -1), "CENTER"),
         ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
         ("FONTSIZE", (0, 0), (-1, 0), 12),
         ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
-        ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
-        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+        ("GRID", (0, 0), (-1, -1), 1, colors.HexColor("#D7A86E")),
     ]))
 
-    # 📍 Posicionar la tabla
     table.wrapOn(p, width, height)
-    table.drawOn(p, 50, height - 200)
+    table.drawOn(p, 40, height - 160)
 
     p.save()
     return response
-
 
 
 

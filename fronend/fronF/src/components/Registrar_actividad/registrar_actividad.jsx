@@ -239,12 +239,29 @@ const RegistroActividades = ({ onActividadAgregada }) => {
 
                   <div className="mb-3">
                     <label className="form-label">Fecha Estimada</label>
-                    <input type="date" className="form-control" name="fechaEstimada" value={actividad.fechaEstimada} onChange={handleChange} required />
+                    <input
+                      type="date"
+                      className="form-control"
+                      name="fechaEstimada"
+                      value={actividad.fechaEstimada}
+                      onChange={handleChange}
+                      min={new Date().toISOString().split("T")[0]} // Evita fechas pasadas
+                      required
+                    />
+
                   </div>
 
                   <div className="mb-3">
                     <label className="form-label">Fecha de Vencimiento</label>
-                    <input type="date" className="form-control" name="fechaVencimiento" value={actividad.fechaVencimiento} onChange={handleChange} required />
+                    <input
+                      type="date"
+                      className="form-control"
+                      name="fechaVencimiento"
+                      value={actividad.fechaVencimiento}
+                      onChange={handleChange}
+                      min={new Date().toISOString().split("T")[0]} // Evita fechas pasadas
+                      required
+                    />
                   </div>
 
                   <button type="submit" className="btn w-100" style={{backgroundColor: "#d17c53"}}>

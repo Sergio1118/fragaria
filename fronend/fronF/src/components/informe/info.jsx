@@ -62,6 +62,31 @@ function Informes() {
 
     fetchTrabajadores();
   }, []);
+  const handleDownloadPDF = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/descargar_informes_pdf/", {
+        method: "GET",
+        credentials: "include",
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error al descargar el informe");
+      }
+  
+      // Crear un enlace de descarga del PDF
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "informes_trabajadores.pdf";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      setMensaje({ text: error.message, type: "warning" });
+    }
+  };
 
   const handleDelete = async (id) => {
     
@@ -114,18 +139,46 @@ function Informes() {
           />
         </div>
       </div>
-      {/* Botón para descargar el informe en PDF */}
       <div className="text-center mb-4">
-          <a href="http://localhost:8000/descargar_informes_pdf/" className="btn btn-primary">
-            <i className="fas fa-file-pdf"></i> Descargar PDF
-          </a>
-        </div>
+        <button
+          onClick={handleDownloadPDF}
+          style={{
+            backgroundColor: "#d17c53",
+            color: "#ffff",
+            border: "2px solid rgb(255, 185, 153)",
+            borderRadius: "25px",
+            fontWeight: "bold",
+            transition: "background-color 0.3s ease",
+            minWidth: "250px",
+            maxWidth: "300px",
+            padding: "15px 20px",
+            fontSize: "15px",
+            boxShadow: "3px 3px 10px rgba(0, 0, 0, 0.2)",
+            cursor: "pointer",
+          }}
+          onMouseOver={(e) => (e.target.style.backgroundColor = "#c06d48")}
+          onMouseOut={(e) => (e.target.style.backgroundColor = "#d17c53")}
+        >
+          <i className="fas fa-file-pdf" style={{ marginRight: "10px" }}></i> Descargar PDF
+        </button>
+      </div>
 
-      {mensaje?.text && (
-        <div className={`alert alert-${mensaje.type} text-center mx-auto`} role="alert" style={{ maxWidth: '500px' }}>
-          {mensaje.text}
-        </div>
-      )}
+        {mensaje?.text && (
+          <div 
+            className={`alert alert-${mensaje.type} text-center mx-auto`} 
+            role="alert" 
+            style={{ 
+              maxWidth: "500px", 
+              backgroundColor: "red",  // Fondo rojo 
+              color: "white",  // Texto blanco para mejor visibilidad
+              fontWeight: "bold",  // Texto en negrita
+              padding: "10px",  // Espaciado interno
+              borderRadius: "8px" // Bordes redondeados
+            }}
+          >
+            {mensaje.text}
+          </div>
+        )}
 
       <div className="container">
         {isLoading ? (
