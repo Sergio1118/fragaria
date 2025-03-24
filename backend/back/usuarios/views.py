@@ -186,7 +186,7 @@ def password_reset_api(request):
                 # Renderizar el template del correo
                 subject = "Restablecimiento de contraseña"
                 context = {"user": user.first_name, "reset_link": reset_url}
-                html_message = render_to_string("email/email.html", context)
+                html_message = render_to_string("email/password.html", context)
 
                 # Enviar el correo con el template                                                                                                                                                                                            
                 send_mail(                                                                                                                                          

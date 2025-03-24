@@ -48,7 +48,13 @@ function Password() {
     let formErrors = {};
     const { password, confirmation } = formData;
 
-    if (!password) formErrors.password = "La contraseña es obligatoria.";
+    
+    if (!password) {
+      formErrors.password = "La contraseña es obligatoria.";
+  } else if (password.length < 8) {
+      formErrors.password = "La contraseña debe tener al menos 8 caracteres.";
+  }
+
     if (!confirmation) formErrors.confirmation = "La confirmación es obligatoria.";
     else if (password !== confirmation) formErrors.confirmation = "Las contraseñas no coinciden.";
 
@@ -109,9 +115,12 @@ function Password() {
                 className={`form-control border-2 rounded-pill ${errors.password ? "is-invalid" : ""}`}
                 placeholder="Nueva contraseña"
                 value={formData.password}
-                onChange={(e) => handleInputChange("password", e.target.value)}
+                onChange={(e) => {
+                  handleInputChange("password", e.target.value);
+                  setErrors((prevErrors) => ({ ...prevErrors, password: "" })); // Oculta el mensaje de error al escribir
+                }}
               />
-              {isTypingPassword && (
+              {!errors.password && formData.password.length > 0 &&(
                 <button
                   type="button"
                   className="btn position-absolute end-0 translate-middle-y me-3"
@@ -130,14 +139,18 @@ function Password() {
                 className={`form-control border-2 rounded-pill ${errors.confirmation ? "is-invalid" : ""}`}
                 placeholder="Confirmar contraseña"
                 value={formData.confirmation}
-                onChange={(e) => handleInputChange("confirmation", e.target.value)}
+                onChange={(e) => {
+                  handleInputChange("confirmation", e.target.value);
+                  setErrors((prevErrors) => ({ ...prevErrors, confirmation: "" })); // Oculta el mensaje de error al escribir
+                }}
               />
-              {isTypingConfirmation && (
+              {!errors.confirmation && formData.confirmation.length > 0 &&(
                 <button
                   type="button"
                   className="btn position-absolute end-0 translate-middle-y me-3"
                   style={{ top: "50%", transform: "translateY(-50%)", border: "none", color: "#7d3c2a" }}
                   onClick={() => setShowConfirmation(!showConfirmation)}
+                  
                 >
                   <i className={`fas ${showConfirmation ? "fa-eye-slash" : "fa-eye"}`}></i>
                 </button>

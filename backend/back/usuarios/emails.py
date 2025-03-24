@@ -1,24 +1,26 @@
 # usuarios/emails.py
 from django.core.mail import send_mail
 from django.conf import settings
-
-from django.core.mail import send_mail
-from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 def notificar_actividad(usuario, actividad):
-    # Componer el mensaje
+    # Renderizar la plantilla HTML
     subject = 'Nueva actividad pendiente'
+    html_message = render_to_string('email/notification.html', {
+        'usuario': usuario,
+        'actividad': actividad,
+    })
     
-    # Cambiar 'usuario.username' por 'usuario.first_name' o 'usuario.email' según sea necesario
-    message = f'Hola {usuario.first_name},\n\nSe te ha asignado una nueva actividad pendiente:\n\n' \
-              f'Actividad: {actividad.nombre_actividad}\nDescripción: {actividad.descripcion}\nFecha límite: {actividad.fecha_vencimiento}\n\n' \
-              'No olvides completarla a tiempo.'
+    # Crear una versión en texto plano del mensaje HTML
+    plain_message = strip_tags(html_message)
     
     # Enviar el correo
     send_mail(
         subject,
-        message,
+        plain_message,
         settings.EMAIL_HOST_USER,  # Remitente, el correo configurado en settings.py
         [usuario.email],  # Destinatario, el correo del usuario
+        html_message=html_message,  # Mensaje HTML
         fail_silently=False,
     )

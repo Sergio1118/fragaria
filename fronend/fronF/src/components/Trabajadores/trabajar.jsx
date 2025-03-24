@@ -199,6 +199,14 @@ const AgregarTrabajador = () => {
             setTrabajadores([...trabajadores, data]);
             fetchTrabajadores(); 
             setMessage({ type: "success", text: "Trabajador registrado con éxito" });
+
+            // **Esperar a que el mensaje se muestre antes de limpiar**
+            setTimeout(() => {
+              setFormData({ nombre: "", apellido: "", email: "", password: "", confirmation: "" });
+              setIsFormVisible(false);
+              setEditIndex(null);
+          }, 500);
+          
         } catch (error) {
             console.error("Error:", error);
             setMessage({ type: "danger", text: error.message });

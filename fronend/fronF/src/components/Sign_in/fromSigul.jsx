@@ -64,7 +64,10 @@ function FromSigul() {
   
       if (response.ok) {
         setMessage({ text: "Registro exitoso. Ahora puedes iniciar sesión.", type: "success" });
-        setTimeout(() => window.location.href = "/", 3000); // Redirigir después de 3 segundos
+        setFormData({ first_name: "", last_name: "", email: "", password1: "", password2: "" });
+        setTimeout(() => {
+          window.location.href = "/dashprincipal";
+        }, 3000); // Redirigir después de 3 segundos
       } else {
         setMessage({ text: data.errors ? Object.values(data.errors).join(", ") : "Error en el registro.", type: "danger" });
       }
@@ -166,6 +169,7 @@ function FromSigul() {
               {["first_name", "last_name", "email"].map(field => (
                 <div key={field} className="mb-3">
                   <input
+                    value={formData[field] || ""} 
                     type={field === "email" ? "email" : "text"}
                     className={`form-control border-2 rounded-pill ${errors[field] ? "is-invalid" : ""}`}
                     placeholder={field === "email" ? "Correo electrónico" : (field === "first_name" ? "Nombre" : "Apellido")}
@@ -179,6 +183,7 @@ function FromSigul() {
             {["password1", "password2"].map(field => (
               <div key={field} className="mb-3 position-relative">
                 <input
+                  value={formData[field] || ""} 
                   type={showPasswords[field] ? "text" : "password"}
                   className={`form-control border-2 rounded-pill ${errors[field] ? "is-invalid" : ""}`}
                   placeholder={field === "password2" ? "Confirmar contraseña" : "Contraseña"}
