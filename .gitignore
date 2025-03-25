@@ -1,6 +1,21 @@
 entorno/
+# Node.js
 node_modules/
-package-lock.json/
-package.json/
-vite.config.js/
+package-lock.json
+*.log
+
+# Vite
+/dist
+
+# Python
 __pycache__/
+*.pyc
+
+# IDEs y editores
+.vscode/
+.idea/
+
+# Archivos generados
+.DS_Store
+Thumbs.db
+
