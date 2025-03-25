@@ -170,9 +170,22 @@ const Calendario_admin = () => {
                     </Button>
                   </div>
                   {estado && (
-                    <ul className="mt-2">
+                    <ul className="mt-2"style={{
+                      maxHeight: '300px',
+                      overflowY: 'auto',
+                      paddingRight: '10px',
+                      marginTop: '10px',
+                      listStyle: 'none',
+                      paddingLeft: '0'
+                    }}>
                       {lista.map((item, i) => (
-                        <li key={i}>
+                        <li key={i}
+                        style={{
+                          marginBottom: '10px',
+                          padding: '8px',
+                          backgroundColor: '#f8f9fa',
+                          borderRadius: '4px'
+                        }}>
                           {!esPlantacion && (
                             <>
                               <strong>{item.nombre_actividad}</strong> <br />

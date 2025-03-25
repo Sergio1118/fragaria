@@ -120,9 +120,23 @@ const Calendario_trabajador = () => {
                     </Button>
                   </div>
                   {estado && (
-                    <ul className="mt-2">
+                    <ul className="mt-2"
+                      style={{
+                        maxHeight: '300px',
+                        overflowY: 'auto',
+                        paddingRight: '10px',
+                        marginTop: '10px',
+                        listStyle: 'none',
+                        paddingLeft: '0'
+                      }}>
                       {lista.map((item, i) => (
-                        <li key={i}>
+                        <li key={i}
+                        style={{
+                          marginBottom: '10px',
+                          padding: '8px',
+                          backgroundColor: '#f8f9fa',
+                          borderRadius: '4px'
+                        }}>
                         <strong>{item.nombre_actividad}</strong><br />
                         📅 {item.fecha}<br />
                         🌱 Plantación: <strong>{item.nombre_plantacion}</strong> {/* Agregado */} <hr className="my-3 border-dark" />

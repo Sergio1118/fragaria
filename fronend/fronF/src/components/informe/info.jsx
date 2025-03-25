@@ -39,17 +39,35 @@ function Informes() {
           headers: { "Content-Type": "application/json" },
           credentials: "include",
         });
-
+  
         if (!response.ok) throw new Error("Error en la respuesta del servidor");
-
+  
         const data = await response.json();
         console.log("Datos recibidos:", data);
-
+  
         if (data?.actividades && Array.isArray(data.actividades)) {
-          console.log("Estructura de actividades:", data.actividades); // <-- 🔍 Verifica la estructura
-          setTrabajadores(data.actividades);
+          // Agrupar actividades por trabajador
+          const grouped = data.actividades.reduce((acc, actividad) => {
+            const key = actividad.usuario__first_name;
+            if (!acc[key]) {
+              acc[key] = {
+                id: actividad.id, // Puedes usar el primer ID o generar uno único
+                usuario: actividad.usuario__first_name,
+                actividades: []
+              };
+            }
+            acc[key].actividades.push({
+              id: actividad.id,
+              nombre_actividad: actividad.nombre_actividad,
+              descripcion: actividad.descripcion,
+              fecha: actividad.fecha,
+              estado: actividad.estado
+            });
+            return acc;
+          }, {});
+  
+          setTrabajadores(Object.values(grouped));
         } else {
-          console.error("La estructura de la respuesta no es válida:", data);
           setTrabajadores([]);
         }
       } catch (error) {
@@ -59,9 +77,9 @@ function Informes() {
         setIsLoading(false);
       }
     };
-
     fetchTrabajadores();
   }, []);
+
   const handleDownloadPDF = async () => {
     try {
       const response = await fetch("http://localhost:8000/descargar_informes_pdf/", {
@@ -97,9 +115,15 @@ function Informes() {
       });
   
       if (!response.ok) throw new Error("Error al eliminar la actividad");
-  
-      setTrabajadores(trabajadores.filter((actividad) => actividad.id !== id));
-      setMensaje({ text: "Actividad eliminada con éxito", type: "success" });
+
+      // Actualiza el estado eliminando solo la actividad específica
+      setTrabajadores(prev => prev.map(trabajador => ({
+        ...trabajador,
+        actividades: trabajador.actividades.filter(act => act.id !== id)
+      })).filter(trabajador => trabajador.actividades.length > 0)); // Elimina trabajadores sin actividades
+
+        //setTrabajadores(trabajadores.filter((actividad) => actividad.id !== id));
+        setMensaje({ text: "Actividad eliminada con éxito", type: "success" });
     } catch (error) {
       console.error("Error al eliminar:", error);
       setMensaje({ text: "Error al eliminar la actividad", type: "danger" });
@@ -107,10 +131,9 @@ function Informes() {
     setTimeout(() => setMensaje(null), 3000);
   };
   
-
   // Filtrar trabajadores según la búsqueda
-  const trabajadoresFiltrados = trabajadores.filter((actividad) =>
-    actividad.usuario__first_name.toLowerCase().includes(searchTerm.toLowerCase())
+  const trabajadoresFiltrados = trabajadores.filter((trabajador) =>
+    trabajador.usuario.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -185,39 +208,43 @@ function Informes() {
           <p className="text-center">Cargando trabajadores...</p>
         ) : trabajadoresFiltrados.length > 0 ? (
           <div className="row justify-content-center">
-            {trabajadoresFiltrados.map((actividad) => (
-              <div key={actividad.id} className="col-md-6 col-lg-4 mb-5">
+            {trabajadoresFiltrados.map((trabajador) => (
+              <div key={trabajador.id} className="col-md-6 col-lg-4 mb-5">
                 <div className="card shadow-lg rounded-4 p-3 bg-white" style={styles.card}>
                   <div className="card-body text-center">
                     <h5 className="fw-bold" style={{ color: "#4b2215" }}>
-                      {actividad.usuario__first_name}
+                      {trabajador.usuario}
                     </h5>
-                    <p className="text-muted small">Actividad: {actividad.nombre_actividad}</p>
-
+                   
                     <div className="d-flex justify-content-center mt-3">
-                      {/* Botón de Ver Más con ícono de ojito */}
-                      <button
-                        type="button"
-                        className="btn btn-outline-success mb-2"
-                        onClick={() => setExpandedId(expandedId === actividad.id ? null : actividad.id)}
-                      >
-                        <i className={`fa ${expandedId === actividad.id ? "fa-eye-slash" : "fa-eye"}`} />
-                      </button>
+                    <button
+                      type="button"
+                      className="btn btn-outline-success mb-2"
+                      onClick={() => setExpandedId(expandedId === trabajador.id ? null : trabajador.id)}
+                    >
+                      <i className={`fa ${expandedId === trabajador.id ? "fa-eye-slash" : "fa-eye"}`} />
+                    </button>
+                  </div>
 
-                      {/* Botón de Eliminar con ícono de papelera */}
-                      <button className="btn btn-outline-danger" onClick={() => handleDelete(actividad.id)}>
-                        <i className="fas fa-trash"></i>
-                      </button>
-                    </div>
-
-                    {/* Información adicional cuando se expande la tarjeta */}
-                    {expandedId === actividad.id && (
-                      <div className="mt-3 p-2 border-top">
-                        <p className="text-muted small"><strong>Descripción:</strong> {actividad.descripcion}</p>
-                        <p className="text-muted small"><strong>Fecha:</strong> {actividad.fecha}</p>
-                        <p className="text-muted small"><strong>Estado:</strong> {actividad.estado}</p>
-                        <p className="text-muted small"><strong>Plantación:</strong> {actividad.plantacion__nombre}</p>
-
+                    {expandedId === trabajador.id && (
+                      <div className="mt-3">
+                        <div className="scrollable-actividades" style={{ maxHeight: "300px", overflowY: "auto" }}>
+                          {trabajador.actividades.map((actividad) => (
+                            <div key={actividad.id} className="p-3 mb-2 border rounded">
+                              <p className="fw-bold">{actividad.nombre_actividad}</p>
+                              <p className="small"><strong>Descripción:</strong> {actividad.descripcion}</p>
+                              <p className="small"><strong>Fecha:</strong> {actividad.fecha}</p>
+                              <p className="small"><strong>Estado:</strong> {actividad.estado}</p>
+                              <p className="text-muted small"><strong>Plantación:</strong> {actividad.plantacion__nombre}</p>
+                              <button 
+                                className="btn btn-sm btn-outline-danger"
+                                onClick={() => handleDelete(actividad.id)}
+                              >
+                                <i className="fas fa-trash"></i> Eliminar
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
