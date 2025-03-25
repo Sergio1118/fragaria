@@ -61,7 +61,8 @@ function Informes() {
               nombre_actividad: actividad.nombre_actividad,
               descripcion: actividad.descripcion,
               fecha: actividad.fecha,
-              estado: actividad.estado
+              estado: actividad.estado,
+              plantacion__nombre: actividad.plantacion__nombre
             });
             return acc;
           }, {});

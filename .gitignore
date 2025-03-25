@@ -1,1 +1,6 @@
 entorno/
+node_modules/
+package-lock.json/
+package.json/
+vite.config.js/
+__pycache__/

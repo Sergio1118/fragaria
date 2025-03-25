@@ -38,7 +38,7 @@ const RegistroActividades = ({ onActividadAgregada }) => {
       const timer = setTimeout(() => {
         setError(null);
         setSuccess(null);
-      }, 3000);
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [error, success]);

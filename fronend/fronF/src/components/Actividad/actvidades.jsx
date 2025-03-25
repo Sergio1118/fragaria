@@ -19,7 +19,7 @@ const styles = {
   },
 };
 
-function Actividades() {
+function Actividad_admin() {
   const [actividades, setActividades] = useState([]);
   const [editando, setEditando] = useState(null);
   const [editData, setEditData] = useState({ fecha: "", fecha_vencimiento: "" });
@@ -247,4 +247,4 @@ function Actividades() {
 }
 
 
-export default Actividades;
+export default Actividad_admin;

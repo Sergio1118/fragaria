@@ -86,12 +86,12 @@ function Dash_rol() {
         {esAdmin ? <Navbaradmin/> : <Navbaruser/>}
         <div className="container text-center mt-5 my-5">
           <h2 className="fw-bold mt-5" style={{ color: "#4b2215"}}>¡ Hola, {name} !</h2>
-          <p className="fs-4 fw-bold fst-italic mt-5" style={{ color: "#4b2215"}}>
+          <p className="fs-4 fw-bold fst-italic mt-5 mb-5" style={{ color: "#4b2215"}}>
             Fragaria: Tecnología y naturaleza al servicio de los agricultores.
           </p>
 
           {/* Carrusel de imágenes con consejos esenciales para fresas */}
-          <div className="mx-auto" style={{ maxWidth: "600px" }}>
+          <div className="mx-auto" style={{ maxWidth: "800px" }}>
             <div id="carouselFresas" className="carousel slide mt-4" data-bs-ride="carousel">
               <div className="carousel-inner">
                 <div className="carousel-item active">

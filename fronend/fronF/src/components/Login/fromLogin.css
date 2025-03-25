@@ -42,6 +42,7 @@ body, html {
   margin-bottom: 15px; /* Menor espacio entre los campos */
   border-radius: 10px;
   color: rgb(255, 64, 31);
+  justify-content: center;
 }
 
 .form-control {

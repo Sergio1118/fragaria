@@ -78,11 +78,12 @@ function Dashboard() {
               )}
             </div>
           )}
+            
         </div>
+        <Footer style={styles.footerContainer} />
+          
+        
       </div>
-        <div>
-          <Footer style={styles.footerContainer} />
-        </div>
     </div>
   );
 }

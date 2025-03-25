@@ -801,8 +801,7 @@ def informes(request):
 
 
 
-from django.utils.timezone import now
-from django.contrib import messages
+
 
 @login_required
 def descargar_informes_pdf(request):
@@ -877,7 +876,10 @@ def descargar_informes_pdf(request):
     ]))
 
     table.wrapOn(p, width, height)
-    table.drawOn(p, 40, height - 160)
+    
+    # Ajustar la posición de la tabla para agregar espacio entre el título y la tabla
+    espacio_adicional = 40  # Ajusta este valor para obtener el espacio que necesitas
+    table.drawOn(p, 40, height - 160 - espacio_adicional)
 
     p.save()
     return response
