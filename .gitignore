@@ -1,8 +1,6 @@
 **/__pycache__/
 **/node_modules/
 **/entorno/
-fronend/package-lock.json
-fronend/package.json
-fronend/fronF/package-lock.json
-fronend/fronF/package.json
-fronend/fronF/vite.config.js
+**/package-lock.json/
+**/package.json/
+**/vite.config.js/
