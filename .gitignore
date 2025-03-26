@@ -1,21 +1,8 @@
-entorno/
-# Node.js
-node_modules/
-package-lock.json
-*.log
-
-# Vite
-/dist
-
-# Python
-__pycache__/
-*.pyc
-
-# IDEs y editores
-.vscode/
-.idea/
-
-# Archivos generados
-.DS_Store
-Thumbs.db
-
+**/__pycache__/
+**/node_modules/
+**/entorno/
+fronend/package-lock.json
+fronend/package.json
+fronend/fronF/package-lock.json
+fronend/fronF/package.json
+fronend/fronF/vite.config.js
